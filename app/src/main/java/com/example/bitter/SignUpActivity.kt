@@ -26,7 +26,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bitter.ui.theme.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
 import org.json.JSONObject
+import java.io.IOException
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -244,27 +248,38 @@ fun SignUp() {
                             regForm.put("uname", username)
                             regForm.put("passwd1", password1)
 
-                            val ret = postForm(regForm)
+                            postForm(regForm, callback = object : Callback{
+                                override fun onFailure(call: Call, e: IOException) {
+                                    e.printStackTrace()
+                                }
 
-                            when(ret.getString("status")){
-                                "success" -> {
-                                    val uname = ret.getString("uname")
-                                    val key = ret.getString("key")
-                                    val intent = Intent(context,MainActivity::class.java)
-                                    intent.putExtra("uname",uname)
-                                    intent.putExtra("key",key)
-                                    //TODO: Start nextactivity
+                                override fun onResponse(call: Call, response: Response) {
+                                    val responseString = String(response.body!!.bytes())
+                                    val ret = JSONObject(responseString)
+                                    when(ret.getString("status")){
+                                        "success" -> {
+                                            val uname = ret.getString("uname")
+                                            val key = ret.getString("key")
+                                            val intent = Intent(context,MainActivity::class.java)
+                                            intent.putExtra("uname",uname)
+                                            intent.putExtra("key",key)
+                                            //TODO: Start nextactivity
+                                        }
+                                        "alreadyuser" -> {
+                                            errortext = "Username already exists"
+                                        }
+                                        "alreadyemail" -> {
+                                            errortext = "Email already exists"
+                                        }
+                                        else -> {
+                                            errortext = ret.getString("status")
+                                        }
+                                    }
                                 }
-                                "alreadyuser" -> {
-                                    errortext = "Username already exists"
-                                }
-                                "alreadyemail" -> {
-                                    errortext = "Email already exists"
-                                }
-                                else -> {
-                                    errortext = ret.getString("status")
-                                }
-                            }
+
+                            })
+
+
 
                         } else {
                             errortext = "Passwords do not match"

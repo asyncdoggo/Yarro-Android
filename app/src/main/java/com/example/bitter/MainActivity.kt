@@ -1,6 +1,7 @@
 package com.example.bitter
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -25,7 +26,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
+import java.io.IOException
 
 
 class MainActivity : ComponentActivity() {
@@ -200,28 +206,34 @@ fun LoginPage() {
                         loginForm.put("subject", "login")
                         loginForm.put("uname", username)
                         loginForm.put("passwd", password)
-                        val ret = postForm(loginForm)
-
-                        when(ret.getString("status")){
-                            "success" -> {
-                                val key = ret.getString("key")
-                                val uname = ret.getString("uname")
-                                val intent = Intent(context,MainActivity::class.java)
-                                intent.putExtra("key", key);
-                                intent.putExtra("uname", uname);
-                                //TODO: START NEXTACTIVITY
+                        postForm(loginForm, callback = object : Callback{
+                            override fun onFailure(call: Call, e: IOException) {
+                                e.printStackTrace()
                             }
-                            "badpasswd" -> {
-                                errortext = "Username or password is incorrect"
+                            override fun onResponse(call: Call, response: Response) {
+                                val responseString = String(response.body!!.bytes())
+                                val ret = JSONObject(responseString)
+                                when(ret.getString("status")){
+                                    "success" -> {
+                                        val key = ret.getString("key")
+                                        val uname = ret.getString("uname")
+                                        val intent = Intent(context,MainActivity::class.java)
+                                        intent.putExtra("key", key);
+                                        intent.putExtra("uname", uname);
+                                        //TODO: START NEXTACTIVITY
+                                    }
+                                    "badpasswd" -> {
+                                        errortext = "Username or password is incorrect"
+                                    }
+                                    else -> {
+                                        errortext = "Unknown Error"
+                                    }
+
+
+                                }
                             }
-                            else -> {
-                                errortext = "Unknown Error"
-                            }
 
-
-                        }
-
-
+                        })
 
                     },
                     shape = RoundedCornerShape(40.dp),

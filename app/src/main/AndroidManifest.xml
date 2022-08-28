@@ -13,19 +13,18 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Dropdown"
+        android:theme="@style/Theme.Bitter"
         tools:targetApi="31">
         <activity
-            android:name="bitter.ResetPassActivity"
+            android:name="com.example.bitter.ResetPassActivity"
             android:exported="false" />
         <activity
-            android:name="bitter.SignUpActivity"
+            android:name="com.example.bitter.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name="bitter.MainActivity"
+            android:name="com.example.bitter.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Dropdown">
+            android:theme="@style/Theme.Bitter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
