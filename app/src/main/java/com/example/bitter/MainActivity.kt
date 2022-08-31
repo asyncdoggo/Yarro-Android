@@ -1,7 +1,9 @@
 package com.example.bitter
+
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Log
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -17,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,22 +29,27 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
            LoginPage()
             }
         }
-        
+
     }
 
 
@@ -60,6 +68,7 @@ fun LoginPage() {
     var errortext by remember {
         mutableStateOf("")
     }
+    val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
@@ -78,9 +87,9 @@ fun LoginPage() {
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-            
+
             Spacer(modifier = Modifier.padding(50.dp))
-            
+
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
@@ -206,34 +215,37 @@ fun LoginPage() {
                         loginForm.put("subject", "login")
                         loginForm.put("uname", username)
                         loginForm.put("passwd", password)
-                        postForm(loginForm, callback = object : Callback{
-                            override fun onFailure(call: Call, e: IOException) {
-                                e.printStackTrace()
+
+                            coroutineScope.launch(IO) {
+                                postForm(loginForm, callback = object : Callback {
+                                    override fun onFailure(call: Call, e: IOException) {
+                                        e.printStackTrace()
+                                    }
+
+                                    override fun onResponse(call: Call, response: Response) {
+                                        val responseString = String(response.body.bytes())
+                                        val ret = JSONObject(responseString)
+                                        when (ret.getString("status")) {
+                                            "success" -> {
+                                                val key = ret.getString("key")
+                                                val uname = ret.getString("uname")
+                                                val intent =
+                                                    Intent(context, PostActivity::class.java)
+                                                intent.putExtra("key", key);
+                                                intent.putExtra("uname", uname);
+                                                context.startActivity(intent)
+                                            }
+                                            "badpasswd" -> {
+                                                errortext = "Username or password is incorrect"
+                                            }
+                                            else -> {
+                                                errortext = "Unknown Error"
+                                            }
+                                        }
+                                    }
+
+                                })
                             }
-                            override fun onResponse(call: Call, response: Response) {
-                                val responseString = String(response.body!!.bytes())
-                                val ret = JSONObject(responseString)
-                                when(ret.getString("status")){
-                                    "success" -> {
-                                        val key = ret.getString("key")
-                                        val uname = ret.getString("uname")
-                                        val intent = Intent(context,MainActivity::class.java)
-                                        intent.putExtra("key", key);
-                                        intent.putExtra("uname", uname);
-                                        //TODO: START NEXTACTIVITY
-                                    }
-                                    "badpasswd" -> {
-                                        errortext = "Username or password is incorrect"
-                                    }
-                                    else -> {
-                                        errortext = "Unknown Error"
-                                    }
-
-
-                                }
-                            }
-
-                        })
 
                     },
                     shape = RoundedCornerShape(40.dp),
