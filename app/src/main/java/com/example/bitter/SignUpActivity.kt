@@ -260,10 +260,10 @@ fun SignUp() {
                                         "success" -> {
                                             val uname = ret.getString("uname")
                                             val key = ret.getString("key")
-                                            val intent = Intent(context,MainActivity::class.java)
+                                            val intent = Intent(context,UserDetailActivity::class.java)
                                             intent.putExtra("uname",uname)
                                             intent.putExtra("key",key)
-                                            //TODO: Start nextactivity
+                                            context.startActivity(intent)
                                         }
                                         "alreadyuser" -> {
                                             errortext = "Username already exists"

@@ -1,5 +1,6 @@
 package com.example.bitter
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bitter.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 class ResetPassActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +39,9 @@ class ResetPassActivity : ComponentActivity() {
 @Composable
 fun ResetPage() {
     var email by remember {
+        mutableStateOf("")
+    }
+    var errortext by remember {
         mutableStateOf("")
     }
 
@@ -84,7 +95,34 @@ fun ResetPage() {
             )
 
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    val forgotPassForm = JSONObject()
+                    forgotPassForm.put("subject", "forgotpass")
+                    forgotPassForm.put("email", email)
+
+                        postForm(forgotPassForm, callback = object : Callback {
+                            override fun onFailure(call: Call, e: IOException) {
+                                e.printStackTrace()
+                            }
+
+                            override fun onResponse(call: Call, response: Response) {
+                                val responseString = String(response.body.bytes())
+                                val ret = JSONObject(responseString)
+                                when (ret.getString("status")) {
+                                    "success" -> {
+                                        errortext = "Email sent successfully"
+                                    }
+                                    "noemail" -> {
+                                        errortext = "Email not found"
+                                    }
+                                    else -> {
+                                        errortext = "Unknown Error"
+                                    }
+                                }
+                            }
+
+                        })
+                },
                 shape = RoundedCornerShape(40.dp),
                 modifier = Modifier
                     .padding(start = 15.dp, end = 15.dp)
@@ -101,6 +139,15 @@ fun ResetPage() {
                     fontSize = 20.sp
                 )
             }
+
+
+            Text(
+                text = errortext,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(40.dp)
+            )
 
         }
     }
