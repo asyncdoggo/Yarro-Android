@@ -23,8 +23,10 @@ import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 class ResetPassActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,16 +110,24 @@ fun ResetPage() {
                             override fun onResponse(call: Call, response: Response) {
                                 val responseString = String(response.body.bytes())
                                 val ret = JSONObject(responseString)
-                                when (ret.getString("status")) {
-                                    "success" -> {
-                                        errortext = "Email sent successfully"
+                                try {
+                                    when (ret.getString("status")) {
+                                        "success" -> {
+                                            errortext = "Email sent successfully"
+                                        }
+                                        "noemail" -> {
+                                            errortext = "Email not found"
+                                        }
+                                        else -> {
+                                            errortext = "Unknown Error"
+                                        }
                                     }
-                                    "noemail" -> {
-                                        errortext = "Email not found"
-                                    }
-                                    else -> {
-                                        errortext = "Unknown Error"
-                                    }
+                                }
+                                catch(e:JSONException){
+                                    e.printStackTrace()
+                                }
+                                catch (e: SocketTimeoutException){
+                                    errortext = "Network Error"
                                 }
                             }
 
