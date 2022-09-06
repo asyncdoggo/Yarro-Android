@@ -43,14 +43,17 @@ import okhttp3.Callback
 import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 class UserDetailActivity : ComponentActivity() {
     var uname:String = ""
     var key :String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        uname = intent.getStringExtra("uname").toString()
+        key = intent.getStringExtra("key").toString()
         setContent{
-
+            UserDetails()
         }
     }
 
@@ -268,7 +271,7 @@ class UserDetailActivity : ComponentActivity() {
                     Button(
                         onClick = {
                             val regForm = JSONObject()
-                            regForm.put("subject", "reg2_data")
+                            regForm.put("subject", "udetails")
                             regForm.put("key", key)
                             regForm.put("uname", uname)
                             regForm.put("fname", firstname)
@@ -283,19 +286,23 @@ class UserDetailActivity : ComponentActivity() {
                                 }
 
                                 override fun onResponse(call: Call, response: Response) {
-                                    val responseString = String(response.body.bytes())
-                                    val ret = JSONObject(responseString)
-                                    when(ret.getString("status")){
-                                        "success" -> {
-                                            val intent = Intent(context,PostActivity::class.java)
-                                            intent.putExtra("uname",uname)
-                                            intent.putExtra("key",key)
-                                            context.startActivity(intent)
+                                    try {
+                                        val responseString = String(response.body.bytes())
+                                        val ret = JSONObject(responseString)
+                                        when (ret.getString("status")) {
+                                            "success" -> {
+                                                val intent = Intent(context, PostActivity::class.java)
+                                                intent.putExtra("uname", uname)
+                                                intent.putExtra("key", key)
+                                                context.startActivity(intent)
+                                            }
+                                            //TODO: on status badkey: logout
+                                            else -> {
+                                                errortext = ret.getString("status")
+                                            }
                                         }
-                                        //TODO: on status badkey: logout
-                                        else -> {
-                                            errortext = ret.getString("status")
-                                        }
+                                    }catch (e: SocketTimeoutException){
+                                        errortext = "Network Error"
                                     }
                                 }
 

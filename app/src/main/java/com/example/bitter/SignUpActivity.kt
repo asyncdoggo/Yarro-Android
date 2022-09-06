@@ -29,8 +29,10 @@ import com.example.bitter.ui.theme.*
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -254,33 +256,39 @@ fun SignUp() {
                                 }
 
                                 override fun onResponse(call: Call, response: Response) {
-                                    val responseString = String(response.body!!.bytes())
+                                    val responseString = String(response.body.bytes())
                                     val ret = JSONObject(responseString)
-                                    when(ret.getString("status")){
-                                        "success" -> {
-                                            val uname = ret.getString("uname")
-                                            val key = ret.getString("key")
-                                            val intent = Intent(context,UserDetailActivity::class.java)
-                                            intent.putExtra("uname",uname)
-                                            intent.putExtra("key",key)
-                                            context.startActivity(intent)
+                                    try {
+                                        when (ret.getString("status")) {
+                                            "success" -> {
+                                                val uname = ret.getString("uname")
+                                                val key = ret.getString("key")
+                                                val intent =
+                                                    Intent(context, UserDetailActivity::class.java)
+                                                intent.putExtra("uname", uname)
+                                                intent.putExtra("key", key)
+                                                context.startActivity(intent)
+                                            }
+                                            "alreadyuser" -> {
+                                                errortext = "Username already exists"
+                                            }
+                                            "alreadyemail" -> {
+                                                errortext = "Email already exists"
+                                            }
+                                            else -> {
+                                                errortext = ret.getString("status")
+                                            }
                                         }
-                                        "alreadyuser" -> {
-                                            errortext = "Username already exists"
-                                        }
-                                        "alreadyemail" -> {
-                                            errortext = "Email already exists"
-                                        }
-                                        else -> {
-                                            errortext = ret.getString("status")
-                                        }
+                                    }
+                                    catch(e:JSONException){
+                                        e.printStackTrace()
+                                    }
+                                    catch (e: SocketTimeoutException){
+                                        errortext = "Network Error"
                                     }
                                 }
 
                             })
-
-
-
                         } else {
                             errortext = "Passwords do not match"
                         }
