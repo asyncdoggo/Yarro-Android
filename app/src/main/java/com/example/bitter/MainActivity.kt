@@ -1,9 +1,8 @@
 package com.example.bitter
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -19,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -29,24 +27,71 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+       // url
+        val url = intent.getStringExtra("url")
+        if (url != null) {
+            postUrl = "http://$url"
+        }
+        // url
+
         setContent {
-           LoginPage()
+            val context = LocalContext.current
+            val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+            val uname = keyPref.getString("uname",null)
+            val key = keyPref.getString("key",null)
+
+
+            if(key != null && uname != null) {
+                val loginForm = JSONObject()
+                loginForm.put("subject", "login")
+                loginForm.put("uname", uname)
+                loginForm.put("key", key)
+
+                postForm(loginForm, callback = object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        e.printStackTrace()
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        val responseString = String(response.body.bytes())
+                        val ret = JSONObject(responseString)
+                        try {
+                            when (ret.getString("status")) {
+                                "success" -> {
+                                    val retKey = ret.getString("key")
+                                    val retUname = ret.getString("uname")
+                                    val intent = Intent(context, PostActivity::class.java)
+                                    intent.putExtra("key", retKey)
+                                    intent.putExtra("uname", retUname)
+                                    context.startActivity(intent)
+                                }
+                                else -> {
+                                    println(ret.getString("status"))
+                                }
+                            }
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
+                        }
+                    }
+                })
+            }
+
+            LoginPage()
             }
         }
 
@@ -216,21 +261,21 @@ fun LoginPage() {
                         loginForm.put("uname", username)
                         loginForm.put("passwd", password)
 
-                            coroutineScope.launch(IO) {
-                                postForm(loginForm, callback = object : Callback {
-                                    override fun onFailure(call: Call, e: IOException) {
-                                        e.printStackTrace()
-                                    }
+                        coroutineScope.launch(IO) {
+                            postForm(loginForm, callback = object : Callback {
+                                override fun onFailure(call: Call, e: IOException) {
+                                    e.printStackTrace()
+                                }
 
-                                    override fun onResponse(call: Call, response: Response) {
-                                        val responseString = String(response.body.bytes())
-                                        val ret = JSONObject(responseString)
+                                override fun onResponse(call: Call, response: Response) {
+                                    val responseString = String(response.body.bytes())
+                                    val ret = JSONObject(responseString)
+                                    try{
                                         when (ret.getString("status")) {
                                             "success" -> {
                                                 val key = ret.getString("key")
                                                 val uname = ret.getString("uname")
-                                                val intent =
-                                                    Intent(context, PostActivity::class.java)
+                                                val intent = Intent(context, PostActivity::class.java)
                                                 intent.putExtra("key", key);
                                                 intent.putExtra("uname", uname);
                                                 context.startActivity(intent)
@@ -243,9 +288,16 @@ fun LoginPage() {
                                             }
                                         }
                                     }
+                                    catch (e : JSONException){
+                                        e.printStackTrace()
+                                    } catch (e: SocketTimeoutException){
+                                        errortext = "Network Error"
+                                    }
+                                }
 
-                                })
-                            }
+
+                            })
+                        }
 
                     },
                     shape = RoundedCornerShape(40.dp),
