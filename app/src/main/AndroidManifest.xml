@@ -28,7 +28,15 @@ package="Bitter">
         android:name="com.example.bitter.UserDetailActivity"
         android:exported="false" />
     <activity
+        android:name="com.example.bitter.ProfileActivity"
+        android:exported="false" />
+    <activity
         android:name="com.example.bitter.MainActivity"
+        android:exported="false" />
+
+
+    <activity
+        android:name="com.example.bitter.DebugActivity"
         android:exported="true"
         android:theme="@style/Theme.Bitter">
         <intent-filter>
