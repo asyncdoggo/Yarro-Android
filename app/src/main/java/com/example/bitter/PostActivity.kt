@@ -1,10 +1,14 @@
 package com.example.bitter
 
 import Bitter.R
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,18 +31,69 @@ import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 class PostActivity : ComponentActivity() {
-    private  var key: String = ""
-    private  var username: String = ""
+    private var key: String = ""
+    private var username: String = ""
+    private var logout:Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         key = intent.getStringExtra("key").toString()
         username = intent.getStringExtra("uname").toString()
+        var backPressedTime: Long = 0
+        logout = false
         setContent {
+            val keyPref = LocalContext.current.getSharedPreferences("authkey",Context.MODE_PRIVATE)
+            val editor = keyPref.edit()
+            editor.putString("uname",username)
+            editor.putString("key",key)
+            editor.apply()
             MainScreen()
+
+            val context = LocalContext.current
+            BackHandler {
+                val t = System.currentTimeMillis()
+
+                if (t - backPressedTime > 2000){
+                    backPressedTime = t
+                    Toast.makeText(context,"Press back again to logout",Toast.LENGTH_SHORT).show()
+                }
+                else{
+                    val postform = JSONObject()
+                    postform.put("subject","logout")
+                    postform.put("uname",username)
+                    postform.put("key",key)
+
+                    postForm(postform,callback = object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            e.printStackTrace()
+                        }
+                        override fun onResponse(call: Call, response: Response) {
+                            val responseString = String(response.body.bytes())
+                            val ret = JSONObject(responseString)
+                            try {
+                                when (ret.getString("status")) {
+                                    "success" -> {
+                                        logout = true
+                                        val intent = Intent(context,MainActivity::class.java)
+                                        context.startActivity(intent)
+                                    }
+                                    else -> {
+                                    }
+                                }
+                            }
+                            catch(e: JSONException){
+                                e.printStackTrace()
+                            }
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -57,10 +113,10 @@ class PostActivity : ComponentActivity() {
             mutableStateOf(false)
         }
         val listState = rememberLazyListState()
-        var lkey by remember {
-            mutableStateOf("")
-        }
+
         val coroutineScope = rememberCoroutineScope()
+
+        val context = LocalContext.current
 
 
         Column(
@@ -103,13 +159,47 @@ class PostActivity : ComponentActivity() {
                             ) {
                                 DropdownMenuItem(onClick = {
                                     expanded = false
-                                    //TODO:GOTO PROFILE
+                                    val intent = Intent(context,ProfileActivity::class.java)
+                                    intent.putExtra("uname",username)
+                                    intent.putExtra("key",key)
+                                    logout = true
+                                    context.startActivity(intent)
+
                                 }) {
                                     Text("Profile")
                                 }
                                 DropdownMenuItem(onClick = {
                                     expanded = false
-                                    //TODO: GOTO LOGOUT
+                                    val postform = JSONObject()
+                                    postform.put("subject","logout")
+                                    postform.put("uname",username)
+                                    postform.put("key",key)
+
+                                    postForm(postform,callback = object : Callback {
+                                        override fun onFailure(call: Call, e: IOException) {
+                                            e.printStackTrace()
+                                        }
+                                        override fun onResponse(call: Call, response: Response) {
+                                            val responseString = String(response.body.bytes())
+                                            val ret = JSONObject(responseString)
+                                            try {
+                                                when (ret.getString("status")) {
+                                                    "success" -> {
+                                                        logout = true
+                                                        val intent = Intent(context,MainActivity::class.java)
+                                                        intent.putExtra("uname",username)
+                                                        intent.putExtra("key",key)
+                                                        context.startActivity(intent)
+                                                    }
+                                                    else -> {
+                                                    }
+                                                }
+                                            }
+                                            catch(e: JSONException){
+                                                e.printStackTrace()
+                                            }
+                                        }
+                                    })
                                 }) {
                                     Text("Logout")
                                 }
@@ -126,27 +216,25 @@ class PostActivity : ComponentActivity() {
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(10.dp)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    LazyColumn(
-                        state = listState,
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.background(Color(0xFFA3CACD))
+                LazyColumn(
+                    state = listState,
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier)
+                {
 
-                    ){
-
-                        items(postItems) { item ->
-                            PostItem(
-                                username = item.username,
-                                content = item.content
-                            )
-                        }
-
+                    items(postItems) { item ->
+                        PostItem(
+                            username = item.username,
+                            content = item.content,
+                            lc = item.lc,
+                            cc = item.cc,
+                            key = key,
+                            postId = item.postId
+                        )
                     }
+
                 }
             }
 
@@ -163,17 +251,38 @@ class PostActivity : ComponentActivity() {
                 ) {
                     Button(
                         onClick = {
-                            /*TODO POST*/
-                            postItems.add(
-                                element = PostItemData(
-                                    username = "opal",
-                                    content = "This is a message"
-                                )
-                            )
-                            coroutineScope.launch{
+                            val postform = JSONObject()
+                            postform.put("subject", "sendpost")
+                            postform.put("uname", username)
+                            postform.put("key", key)
+                            postform.put("content",contentValue)
+                            coroutineScope.launch(IO){
+                                postForm(postform, callback = object : Callback {
+                                    override fun onFailure(call: Call, e: IOException) {
+                                        e.printStackTrace()
+                                    }
+                                    override fun onResponse(call: Call, response: Response) {
+                                        val responseString = String(response.body.bytes())
+                                        val ret = JSONObject(responseString)
+                                        try {
+                                            when (ret.getString("status")) {
+                                                "success" -> {
+                                                    Log.d("Post:", "success")
+                                                }
+                                                else -> {
+                                                }
+                                            }
+                                        }
+                                        catch(e:JSONException){
+                                            e.printStackTrace()
+                                        } catch (e: SocketTimeoutException){
+                                            Toast.makeText(context,"Network Error",Toast.LENGTH_LONG).show()
+                                            logout = true
+                                        }
+                                    }
+                                })
                                 listState.animateScrollToItem(postItems.size)
                             }
-
                         }
                     ) {
                         Text(
@@ -200,7 +309,7 @@ class PostActivity : ComponentActivity() {
             }
         }
 
-        LaunchedEffect(key1 = lkey, block = {
+        LaunchedEffect(key1 = true, block = {
             val postform = JSONObject()
             postform.put("subject", "getpost")
             postform.put("uname", username)
@@ -208,7 +317,7 @@ class PostActivity : ComponentActivity() {
 
             coroutineScope.launch(IO) {
                 while(true){
-
+                    if(logout) break
                 postForm(postform, callback = object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
                         e.printStackTrace()
@@ -217,37 +326,40 @@ class PostActivity : ComponentActivity() {
                     override fun onResponse(call: Call, response: Response) {
                         val responseString = String(response.body.bytes())
                         val ret = JSONObject(responseString)
-                        when (ret.getString("status")) {
-                            "success" -> {
-                                val usr = ret.getJSONArray("users")
-                                val posts = ret.getJSONArray("posts")
-                                postItems.clear()
-                                for(i in 0 until usr.length()){
-                                    postItems.add(
-                                        element = PostItemData(
-                                            username = usr[i] as String,
-                                            content = posts[i] as String
+                        try {
+                            when (ret.getString("status")) {
+                                "success" -> {
+                                    val data = ret.getJSONObject("data")
+                                    postItems.clear()
+                                    for (i in data.keys()) {
+                                        val item = data.getJSONObject(i)
+                                        postItems.add(
+                                            element = PostItemData(
+                                                postId = i,
+                                                username = item.getString("uname"),
+                                                userId = item.getString("uid"),
+                                                content = item.getString("content"),
+                                                lc = item.getString("lc"),
+                                                cc = item.getString("cc")
+                                            )
                                         )
-                                    )
+                                    }
+                                }
+                                else -> {
+                                    println(ret.getString("status"))
                                 }
                             }
-                            "badpasswd" -> {
-
-                            }
-                            else -> {
-
-                            }
+                        }
+                        catch(e:JSONException){
+                            e.printStackTrace()
                         }
                     }
-
                 })
-                    delay(3000)
+                    delay(5000)
                 }
             }
         })
 
     }
 
-
 }
-
