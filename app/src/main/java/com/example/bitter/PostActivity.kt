@@ -43,16 +43,13 @@ class PostActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        key = intent.getStringExtra("key").toString()
-        username = intent.getStringExtra("uname").toString()
+
         var backPressedTime: Long = 0
         logout = false
         setContent {
             val keyPref = LocalContext.current.getSharedPreferences("authkey",Context.MODE_PRIVATE)
-            val editor = keyPref.edit()
-            editor.putString("uname",username)
-            editor.putString("key",key)
-            editor.apply()
+            username = keyPref.getString("uname",null).toString()
+            key = keyPref.getString("key",null).toString()
             MainScreen()
 
             val context = LocalContext.current
@@ -187,8 +184,6 @@ class PostActivity : ComponentActivity() {
                                                     "success" -> {
                                                         logout = true
                                                         val intent = Intent(context,MainActivity::class.java)
-                                                        intent.putExtra("uname",username)
-                                                        intent.putExtra("key",key)
                                                         context.startActivity(intent)
                                                     }
                                                     else -> {
@@ -229,9 +224,10 @@ class PostActivity : ComponentActivity() {
                             username = item.username,
                             content = item.content,
                             lc = item.lc,
-                            cc = item.cc,
                             key = key,
-                            postId = item.postId
+                            postId = item.postId,
+                            isliked = item.isliked,
+                            byuser = item.byuser
                         )
                     }
 
@@ -251,37 +247,43 @@ class PostActivity : ComponentActivity() {
                 ) {
                     Button(
                         onClick = {
-                            val postform = JSONObject()
-                            postform.put("subject", "sendpost")
-                            postform.put("uname", username)
-                            postform.put("key", key)
-                            postform.put("content",contentValue)
-                            coroutineScope.launch(IO){
-                                postForm(postform, callback = object : Callback {
-                                    override fun onFailure(call: Call, e: IOException) {
-                                        e.printStackTrace()
-                                    }
-                                    override fun onResponse(call: Call, response: Response) {
-                                        val responseString = String(response.body.bytes())
-                                        val ret = JSONObject(responseString)
-                                        try {
-                                            when (ret.getString("status")) {
-                                                "success" -> {
-                                                    Log.d("Post:", "success")
+                            if(contentValue != "") {
+                                val postform = JSONObject()
+                                postform.put("subject", "sendpost")
+                                postform.put("uname", username)
+                                postform.put("key", key)
+                                postform.put("content", contentValue)
+                                coroutineScope.launch(IO) {
+                                    postForm(postform, callback = object : Callback {
+                                        override fun onFailure(call: Call, e: IOException) {
+                                            e.printStackTrace()
+                                        }
+
+                                        override fun onResponse(call: Call, response: Response) {
+                                            val responseString = String(response.body.bytes())
+                                            val ret = JSONObject(responseString)
+                                            try {
+                                                when (ret.getString("status")) {
+                                                    "success" -> {
+                                                        contentValue = ""
+                                                    }
+                                                    else -> {
+                                                    }
                                                 }
-                                                else -> {
-                                                }
+                                            } catch (e: JSONException) {
+                                                e.printStackTrace()
+                                            } catch (e: SocketTimeoutException) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Network Error",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                logout = true
                                             }
                                         }
-                                        catch(e:JSONException){
-                                            e.printStackTrace()
-                                        } catch (e: SocketTimeoutException){
-                                            Toast.makeText(context,"Network Error",Toast.LENGTH_LONG).show()
-                                            logout = true
-                                        }
-                                    }
-                                })
-                                listState.animateScrollToItem(postItems.size)
+                                    })
+                                    listState.animateScrollToItem(postItems.size)
+                                }
                             }
                         }
                     ) {
@@ -340,7 +342,8 @@ class PostActivity : ComponentActivity() {
                                                 userId = item.getString("uid"),
                                                 content = item.getString("content"),
                                                 lc = item.getString("lc"),
-                                                cc = item.getString("cc")
+                                                isliked = item.getInt("islike"),
+                                                byuser = username
                                             )
                                         )
                                     }

@@ -35,6 +35,7 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.Boolean
 
 var postUrl: String = "http://192.168.1.7:5005"
 
@@ -45,7 +46,8 @@ data class PostItemData(
     var userId:String,
     var content: String,
     var lc :String,
-    var cc:String
+    var isliked: Int,
+    var byuser: String
 )
 
 @Composable
@@ -53,17 +55,17 @@ fun PostItem(
     username : String,
     content: String,
     lc: String,
-    cc:String,
     key: String,
-    postId: String
+    postId: String,
+    isliked: Int,
+    byuser: String
 ) {
     var _lc = lc
-    val _cc = cc
     Row(
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
             .fillMaxWidth()
-            .border(border = BorderStroke(1.5.dp,color = Color.LightGray))
+            .border(border = BorderStroke(1.5.dp, color = Color.LightGray))
     ) {
         AsyncImage(
             model = "$postUrl/images/$username.png",
@@ -89,7 +91,7 @@ fun PostItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start=10.dp)
+                    .padding(start = 10.dp)
             ) {
                 Text(
                     text = content,
@@ -103,7 +105,7 @@ fun PostItem(
                 IconButton(onClick = {
                     val postform = JSONObject()
                     postform.put("subject","updatelc")
-                    postform.put("uname",username)
+                    postform.put("uname",byuser)
                     postform.put("key",key)
                     postform.put("pid",postId)
 
@@ -130,22 +132,31 @@ fun PostItem(
                         }
                     })
                 }) {
-                    Icon(imageVector = Icons.Default.ThumbUp, contentDescription = "Like Button")
+                    Icon(
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Like Button",
+                        tint = if(isliked == 1) Color.Blue else Color.Black
+                    )
                 }
                 Text(
                     text = _lc,
                     modifier = Modifier.padding(top = 15.dp)
                 )
-                Spacer(modifier = Modifier.padding(start = 30.dp, end = 30.dp))
-
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Comment, contentDescription = "Comment Button")
-                }
-                Text(
-                    text = _cc,
-                    Modifier.padding(top = 15.dp)
-                )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Text() {
+    PostItem(
+        username = "cat",
+        content = "Lorem ipsum",
+        lc = "10",
+        key = "",
+        postId = "",
+        isliked = 1,
+        ""
+    )
 }
