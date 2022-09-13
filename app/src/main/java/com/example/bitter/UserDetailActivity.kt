@@ -1,5 +1,6 @@
 package com.example.bitter
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -50,9 +51,10 @@ class UserDetailActivity : ComponentActivity() {
     var key :String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        uname = intent.getStringExtra("uname").toString()
-        key = intent.getStringExtra("key").toString()
         setContent{
+            val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+            uname = keyPref.getString("uname",null).toString()
+            key = keyPref.getString("key",null).toString()
             UserDetails()
         }
     }
@@ -60,6 +62,10 @@ class UserDetailActivity : ComponentActivity() {
     @Preview(showBackground = true)
     @Composable
     fun UserDetails() {
+
+        val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+        val editor = keyPref.edit()
+
         var firstname by remember {
             mutableStateOf("")
         }
@@ -292,13 +298,15 @@ class UserDetailActivity : ComponentActivity() {
                                         when (ret.getString("status")) {
                                             "success" -> {
                                                 val intent = Intent(context, PostActivity::class.java)
-                                                intent.putExtra("uname", uname)
-                                                intent.putExtra("key", key)
+                                                editor.putString("uname",uname)
+                                                editor.putString("key",key)
+                                                editor.apply()
                                                 context.startActivity(intent)
                                             }
                                             //TODO: on status badkey: logout
                                             else -> {
                                                 errortext = ret.getString("status")
+                                                println(errortext)
                                             }
                                         }
                                     }catch (e: SocketTimeoutException){

@@ -70,7 +70,6 @@ fun postImage(
             override fun onResponse(call: Call, response: Response) {
                 val responseString = String(response.body.bytes())
                 val ret = JSONObject(responseString)
-
                 println(ret)
             }
 

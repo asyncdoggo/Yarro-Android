@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-            val uname = keyPref.getString("uname",null)
-            val key = keyPref.getString("key",null)
+            val uname = null
+            val key = null
 
 
             if(key != null && uname != null) {
@@ -76,8 +76,10 @@ class MainActivity : ComponentActivity() {
                                     val retKey = ret.getString("key")
                                     val retUname = ret.getString("uname")
                                     val intent = Intent(context, PostActivity::class.java)
-                                    intent.putExtra("key", retKey)
-                                    intent.putExtra("uname", retUname)
+                                    val editor = keyPref.edit()
+                                    editor.putString("uname",uname)
+                                    editor.putString("key",key)
+                                    editor.apply()
                                     context.startActivity(intent)
                                 }
                                 else -> {
@@ -276,8 +278,11 @@ fun LoginPage() {
                                                 val key = ret.getString("key")
                                                 val uname = ret.getString("uname")
                                                 val intent = Intent(context, PostActivity::class.java)
-                                                intent.putExtra("key", key);
-                                                intent.putExtra("uname", uname);
+                                                val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+                                                val editor = keyPref.edit()
+                                                editor.putString("uname",uname)
+                                                editor.putString("key",key)
+                                                editor.apply()
                                                 context.startActivity(intent)
                                             }
                                             "badpasswd" -> {

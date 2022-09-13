@@ -1,5 +1,6 @@
 package com.example.bitter
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -46,6 +47,7 @@ class SignUpActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun SignUp() {
+    val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
 
     var username by remember {
         mutableStateOf("")
@@ -263,10 +265,11 @@ fun SignUp() {
                                             "success" -> {
                                                 val uname = ret.getString("uname")
                                                 val key = ret.getString("key")
-                                                val intent =
-                                                    Intent(context, UserDetailActivity::class.java)
-                                                intent.putExtra("uname", uname)
-                                                intent.putExtra("key", key)
+                                                val intent = Intent(context, UserDetailActivity::class.java)
+                                                val editor = keyPref.edit()
+                                                editor.putString("uname",uname)
+                                                editor.putString("key",key)
+                                                editor.apply()
                                                 context.startActivity(intent)
                                             }
                                             "alreadyuser" -> {

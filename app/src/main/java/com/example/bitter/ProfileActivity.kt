@@ -1,6 +1,7 @@
 package com.example.bitter
 
 import Bitter.R
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -55,8 +56,9 @@ class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            uname = intent.getStringExtra("uname").toString()
-            key = intent.getStringExtra("key").toString()
+            val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+            uname = keyPref.getString("uname",null).toString()
+            key = keyPref.getString("key",null).toString()
             removeCoilCache(LocalContext.current,"$postUrl/images/$uname.png")
             ProfilePage()
 
@@ -365,6 +367,9 @@ class ProfileActivity : ComponentActivity() {
                                 when (ret.getString("status")) {
                                     "success" -> {
                                         "Saved Successfully"
+                                    }
+                                    "mob" -> {
+                                        "Mobile number should be 10 digit number"
                                     }
                                     else -> {
                                         ret.getString("status")
