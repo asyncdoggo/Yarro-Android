@@ -1,13 +1,7 @@
 package com.example.bitter
 
-import android.content.ContentValues.TAG
 import android.content.Context
-import android.database.Cursor
 import android.graphics.Bitmap
-import android.net.Uri
-import android.provider.MediaStore
-import android.util.Log
-import androidx.core.net.toFile
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
 import coil.memory.MemoryCache
@@ -78,19 +72,19 @@ fun postImage(
 
 fun bitmapToPng(context: Context, bitmap:Bitmap): File {
     //create a file to write bitmap data
-    val f = File(context.cacheDir, "tempfile.png");
-    f.createNewFile();
+    val f = File(context.cacheDir, "tempfile.png")
+    f.createNewFile()
 
 //Convert bitmap to byte array
-    val bos = ByteArrayOutputStream();
-    bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-    val bitmapdata = bos.toByteArray();
+    val bos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+    val bitmapdata = bos.toByteArray()
 
 //write the bytes in file
-    val fos = FileOutputStream(f);
-    fos.write(bitmapdata);
-    fos.flush();
-    fos.close();
+    val fos = FileOutputStream(f)
+    fos.write(bitmapdata)
+    fos.flush()
+    fos.close()
 
     return f
 }

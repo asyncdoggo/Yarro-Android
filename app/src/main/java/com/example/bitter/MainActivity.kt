@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-            val uname = null
-            val key = null
+            val uname = keyPref.getString("uname",null)
+            val key = keyPref.getString("key",null)
 
 
             if(key != null && uname != null) {
@@ -77,8 +77,8 @@ class MainActivity : ComponentActivity() {
                                     val retUname = ret.getString("uname")
                                     val intent = Intent(context, PostActivity::class.java)
                                     val editor = keyPref.edit()
-                                    editor.putString("uname",uname)
-                                    editor.putString("key",key)
+                                    editor.putString("uname",retUname)
+                                    editor.putString("key",retKey)
                                     editor.apply()
                                     context.startActivity(intent)
                                 }

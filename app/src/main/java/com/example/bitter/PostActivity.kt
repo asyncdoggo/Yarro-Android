@@ -109,12 +109,12 @@ class PostActivity : ComponentActivity() {
         var expanded by remember {
             mutableStateOf(false)
         }
+
         val listState = rememberLazyListState()
 
         val coroutineScope = rememberCoroutineScope()
 
         val context = LocalContext.current
-
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -311,57 +311,56 @@ class PostActivity : ComponentActivity() {
             }
         }
 
-        LaunchedEffect(key1 = true, block = {
+        LaunchedEffect(key1 = true) {
             val postform = JSONObject()
             postform.put("subject", "getpost")
             postform.put("uname", username)
             postform.put("key", key)
 
             coroutineScope.launch(IO) {
-                while(true){
-                    if(logout) break
-                postForm(postform, callback = object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        val responseString = String(response.body.bytes())
-                        val ret = JSONObject(responseString)
-                        try {
-                            when (ret.getString("status")) {
-                                "success" -> {
-                                    val data = ret.getJSONObject("data")
-                                    postItems.clear()
-                                    for (i in data.keys()) {
-                                        val item = data.getJSONObject(i)
-                                        postItems.add(
-                                            element = PostItemData(
-                                                postId = i,
-                                                username = item.getString("uname"),
-                                                userId = item.getString("uid"),
-                                                content = item.getString("content"),
-                                                lc = item.getString("lc"),
-                                                isliked = item.getInt("islike"),
-                                                byuser = username
-                                            )
-                                        )
-                                    }
-                                }
-                                else -> {
-                                    println(ret.getString("status"))
-                                }
-                            }
-                        }
-                        catch(e:JSONException){
+                while (true) {
+                    if (logout) break
+                    postForm(postform, callback = object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
                             e.printStackTrace()
                         }
-                    }
-                })
-                    delay(5000)
+
+                        override fun onResponse(call: Call, response: Response) {
+                            val responseString = String(response.body.bytes())
+                            val ret = JSONObject(responseString)
+                            try {
+                                when (ret.getString("status")) {
+                                    "success" -> {
+                                        val data = ret.getJSONObject("data")
+                                        postItems.clear()
+                                        for (i in data.keys()) {
+                                            val item = data.getJSONObject(i)
+                                            postItems.add(
+                                                element = PostItemData(
+                                                    postId = i,
+                                                    username = item.getString("uname"),
+                                                    userId = item.getString("uid"),
+                                                    content = item.getString("content"),
+                                                    lc = item.getString("lc"),
+                                                    isliked = item.getInt("islike"),
+                                                    byuser = username
+                                                )
+                                            )
+                                        }
+                                    }
+                                    else -> {
+                                        println(ret.getString("status"))
+                                    }
+                                }
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    })
+                    delay(2500)
                 }
             }
-        })
+        }
 
     }
 
