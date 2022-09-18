@@ -44,7 +44,7 @@ fun postImage(
         .addFormDataPart("key",key)
         .addFormDataPart(
             "image",
-            filename = "$uname.png",
+            filename = uname,
             bitmapToPng(context,bitmap).asRequestBody("image/*".toMediaTypeOrNull())
         )
         .build()
@@ -72,7 +72,7 @@ fun postImage(
 
 fun bitmapToPng(context: Context, bitmap:Bitmap): File {
     //create a file to write bitmap data
-    val f = File(context.cacheDir, "tempfile.png")
+    val f = File(context.cacheDir, "tempfile")
     f.createNewFile()
 
 //Convert bitmap to byte array

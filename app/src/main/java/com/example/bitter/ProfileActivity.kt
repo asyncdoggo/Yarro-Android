@@ -59,7 +59,7 @@ class ProfileActivity : ComponentActivity() {
             val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
             uname = keyPref.getString("uname",null).toString()
             key = keyPref.getString("key",null).toString()
-            removeCoilCache(LocalContext.current,"$postUrl/images/$uname.png")
+            removeCoilCache(LocalContext.current,"$postUrl/images/$uname")
             ProfilePage()
 
             BackHandler {
@@ -136,7 +136,7 @@ class ProfileActivity : ComponentActivity() {
             ) {
                 if (checked) {
                     AsyncImage(
-                        model = "$postUrl/images/$uname.png",
+                        model = "$postUrl/images/$uname",
                         contentDescription = "text",
                         placeholder = painterResource(id = R.drawable.ic_launcher_background),
                         modifier = Modifier

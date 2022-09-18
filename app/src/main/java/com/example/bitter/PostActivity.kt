@@ -4,7 +4,6 @@ import Bitter.R
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -141,7 +140,7 @@ class PostActivity : ComponentActivity() {
                                 expanded = true
                             }) {
                                 AsyncImage(
-                                    model = "$postUrl/images/$username.png",
+                                    model = "$postUrl/images/$username",
                                     contentDescription = "icon",
                                     placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
                                     modifier = Modifier
