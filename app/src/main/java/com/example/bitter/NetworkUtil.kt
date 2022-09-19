@@ -1,5 +1,6 @@
 package com.example.bitter
 
+import android.accounts.NetworkErrorException
 import android.content.Context
 import android.graphics.Bitmap
 import coil.annotation.ExperimentalCoilApi
@@ -10,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -18,9 +20,10 @@ import java.io.FileOutputStream
 
 fun postForm(
     PostForm: JSONObject,
-    callback: Callback
+    callback: (JSONObject) -> Unit
 ) {
-    val body = PostForm.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+    val body =
+        PostForm.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
     val request = Request.Builder()
         .url(postUrl)
         .post(body)
@@ -29,48 +32,67 @@ fun postForm(
         .build()
 
     val okHttpClient = OkHttpClient()
-    okHttpClient.newCall(request).enqueue(callback)
-}
-
-fun postImage(
-    context :Context,
-    bitmap: Bitmap,
-    uname:String,
-    key:String
-) {
-    val fileData = MultipartBody.Builder()
-        .setType(MultipartBody.FORM)
-        .addFormDataPart("uname",uname)
-        .addFormDataPart("key",key)
-        .addFormDataPart(
-            "image",
-            filename = uname,
-            bitmapToPng(context,bitmap).asRequestBody("image/*".toMediaTypeOrNull())
-        )
-        .build()
-
-        val request = Request.Builder()
-            .url("$postUrl/sendimage")
-            .post(fileData)
-            .build()
-
-        val client = OkHttpClient()
-
-        client.newCall(request).enqueue(object: Callback{
-            override fun onFailure(call: Call, e: IOException) {
+    okHttpClient.newCall(request).enqueue(
+        object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
                 e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseString = String(response.body.bytes())
                 val ret = JSONObject(responseString)
-                println(ret)
+                try {
+                    callback(ret)
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                }
+                catch(e: NetworkErrorException){
+                    e.printStackTrace()
+                }
             }
 
         })
 }
 
-fun bitmapToPng(context: Context, bitmap:Bitmap): File {
+fun postImage(
+    context: Context,
+    bitmap: Bitmap,
+    uname: String,
+    key: String
+) {
+    val fileData = MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("uname", uname)
+        .addFormDataPart("key", key)
+        .addFormDataPart(
+            "image",
+            filename = uname,
+            bitmapToPng(context, bitmap).asRequestBody("image/*".toMediaTypeOrNull())
+        )
+        .build()
+
+    val request = Request.Builder()
+        .url("$postUrl/sendimage")
+        .post(fileData)
+        .build()
+
+    val client = OkHttpClient()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            e.printStackTrace()
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            val responseString = String(response.body.bytes())
+            val ret = JSONObject(responseString)
+            println(ret)
+        }
+
+    })
+}
+
+fun bitmapToPng(context: Context, bitmap: Bitmap): File {
     //create a file to write bitmap data
     val f = File(context.cacheDir, "tempfile")
     f.createNewFile()
@@ -90,7 +112,7 @@ fun bitmapToPng(context: Context, bitmap:Bitmap): File {
 }
 
 @OptIn(ExperimentalCoilApi::class)
-fun removeCoilCache(context: Context,url:String){
+fun removeCoilCache(context: Context, url: String) {
     val imageLoader = context.imageLoader
     imageLoader.diskCache?.remove(url)
     imageLoader.memoryCache?.remove(MemoryCache.Key(url))

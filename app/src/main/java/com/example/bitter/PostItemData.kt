@@ -21,12 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 
 var postUrl: String = "http://192.168.1.7:5005"
 
@@ -108,28 +103,17 @@ fun PostItem(
                     postform.put("key",key)
                     postform.put("pid",postId)
 
-                    postForm(postform,callback = object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-                        override fun onResponse(call: Call, response: Response) {
-                            val responseString = String(response.body.bytes())
-                            val ret = JSONObject(responseString)
-                            try {
-                                when (ret.getString("status")) {
-                                    "success" -> {
-                                        val temp = _lc.toInt() + 1
-                                        _lc = temp.toString()
-                                    }
-                                    else -> {
-                                    }
-                                }
+                    postForm(postform){ ret->
+                        when (ret.getString("status")) {
+                            "success" -> {
+                                val temp = _lc.toInt() + 1
+                                _lc = temp.toString()
                             }
-                            catch(e: JSONException){
-                                e.printStackTrace()
+                            else -> {
                             }
                         }
-                    })
+                    }
+
                 }) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,

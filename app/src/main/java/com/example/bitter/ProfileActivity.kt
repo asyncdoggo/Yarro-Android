@@ -37,13 +37,7 @@ import coil.compose.AsyncImage
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import okio.IOException
-import org.json.JSONException
 import org.json.JSONObject
-import java.net.SocketTimeoutException
 
 
 class ProfileActivity : ComponentActivity() {
@@ -345,41 +339,29 @@ class ProfileActivity : ComponentActivity() {
                     .padding(start = 20.dp, top = 20.dp)
             ) {
                 Button(onClick = {
-                    val regForm = JSONObject()
-                    regForm.put("subject", "udetails")
-                    regForm.put("key", key)
-                    regForm.put("uname", uname)
-                    regForm.put("fname", fname)
-                    regForm.put("lname", lname)
-                    regForm.put("gender", gender)
-                    regForm.put("mob", mob)
-                    regForm.put("dob", dob)
+                    val postform = JSONObject()
+                    postform.put("subject", "udetails")
+                    postform.put("key", key)
+                    postform.put("uname", uname)
+                    postform.put("fname", fname)
+                    postform.put("lname", lname)
+                    postform.put("gender", gender)
+                    postform.put("mob", mob)
+                    postform.put("dob", dob)
 
-                    postForm(regForm, callback = object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            errortext = try {
-                                val responseString = String(response.body.bytes())
-                                val ret = JSONObject(responseString)
-                                when (ret.getString("status")) {
-                                    "success" -> {
-                                        "Saved Successfully"
-                                    }
-                                    "mob" -> {
-                                        "Mobile number should be 10 digit number"
-                                    }
-                                    else -> {
-                                        ret.getString("status")
-                                    }
-                                }
-                            } catch (e: SocketTimeoutException) {
-                                "Network Error"
+                    postForm(postform){ ret->
+                        errortext = when (ret.getString("status")) {
+                            "success" -> {
+                                "Saved Successfully"
+                            }
+                            "mob" -> {
+                                "Mobile number should be 10 digit number"
+                            }
+                            else -> {
+                                ret.getString("status")
                             }
                         }
-                    })
+                    }
 
                     bitmap?.let { postImage(context, it, uname, key) }
 
@@ -396,45 +378,29 @@ class ProfileActivity : ComponentActivity() {
         }
 
         if (details) {
-            val regForm = JSONObject()
-            regForm.put("subject", "getudetails")
-            regForm.put("key", key)
-            regForm.put("uname", uname)
+            val postform = JSONObject()
+            postform.put("subject", "getudetails")
+            postform.put("key", key)
+            postform.put("uname", uname)
 
-            postForm(regForm, callback = object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    e.printStackTrace()
-                }
+            postForm(postform){ ret->
+                errortext = when (ret.getString("status")) {
+                    "success" -> {
+                        val data = ret.getJSONObject("data")
+                        fname = data.getString("fname")
+                        lname = data.getString("lname")
+                        gender = data.getString("gender")
+                        mob = data.getString("mob")
+                        dob = data.getString("dob")
+                        details = false
+                        "" // return
 
-                override fun onResponse(call: Call, response: Response) {
-                    errortext = try {
-                        val responseString = String(response.body.bytes())
-                        val ret = JSONObject(responseString)
-                        when (ret.getString("status")) {
-                            "success" -> {
-                                val data = ret.getJSONObject("data")
-                                fname = data.getString("fname")
-                                lname = data.getString("lname")
-                                gender = data.getString("gender")
-                                mob = data.getString("mob")
-                                dob = data.getString("dob")
-                                details = false
-
-                                "" // return
-
-                            }
-                            else -> {
-                                ret.getString("status")
-                            }
-                        }
-                    } catch (e: SocketTimeoutException) {
-                        "Network Error"
                     }
-                    catch (e: JSONException){
-                        ""
+                    else -> {
+                        ret.getString("status")
                     }
                 }
-            })
+            }
         }
     }
 }

@@ -27,13 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bitter.ui.theme.*
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,47 +246,32 @@ fun SignUp() {
                             regForm.put("uname", username)
                             regForm.put("passwd1", password1)
 
-                            postForm(regForm, callback = object : Callback{
-                                override fun onFailure(call: Call, e: IOException) {
-                                    e.printStackTrace()
-                                }
-
-                                override fun onResponse(call: Call, response: Response) {
-                                    val responseString = String(response.body.bytes())
-                                    val ret = JSONObject(responseString)
-                                    try {
-                                        when (ret.getString("status")) {
-                                            "success" -> {
-                                                val uname = ret.getString("uname")
-                                                val key = ret.getString("key")
-                                                val intent = Intent(context, UserDetailActivity::class.java)
-                                                val editor = keyPref.edit()
-                                                editor.putString("uname",uname)
-                                                editor.putString("key",key)
-                                                editor.apply()
-                                                context.startActivity(intent)
-                                            }
-                                            "alreadyuser" -> {
-                                                errortext = "Username already exists"
-                                            }
-                                            "alreadyemail" -> {
-                                                errortext = "Email already exists"
-                                            }
-                                            else -> {
-                                                errortext = ret.getString("status")
-                                            }
-                                        }
+                            postForm(regForm){ ret->
+                               errortext =  when (ret.getString("status")) {
+                                    "success" -> {
+                                        val uname = ret.getString("uname")
+                                        val key = ret.getString("key")
+                                        val intent = Intent(context, UserDetailActivity::class.java)
+                                        val editor = keyPref.edit()
+                                        editor.putString("uname",uname)
+                                        editor.putString("key",key)
+                                        editor.apply()
+                                        context.startActivity(intent)
+                                        ""
                                     }
-                                    catch(e:JSONException){
-                                        e.printStackTrace()
+                                    "alreadyuser" -> {
+                                        "Username already exists"
                                     }
-                                    catch (e: SocketTimeoutException){
-                                        errortext = "Network Error"
+                                    "alreadyemail" -> {
+                                        "Email already exists"
+                                    }
+                                    else -> {
+                                        ret.getString("status")
                                     }
                                 }
-
-                            })
-                        } else {
+                            }
+                        }
+                        else {
                             errortext = "Passwords do not match"
                         }
                     },

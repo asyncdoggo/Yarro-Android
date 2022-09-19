@@ -1,6 +1,5 @@
 package com.example.bitter
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,16 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bitter.ui.theme.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import org.json.JSONException
+import com.example.bitter.ui.theme.TextFieldItem
+import com.example.bitter.ui.theme.TextItem
 import org.json.JSONObject
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 class ResetPassActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,36 +94,19 @@ fun ResetPage() {
                     forgotPassForm.put("subject", "forgotpass")
                     forgotPassForm.put("email", email)
 
-                        postForm(forgotPassForm, callback = object : Callback {
-                            override fun onFailure(call: Call, e: IOException) {
-                                e.printStackTrace()
+                    postForm(forgotPassForm){ ret->
+                        errortext = when (ret.getString("status")) {
+                            "success" -> {
+                                "Email sent successfully"
                             }
-
-                            override fun onResponse(call: Call, response: Response) {
-                                val responseString = String(response.body.bytes())
-                                val ret = JSONObject(responseString)
-                                try {
-                                    when (ret.getString("status")) {
-                                        "success" -> {
-                                            errortext = "Email sent successfully"
-                                        }
-                                        "noemail" -> {
-                                            errortext = "Email not found"
-                                        }
-                                        else -> {
-                                            errortext = "Unknown Error"
-                                        }
-                                    }
-                                }
-                                catch(e:JSONException){
-                                    e.printStackTrace()
-                                }
-                                catch (e: SocketTimeoutException){
-                                    errortext = "Network Error"
-                                }
+                            "noemail" -> {
+                                "Email not found"
                             }
-
-                        })
+                            else -> {
+                                "Unknown Error"
+                            }
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(40.dp),
                 modifier = Modifier

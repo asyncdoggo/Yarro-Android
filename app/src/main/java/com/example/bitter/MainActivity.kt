@@ -29,20 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       // url
+        // url
         val url = intent.getStringExtra("url")
         if (url != null) {
             postUrl = "http://$url"
@@ -52,52 +46,40 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-            val uname = keyPref.getString("uname",null)
-            val key = keyPref.getString("key",null)
+            val uname = keyPref.getString("uname", null)
+            val key = keyPref.getString("key", null)
 
 
-            if(key != null && uname != null) {
+            if (key != null && uname != null) {
                 val loginForm = JSONObject()
                 loginForm.put("subject", "login")
                 loginForm.put("uname", uname)
                 loginForm.put("key", key)
 
-                postForm(loginForm, callback = object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        e.printStackTrace()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        val responseString = String(response.body.bytes())
-                        val ret = JSONObject(responseString)
-                        try {
-                            when (ret.getString("status")) {
-                                "success" -> {
-                                    val retKey = ret.getString("key")
-                                    val retUname = ret.getString("uname")
-                                    val intent = Intent(context, PostActivity::class.java)
-                                    val editor = keyPref.edit()
-                                    editor.putString("uname",retUname)
-                                    editor.putString("key",retKey)
-                                    editor.apply()
-                                    context.startActivity(intent)
-                                }
-                                else -> {
-                                    println(ret.getString("status"))
-                                }
-                            }
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
+                postForm(loginForm) {
+                    when (it.getString("status")) {
+                        "success" -> {
+                            val retKey = it.getString("key")
+                            val retUname = it.getString("uname")
+                            val intent = Intent(context, PostActivity::class.java)
+                            val editor = keyPref.edit()
+                            editor.putString("uname", retUname)
+                            editor.putString("key", retKey)
+                            editor.apply()
+                            context.startActivity(intent)
+                        }
+                        else -> {
+                            println(it.getString("status"))
                         }
                     }
-                })
+                }
             }
 
             LoginPage()
-            }
         }
-
     }
+
+}
 
 
 @Preview(showBackground = true)
@@ -154,7 +136,8 @@ fun LoginPage() {
             }
             Spacer(modifier = Modifier.padding(20.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,7 +152,8 @@ fun LoginPage() {
                 )
 
             }
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -177,7 +161,7 @@ fun LoginPage() {
             )
             {
                 TextField(
-                    value = username, onValueChange = {username = it},
+                    value = username, onValueChange = { username = it },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -187,7 +171,8 @@ fun LoginPage() {
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -202,14 +187,15 @@ fun LoginPage() {
                 )
 
             }
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
             )
             {
                 TextField(
-                    value = password, onValueChange = {password = it},
+                    value = password, onValueChange = { password = it },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -220,7 +206,6 @@ fun LoginPage() {
                             Icons.Filled.Visibility
                         else Icons.Filled.VisibilityOff
 
-                        // Please provide localized description for accessibility services
                         val description = if (passwordVisible) "Hide password" else "Show password"
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -243,13 +228,14 @@ fun LoginPage() {
                     text = "Forgot password?",
                     fontSize = 17.sp,
                     modifier = Modifier.clickable {
-                        val intent = Intent(context,ResetPassActivity::class.java)
+                        val intent = Intent(context, ResetPassActivity::class.java)
                         context.startActivity(intent)
                     }
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -264,44 +250,31 @@ fun LoginPage() {
                         loginForm.put("passwd", password)
 
                         coroutineScope.launch(IO) {
-                            postForm(loginForm, callback = object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {
-                                    e.printStackTrace()
-                                }
 
-                                override fun onResponse(call: Call, response: Response) {
-                                    val responseString = String(response.body.bytes())
-                                    val ret = JSONObject(responseString)
-                                    try{
-                                        when (ret.getString("status")) {
-                                            "success" -> {
-                                                val key = ret.getString("key")
-                                                val uname = ret.getString("uname")
-                                                val intent = Intent(context, PostActivity::class.java)
-                                                val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-                                                val editor = keyPref.edit()
-                                                editor.putString("uname",uname)
-                                                editor.putString("key",key)
-                                                editor.apply()
-                                                context.startActivity(intent)
-                                            }
-                                            "badpasswd" -> {
-                                                errortext = "Username or password is incorrect"
-                                            }
-                                            else -> {
-                                                errortext = "Unknown Error"
-                                            }
-                                        }
+                            postForm(loginForm) { ret ->
+                                when (ret.getString("status")) {
+                                    "success" -> {
+                                        val key = ret.getString("key")
+                                        val uname = ret.getString("uname")
+                                        val intent = Intent(context, PostActivity::class.java)
+                                        val keyPref = context.getSharedPreferences(
+                                            "authkey",
+                                            Context.MODE_PRIVATE
+                                        )
+                                        val editor = keyPref.edit()
+                                        editor.putString("uname", uname)
+                                        editor.putString("key", key)
+                                        editor.apply()
+                                        context.startActivity(intent)
                                     }
-                                    catch (e : JSONException){
-                                        e.printStackTrace()
-                                    } catch (e: SocketTimeoutException){
-                                        errortext = "Network Error"
+                                    "badpasswd" -> {
+                                        errortext = "Username or password is incorrect"
+                                    }
+                                    else -> {
+                                        errortext = "Unknown Error"
                                     }
                                 }
-
-
-                            })
+                            }
                         }
 
                     },
@@ -310,7 +283,7 @@ fun LoginPage() {
                         .padding(start = 15.dp, end = 15.dp)
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                       backgroundColor = Color(0xE81C0E1F),
+                        backgroundColor = Color(0xE81C0E1F),
                         contentColor = Color(0xFFFFF01B)
 
                     )
@@ -334,7 +307,7 @@ fun LoginPage() {
                     text = "Don't have an account? Click here to sign up",
                     fontSize = 15.sp,
                     modifier = Modifier.clickable {
-                        val intent = Intent(context,SignUpActivity::class.java)
+                        val intent = Intent(context, SignUpActivity::class.java)
                         context.startActivity(intent)
                     }
                 )
@@ -348,7 +321,7 @@ fun LoginPage() {
                     .fillMaxWidth()
                     .padding(top = 20.dp)
             ) {
-                  Text(text = errortext)
+                Text(text = errortext)
             }
 
         }

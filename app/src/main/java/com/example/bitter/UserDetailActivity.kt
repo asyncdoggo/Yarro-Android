@@ -2,10 +2,7 @@ package com.example.bitter
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.CalendarView
-import android.widget.DatePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -16,8 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,24 +22,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.bitter.ui.theme.TextFieldItem
 import com.example.bitter.ui.theme.TextItem
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
 import org.json.JSONObject
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 class UserDetailActivity : ComponentActivity() {
     var uname:String = ""
@@ -286,35 +272,22 @@ class UserDetailActivity : ComponentActivity() {
                             regForm.put("mob", mob)
                             regForm.put("dob", dob)
 
-                            postForm(regForm, callback = object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {
-                                    e.printStackTrace()
-                                }
-
-                                override fun onResponse(call: Call, response: Response) {
-                                    try {
-                                        val responseString = String(response.body.bytes())
-                                        val ret = JSONObject(responseString)
-                                        when (ret.getString("status")) {
-                                            "success" -> {
-                                                val intent = Intent(context, PostActivity::class.java)
-                                                editor.putString("uname",uname)
-                                                editor.putString("key",key)
-                                                editor.apply()
-                                                context.startActivity(intent)
-                                            }
-                                            //TODO: on status badkey: logout
-                                            else -> {
-                                                errortext = ret.getString("status")
-                                                println(errortext)
-                                            }
-                                        }
-                                    }catch (e: SocketTimeoutException){
-                                        errortext = "Network Error"
+                            postForm(regForm){ ret->
+                                when (ret.getString("status")) {
+                                    "success" -> {
+                                        val intent = Intent(context, PostActivity::class.java)
+                                        editor.putString("uname",uname)
+                                        editor.putString("key",key)
+                                        editor.apply()
+                                        context.startActivity(intent)
+                                    }
+                                    //TODO: on status badkey: logout
+                                    else -> {
+                                        errortext = ret.getString("status")
+                                        println(errortext)
                                     }
                                 }
-
-                            })
+                            }
                 },
                 shape = RoundedCornerShape(40.dp),
                 modifier = Modifier

@@ -27,13 +27,7 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Response
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 class PostActivity : ComponentActivity() {
     private var key: String = ""
@@ -65,29 +59,17 @@ class PostActivity : ComponentActivity() {
                     postform.put("uname",username)
                     postform.put("key",key)
 
-                    postForm(postform,callback = object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
-                        override fun onResponse(call: Call, response: Response) {
-                            val responseString = String(response.body.bytes())
-                            val ret = JSONObject(responseString)
-                            try {
-                                when (ret.getString("status")) {
-                                    "success" -> {
-                                        logout = true
-                                        val intent = Intent(context,MainActivity::class.java)
-                                        context.startActivity(intent)
-                                    }
-                                    else -> {
-                                    }
-                                }
+                    postForm(postform){ ret->
+                        when (ret.getString("status")) {
+                            "success" -> {
+                                logout = true
+                                val intent = Intent(context,MainActivity::class.java)
+                                context.startActivity(intent)
                             }
-                            catch(e: JSONException){
-                                e.printStackTrace()
+                            else -> {
                             }
                         }
-                    })
+                    }
                 }
             }
         }
@@ -171,29 +153,17 @@ class PostActivity : ComponentActivity() {
                                     postform.put("uname",username)
                                     postform.put("key",key)
 
-                                    postForm(postform,callback = object : Callback {
-                                        override fun onFailure(call: Call, e: IOException) {
-                                            e.printStackTrace()
-                                        }
-                                        override fun onResponse(call: Call, response: Response) {
-                                            val responseString = String(response.body.bytes())
-                                            val ret = JSONObject(responseString)
-                                            try {
-                                                when (ret.getString("status")) {
-                                                    "success" -> {
-                                                        logout = true
-                                                        val intent = Intent(context,MainActivity::class.java)
-                                                        context.startActivity(intent)
-                                                    }
-                                                    else -> {
-                                                    }
-                                                }
+                                    postForm(postform){ ret ->
+                                        when (ret.getString("status")) {
+                                            "success" -> {
+                                                logout = true
+                                                val intent = Intent(context,MainActivity::class.java)
+                                                context.startActivity(intent)
                                             }
-                                            catch(e: JSONException){
-                                                e.printStackTrace()
+                                            else -> {
                                             }
                                         }
-                                    })
+                                    }
                                 }) {
                                     Text("Logout")
                                 }
@@ -253,34 +223,16 @@ class PostActivity : ComponentActivity() {
                                 postform.put("key", key)
                                 postform.put("content", contentValue)
                                 coroutineScope.launch(IO) {
-                                    postForm(postform, callback = object : Callback {
-                                        override fun onFailure(call: Call, e: IOException) {
-                                            e.printStackTrace()
-                                        }
 
-                                        override fun onResponse(call: Call, response: Response) {
-                                            val responseString = String(response.body.bytes())
-                                            val ret = JSONObject(responseString)
-                                            try {
-                                                when (ret.getString("status")) {
-                                                    "success" -> {
-                                                        contentValue = ""
-                                                    }
-                                                    else -> {
-                                                    }
-                                                }
-                                            } catch (e: JSONException) {
-                                                e.printStackTrace()
-                                            } catch (e: SocketTimeoutException) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Network Error",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                                logout = true
+                                    postForm(postform){ ret ->
+                                        when (ret.getString("status")) {
+                                            "success" -> {
+                                                contentValue = ""
+                                            }
+                                            else -> {
                                             }
                                         }
-                                    })
+                                    }
                                     listState.animateScrollToItem(postItems.size)
                                 }
                             }
@@ -319,43 +271,32 @@ class PostActivity : ComponentActivity() {
             coroutineScope.launch(IO) {
                 while (true) {
                     if (logout) break
-                    postForm(postform, callback = object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            e.printStackTrace()
-                        }
 
-                        override fun onResponse(call: Call, response: Response) {
-                            val responseString = String(response.body.bytes())
-                            val ret = JSONObject(responseString)
-                            try {
-                                when (ret.getString("status")) {
-                                    "success" -> {
-                                        val data = ret.getJSONObject("data")
-                                        postItems.clear()
-                                        for (i in data.keys()) {
-                                            val item = data.getJSONObject(i)
-                                            postItems.add(
-                                                element = PostItemData(
-                                                    postId = i,
-                                                    username = item.getString("uname"),
-                                                    userId = item.getString("uid"),
-                                                    content = item.getString("content"),
-                                                    lc = item.getString("lc"),
-                                                    isliked = item.getInt("islike"),
-                                                    byuser = username
-                                                )
-                                            )
-                                        }
-                                    }
-                                    else -> {
-                                        println(ret.getString("status"))
-                                    }
+                    postForm(postform){ ret ->
+                        when (ret.getString("status")) {
+                            "success" -> {
+                                val data = ret.getJSONObject("data")
+                                postItems.clear()
+                                for (i in data.keys()) {
+                                    val item = data.getJSONObject(i)
+                                    postItems.add(
+                                        element = PostItemData(
+                                            postId = i,
+                                            username = item.getString("uname"),
+                                            userId = item.getString("uid"),
+                                            content = item.getString("content"),
+                                            lc = item.getString("lc"),
+                                            isliked = item.getInt("islike"),
+                                            byuser = username
+                                        )
+                                    )
                                 }
-                            } catch (e: JSONException) {
-                                e.printStackTrace()
+                            }
+                            else -> {
+                                println(ret.getString("status"))
                             }
                         }
-                    })
+                    }
                     delay(2500)
                 }
             }
