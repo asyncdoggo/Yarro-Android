@@ -27,7 +27,6 @@ import com.example.bitter.data.postForm
 import com.example.bitter.ui.theme.TextFieldItem
 import com.example.bitter.ui.theme.TextItem
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 

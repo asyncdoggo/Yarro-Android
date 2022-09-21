@@ -22,7 +22,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bitter.data.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
