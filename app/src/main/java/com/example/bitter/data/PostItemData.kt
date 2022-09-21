@@ -1,4 +1,4 @@
-package com.example.bitter
+package com.example.bitter.data
 
 import Bitter.R
 import androidx.compose.foundation.BorderStroke

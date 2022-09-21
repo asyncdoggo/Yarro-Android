@@ -1,4 +1,4 @@
-package com.example.bitter
+package com.example.bitter.data
 
 import android.accounts.NetworkErrorException
 import android.content.Context
@@ -112,8 +112,8 @@ fun bitmapToPng(context: Context, bitmap: Bitmap): File {
 }
 
 @OptIn(ExperimentalCoilApi::class)
-fun removeCoilCache(context: Context, url: String) {
+fun removeCoilCache(context: Context) {
     val imageLoader = context.imageLoader
-    imageLoader.diskCache?.remove(url)
-    imageLoader.memoryCache?.remove(MemoryCache.Key(url))
+    imageLoader.diskCache?.clear()
+    imageLoader.memoryCache?.clear()
 }

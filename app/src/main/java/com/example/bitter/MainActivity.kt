@@ -1,7 +1,6 @@
 package com.example.bitter
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,10 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.bitter.data.NavRoutes
+import com.example.bitter.data.postForm
+import com.example.bitter.data.postUrl
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -44,47 +47,53 @@ class MainActivity : ComponentActivity() {
         // url
 
         setContent {
-            val context = LocalContext.current
-            val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-            val uname = keyPref.getString("uname", null)
-            val key = keyPref.getString("key", null)
-
-
-            if (key != null && uname != null) {
-                val loginForm = JSONObject()
-                loginForm.put("subject", "login")
-                loginForm.put("uname", uname)
-                loginForm.put("key", key)
-
-                postForm(loginForm) {
-                    when (it.getString("status")) {
-                        "success" -> {
-                            val retKey = it.getString("key")
-                            val retUname = it.getString("uname")
-                            val intent = Intent(context, PostActivity::class.java)
-                            val editor = keyPref.edit()
-                            editor.putString("uname", retUname)
-                            editor.putString("key", retKey)
-                            editor.apply()
-                            context.startActivity(intent)
-                        }
-                        else -> {
-                            println(it.getString("status"))
-                        }
-                    }
-                }
-            }
-
-            LoginPage()
+            Navigator()
         }
     }
 
 }
 
-
-@Preview(showBackground = true)
 @Composable
-fun LoginPage() {
+fun LoginPageStart(navController: NavController) {
+    val context = LocalContext.current
+    val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+    val uname = keyPref.getString("uname", null)
+    val key = keyPref.getString("key", null)
+
+
+    val loginForm = JSONObject()
+    loginForm.put("subject", "login")
+    loginForm.put("uname", uname)
+    loginForm.put("key", key)
+
+    LaunchedEffect(key1 = null){
+        postForm(loginForm) {
+            when (it.getString("status")) {
+                "success" -> {
+                    val retKey = it.getString("key")
+                    val retUname = it.getString("uname")
+
+                    val editor = keyPref.edit()
+                    editor.putString("uname", retUname)
+                    editor.putString("key", retKey)
+                    editor.apply()
+                    globalUsername = retUname
+                    globalKey = retKey
+                    navController.navigate(NavRoutes.MainPage.route)
+
+                }
+                else -> {
+                    println(it.getString("status"))
+                }
+            }
+        }
+    }
+
+    LoginPage(navController)
+}
+
+@Composable
+fun LoginPage(navController: NavController) {
     var username by remember {
         mutableStateOf("")
     }
@@ -97,6 +106,7 @@ fun LoginPage() {
     var errortext by remember {
         mutableStateOf("")
     }
+
     val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
@@ -228,8 +238,7 @@ fun LoginPage() {
                     text = "Forgot password?",
                     fontSize = 17.sp,
                     modifier = Modifier.clickable {
-                        val intent = Intent(context, ResetPassActivity::class.java)
-                        context.startActivity(intent)
+                        navController.navigate(NavRoutes.ForgotPassPage.route)
                     }
                 )
             }
@@ -250,13 +259,11 @@ fun LoginPage() {
                         loginForm.put("passwd", password)
 
                         coroutineScope.launch(IO) {
-
                             postForm(loginForm) { ret ->
                                 when (ret.getString("status")) {
                                     "success" -> {
                                         val key = ret.getString("key")
                                         val uname = ret.getString("uname")
-                                        val intent = Intent(context, PostActivity::class.java)
                                         val keyPref = context.getSharedPreferences(
                                             "authkey",
                                             Context.MODE_PRIVATE
@@ -265,7 +272,11 @@ fun LoginPage() {
                                         editor.putString("uname", uname)
                                         editor.putString("key", key)
                                         editor.apply()
-                                        context.startActivity(intent)
+                                        globalUsername = uname
+                                        globalKey = key
+                                        coroutineScope.launch(Main) {
+                                            navController.navigate(NavRoutes.MainPage.route)
+                                        }
                                     }
                                     "badpasswd" -> {
                                         errortext = "Username or password is incorrect"
@@ -285,7 +296,6 @@ fun LoginPage() {
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color(0xE81C0E1F),
                         contentColor = Color(0xFFFFF01B)
-
                     )
 
                 ) {
@@ -307,8 +317,7 @@ fun LoginPage() {
                     text = "Don't have an account? Click here to sign up",
                     fontSize = 15.sp,
                     modifier = Modifier.clickable {
-                        val intent = Intent(context, SignUpActivity::class.java)
-                        context.startActivity(intent)
+                        navController.navigate(NavRoutes.RegisterPage.route)
                     }
                 )
 

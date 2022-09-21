@@ -1,10 +1,6 @@
 package com.example.bitter
 
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,24 +19,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.bitter.ui.theme.*
+import androidx.navigation.NavController
+import com.example.bitter.data.NavRoutes
+import com.example.bitter.data.postForm
+import com.example.bitter.ui.theme.TextFieldItem
+import com.example.bitter.ui.theme.TextItem
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-class SignUpActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent{
-            SignUp()
-        }
-    }
-}
 
-@Preview(showBackground = true)
 @Composable
-fun SignUp() {
+fun SignUpPage(navController: NavController) {
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
 
     var username by remember {
@@ -66,6 +59,8 @@ fun SignUp() {
     var errortext by remember {
         mutableStateOf("")
     }
+
+    var coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
@@ -251,12 +246,15 @@ fun SignUp() {
                                     "success" -> {
                                         val uname = ret.getString("uname")
                                         val key = ret.getString("key")
-                                        val intent = Intent(context, UserDetailActivity::class.java)
                                         val editor = keyPref.edit()
                                         editor.putString("uname",uname)
                                         editor.putString("key",key)
                                         editor.apply()
-                                        context.startActivity(intent)
+                                        globalUsername = uname
+                                        globalKey = key
+                                        coroutineScope.launch(Main){
+                                            navController.navigate(NavRoutes.UserDetailsPage.route)
+                                        }
                                         ""
                                     }
                                     "alreadyuser" -> {
