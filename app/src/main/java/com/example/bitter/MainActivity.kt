@@ -3,6 +3,7 @@ package com.example.bitter
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -33,6 +36,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import kotlin.system.exitProcess
 
 
 class MainActivity : ComponentActivity() {
@@ -45,12 +49,11 @@ class MainActivity : ComponentActivity() {
             postUrl = "http://$url"
         }
         // url
-
         setContent {
             Navigator()
+            BackHandler { exitProcess(0) }
         }
     }
-
 }
 
 @Composable
@@ -114,7 +117,7 @@ fun LoginPage(navController: NavController) {
 
     Box(
         modifier = Modifier
-            .background(Color(0xFFEAFFE3))
+            .background(Color(0xFFF3FCFF))
             .fillMaxSize()
             .padding(10.dp)
 
@@ -130,14 +133,14 @@ fun LoginPage(navController: NavController) {
             Spacer(modifier = Modifier.padding(50.dp))
 
             Row(
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
                 Text(
-                    text = "Log-in",
+                    text = "B-itter",
                     fontSize = 50.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.h1,
@@ -145,6 +148,7 @@ fun LoginPage(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.padding(20.dp))
+
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -156,11 +160,10 @@ fun LoginPage(navController: NavController) {
                 Text(
                     text = "Username",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.h3,
-                    fontFamily = FontFamily.Serif
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.caption,
+                    fontFamily = FontFamily.Default
                 )
-
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -176,7 +179,7 @@ fun LoginPage(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFEAFFE3)
+                        backgroundColor = Color(0xFFF3FCFF)
                     )
                 )
             }
@@ -191,9 +194,9 @@ fun LoginPage(navController: NavController) {
                 Text(
                     text = "Password",
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.h3,
-                    fontFamily = FontFamily.Serif
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.caption,
+                    fontFamily = FontFamily.Default
                 )
 
             }
@@ -223,7 +226,7 @@ fun LoginPage(navController: NavController) {
                         }
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFEAFFE3)
+                        backgroundColor = Color(0xFFF3FCFF)
                     )
                 )
             }
@@ -236,10 +239,11 @@ fun LoginPage(navController: NavController) {
             ) {
                 Text(
                     text = "Forgot password?",
-                    fontSize = 17.sp,
+                    fontSize = 15.sp,
                     modifier = Modifier.clickable {
                         navController.navigate(NavRoutes.ForgotPassPage.route)
-                    }
+                    },
+                    color = Color(0xff0000ee)
                 )
             }
 
@@ -248,7 +252,7 @@ fun LoginPage(navController: NavController) {
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp, bottom = 5.dp)
+                    .padding(top = 20.dp, bottom = 5.dp)
             )
             {
                 Button(
@@ -289,19 +293,20 @@ fun LoginPage(navController: NavController) {
                         }
 
                     },
-                    shape = RoundedCornerShape(40.dp),
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .padding(start = 15.dp, end = 15.dp)
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xE81C0E1F),
-                        contentColor = Color(0xFFFFF01B)
+                        backgroundColor = Color(0xff0065ff),
+                        contentColor = Color.White
                     )
 
                 ) {
                     Text(
                         text = "Login",
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
@@ -312,13 +317,18 @@ fun LoginPage(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
-            ) {
-                Text(
-                    text = "Don't have an account? Click here to sign up",
-                    fontSize = 15.sp,
-                    modifier = Modifier.clickable {
+                    .clickable {
                         navController.navigate(NavRoutes.RegisterPage.route)
                     }
+            ) {
+                Text(
+                    text = buildAnnotatedString {
+                        append("New to B-itter? ")
+                        withStyle(style = SpanStyle(color = Color(0xff0000ee))) {
+                            append("Register here")
+                        }
+                    },
+                    fontSize = 15.sp
                 )
 
             }
@@ -332,10 +342,12 @@ fun LoginPage(navController: NavController) {
             ) {
                 Text(text = errortext)
             }
-
         }
-
-
     }
+}
 
+@Preview
+@Composable
+fun LoginPrev() {
+    LoginPage(navController = NavController(LocalContext.current))
 }

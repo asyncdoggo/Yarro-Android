@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.AndroidUiDispatcher.Companion.Main
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -36,9 +37,6 @@ fun MainPageStart(navController: NavController){
 
     var backPressedTime: Long = 0
     logout = false
-//    val keyPref = LocalContext.current.getSharedPreferences("authkey",Context.MODE_PRIVATE)
-//    globalUsername = keyPref.getString("uname",null).toString()
-//    globalKey = keyPref.getString("key",null).toString()
 
     MainScreen(navController = navController)
 
@@ -68,12 +66,14 @@ fun MainPageStart(navController: NavController){
                         }
                     }
                     else -> {
+                        println("logout error")
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun MainScreen(navController: NavController) {
@@ -298,4 +298,10 @@ fun MainScreen(navController: NavController) {
         }
     }
 
+}
+
+@Preview
+@Composable
+fun MainPreview() {
+    MainPageStart(navController = NavController(LocalContext.current))
 }

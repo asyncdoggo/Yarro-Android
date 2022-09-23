@@ -1,6 +1,7 @@
 package com.example.bitter
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -26,6 +28,7 @@ import com.example.bitter.data.NavRoutes
 import com.example.bitter.data.postForm
 import com.example.bitter.ui.theme.TextFieldItem
 import com.example.bitter.ui.theme.TextItem
+import com.example.bitter.ui.theme.bgColorLight
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -33,6 +36,11 @@ import org.json.JSONObject
 
 @Composable
 fun SignUpPage(navController: NavController) {
+
+    BackHandler {
+        navController.navigate(NavRoutes.LoginPage.route)
+    }
+
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
 
     var username by remember {
@@ -63,9 +71,11 @@ fun SignUpPage(navController: NavController) {
 
     val context = LocalContext.current
 
+
+
     Box(
         modifier = Modifier
-            .background(Color(0xFFEAFFE3))
+            .background(bgColorLight)
             .fillMaxSize()
             .padding(10.dp)
 
@@ -82,10 +92,10 @@ fun SignUpPage(navController: NavController) {
 
             TextItem(
                 text = "Register",
-                fontsSize = 50.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.h1,
-                fontFamily = FontFamily.Cursive,
+                fontFamily = FontFamily.Serif,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -93,9 +103,9 @@ fun SignUpPage(navController: NavController) {
 
             TextItem(
                 text = "Email",
-                fontsSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h3,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -107,7 +117,7 @@ fun SignUpPage(navController: NavController) {
                     .padding(bottom = 10.dp),
                 placeholder = "Enter your Email",
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color(0xFFEAFFE3)
+                    backgroundColor = bgColorLight
                 ),
                 onValueChange = {
                     email = it
@@ -116,9 +126,9 @@ fun SignUpPage(navController: NavController) {
 
             TextItem(
                 text = "Username",
-                fontsSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h3,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -128,7 +138,7 @@ fun SignUpPage(navController: NavController) {
                 placeholder = "username",
                 onValueChange = { username = it },
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color(0xFFEAFFE3)
+                    backgroundColor = bgColorLight
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,9 +147,9 @@ fun SignUpPage(navController: NavController) {
 
             TextItem(
                 text = "Password",
-                fontsSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h3,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp)
@@ -173,7 +183,7 @@ fun SignUpPage(navController: NavController) {
                         }
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFEAFFE3)
+                        backgroundColor = bgColorLight
 
                     )
                 )
@@ -181,9 +191,9 @@ fun SignUpPage(navController: NavController) {
 
             TextItem(
                 text = "Reenter Password",
-                fontsSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h3,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp)
@@ -216,7 +226,7 @@ fun SignUpPage(navController: NavController) {
                         }
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFEAFFE3),
+                        backgroundColor = bgColorLight,
                         focusedIndicatorColor = if (password1 == password2) Color.Green else Color.Red
                     )
                 )
@@ -272,13 +282,13 @@ fun SignUpPage(navController: NavController) {
                             errortext = "Passwords do not match"
                         }
                     },
-                    shape = RoundedCornerShape(40.dp),
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .padding(start = 15.dp, end = 15.dp)
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xE81C0E1F),
-                        contentColor = Color(0xFFFFF01B)
+                        backgroundColor = Color(0xff0065ff),
+                        contentColor = Color.White
                     )
                 ) {
                     Text(
@@ -301,3 +311,8 @@ fun SignUpPage(navController: NavController) {
 }
 
 
+@Preview
+@Composable
+fun SignPrev() {
+    SignUpPage(navController = NavController(LocalContext.current))
+}

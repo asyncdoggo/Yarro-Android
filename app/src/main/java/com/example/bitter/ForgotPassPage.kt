@@ -1,5 +1,6 @@
 package com.example.bitter
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,18 +9,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.bitter.data.NavRoutes
 import com.example.bitter.data.postForm
 import com.example.bitter.ui.theme.TextFieldItem
 import com.example.bitter.ui.theme.TextItem
+import com.example.bitter.ui.theme.bgColorLight
 import org.json.JSONObject
 
 @Composable
 fun forgotPassPage(navController: NavController) {
+
+    BackHandler {
+        navController.navigate(NavRoutes.LoginPage.route)
+    }
+
+
     var email by remember {
         mutableStateOf("")
     }
@@ -30,7 +41,7 @@ fun forgotPassPage(navController: NavController) {
 
     Box(
         modifier = Modifier
-            .background(Color(0xFFEAFFE3))
+            .background(bgColorLight)
             .fillMaxSize()
             .padding(10.dp)
     ){
@@ -44,10 +55,10 @@ fun forgotPassPage(navController: NavController) {
 
             TextItem(
                 text = "Reset password",
-                fontsSize = 50.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.h1,
-                fontFamily = FontFamily.Cursive,
+                fontFamily = FontFamily.Serif,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
@@ -56,9 +67,9 @@ fun forgotPassPage(navController: NavController) {
 
             TextItem(
                 text = "Email",
-                fontsSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.h3,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.caption,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp)
@@ -69,7 +80,7 @@ fun forgotPassPage(navController: NavController) {
                 onValueChange = {email = it},
                 placeholder = "Email",
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color(0xFFEAFFE3)
+                    backgroundColor = bgColorLight
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,14 +107,13 @@ fun forgotPassPage(navController: NavController) {
                         }
                     }
                 },
-                shape = RoundedCornerShape(40.dp),
+                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .padding(start = 15.dp, end = 15.dp)
                     .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xE81C0E1F),
-                    contentColor = Color(0xFFFFF01B)
-
+                    backgroundColor = Color(0xff0065ff),
+                    contentColor = Color.White
                 )
 
             ) {
@@ -124,5 +134,11 @@ fun forgotPassPage(navController: NavController) {
 
         }
     }
+}
+
+@Preview
+@Composable
+fun ForgPrev() {
+    forgotPassPage(navController = NavController(LocalContext.current))
 }
 

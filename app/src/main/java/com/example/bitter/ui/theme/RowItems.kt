@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.TextUnit
 @Composable
 fun TextItem(
     text: String,
-    fontsSize: TextUnit,
+    fontSize: TextUnit,
     fontWeight: FontWeight,
     style: TextStyle,
     fontFamily: FontFamily = FontFamily.Default,
@@ -31,7 +31,7 @@ fun TextItem(
     ) {
         Text(
             text = text,
-            fontSize = fontsSize,
+            fontSize = fontSize,
             fontWeight = fontWeight,
             style = style,
             fontFamily = fontFamily

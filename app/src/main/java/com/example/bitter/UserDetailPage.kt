@@ -27,7 +27,6 @@ import com.example.bitter.ui.theme.TextItem
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -86,7 +85,7 @@ fun UserDetails(navController: NavController) {
         ) {
             TextItem(
                 text = "User Details",
-                fontsSize = 50.sp,
+                fontSize = 50.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h1,
                 fontFamily = FontFamily.Cursive,
@@ -97,7 +96,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "Enter your details (optional)",
-                fontsSize = 16.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 style = TextStyle.Default,
                 modifier = Modifier.padding(10.dp)
@@ -105,7 +104,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "First name",
-                fontsSize = 20.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier
@@ -128,7 +127,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "Last name",
-                fontsSize = 20.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier
@@ -149,7 +148,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "Gender",
-                fontsSize = 20.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier
@@ -172,7 +171,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "mobile number",
-                fontsSize = 20.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier
@@ -201,7 +200,7 @@ fun UserDetails(navController: NavController) {
 
             TextItem(
                 text = "Date of birth",
-                fontsSize = 20.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.h3,
                 modifier = Modifier
