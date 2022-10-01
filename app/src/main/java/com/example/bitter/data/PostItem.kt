@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbUp
@@ -18,12 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.bitter.util.postForm
 import org.json.JSONObject
 
-var postUrl: String = "http://192.168.1.7:5005"
+lateinit var postUrl: String
 
 
 data class PostItemData(
@@ -56,7 +59,7 @@ fun PostItem(
         Row (
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(start = 10.dp,top = 17.dp)
+            modifier = Modifier.padding(start = 10.dp,top = 10.dp)
 
         ){
             AsyncImage(
@@ -79,7 +82,8 @@ fun PostItem(
                     text = username,
                     textAlign = TextAlign.Center,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.caption
                 )
             }
             Row(
@@ -128,4 +132,11 @@ fun PostItem(
             }
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun Text() {
+    PostItem(username = "user1", content = "lorem ipsum dolor sit amet, col amit amze dfsdj fsdkfljsdf ksdfdsfhfjsdhd gfjsddgshf jdgsfhdsj gfshgff hgdsjfh gdsjfhg dsjfhg dsjfhsdgfdshgfdshf dshgfdsfhsgdjfshdgfshdgfsjdhgfsjdhfgshdfgdshfgdsjfhgdsjfasish", lc = "1", key = "12", postId = "11", isliked = 1, byuser = "")
 }

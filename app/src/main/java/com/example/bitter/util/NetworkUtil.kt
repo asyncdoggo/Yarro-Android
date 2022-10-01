@@ -1,11 +1,11 @@
-package com.example.bitter.data
+package com.example.bitter.util
 
 import android.accounts.NetworkErrorException
 import android.content.Context
 import android.graphics.Bitmap
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
-import coil.memory.MemoryCache
+import com.example.bitter.data.postUrl
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -16,12 +16,28 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.*
 
+
+var TRUST_ALL_CERTS: TrustManager = object : X509TrustManager {
+    override fun checkClientTrusted(chain: Array<X509Certificate?>?, authType: String?) {}
+    override fun checkServerTrusted(chain: Array<X509Certificate?>?, authType: String?) {}
+    override fun getAcceptedIssuers(): Array<X509Certificate> {
+        return arrayOf()
+    }
+}
 
 fun postForm(
     PostForm: JSONObject,
     callback: (JSONObject) -> Unit
 ) {
+
+    val sslContext = SSLContext.getInstance("SSL")
+    sslContext.init(null, arrayOf(TRUST_ALL_CERTS), SecureRandom())
+
+
     val body =
         PostForm.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
     val request = Request.Builder()
@@ -31,7 +47,11 @@ fun postForm(
         .header("Content-Type", "application/json")
         .build()
 
-    val okHttpClient = OkHttpClient()
+    val okHttpClient = OkHttpClient.Builder()
+//        .hostnameVerifier { _, _ -> true }
+//        .sslSocketFactory(sslContext.socketFactory, TRUST_ALL_CERTS as X509TrustManager)
+        .build()
+
     okHttpClient.newCall(request).enqueue(
         object : Callback {
             override fun onFailure(call: Call, e: java.io.IOException) {
