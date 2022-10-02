@@ -7,7 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.example.bitter.data.Routes
 import com.example.bitter.util.postForm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 class ProfileViewModel(
@@ -33,6 +38,7 @@ class ProfileViewModel(
     fun saveButtonClick(
         uname: String?,
         key: String?,
+        navController:NavController
     ) {
         val postform = JSONObject()
         postform.put("subject", "udetails")
@@ -52,6 +58,12 @@ class ProfileViewModel(
                 "mob" -> {
                     "Mobile number should be 10 digit number"
                 }
+                "logout" -> {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        navController.navigate(Routes.LoginScreen.route + "/logout")
+                    }
+                    ""
+                }
                 else -> {
                     ret.getString("status")
                 }
@@ -60,7 +72,7 @@ class ProfileViewModel(
         }
     }
 
-    fun getUserDetails(uname: String?, key: String?) {
+    fun getUserDetails(uname: String?, key: String?,navController: NavController) {
         val postform = JSONObject()
         postform.put("subject", "getudetails")
         postform.put("key", key)
@@ -76,7 +88,13 @@ class ProfileViewModel(
                     stateHandle["mob"] = data.getString("mob")
                     stateHandle["dob"] = data.getString("dob")
                     stateHandle["details"] = false
-                    "" // return
+                    ""
+                }
+                "logout" -> {
+                    viewModelScope.launch(Dispatchers.Main) {
+                        navController.navigate(Routes.LoginScreen.route + "/logout")
+                    }
+                    ""
                 }
                 else -> {
                     ret.getString("status")

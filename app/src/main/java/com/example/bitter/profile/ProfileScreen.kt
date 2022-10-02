@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.bitter.data.Routes
 import com.example.bitter.postUrl
 import com.example.bitter.util.postImage
 import com.example.bitter.util.removeCoilCache
@@ -48,15 +49,15 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 fun ProfileScreenSetup(navController: NavController) {
 
     removeCoilCache(LocalContext.current)
-    ProfileScreen()
+    ProfileScreen(navController)
 
     BackHandler {
-        navController.popBackStack()
+        navController.navigate(Routes.MainScreen.route)
     }
 }
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
     val viewModel = viewModel<ProfileViewModel>()
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
@@ -386,7 +387,7 @@ fun ProfileScreen() {
                 .padding(start = 20.dp, top = 20.dp)
         ) {
             Button(onClick = {
-                viewModel.saveButtonClick(uname,key)
+                viewModel.saveButtonClick(uname,key,navController)
                 bitmap?.let { postImage(context, it, uname?:"", key?:"") }
             }) {
                 Text(text = "Save")
@@ -401,7 +402,7 @@ fun ProfileScreen() {
     }
 
     if (details) {
-        viewModel.getUserDetails(uname,key)
+        viewModel.getUserDetails(uname,key,navController)
     }
 }
 

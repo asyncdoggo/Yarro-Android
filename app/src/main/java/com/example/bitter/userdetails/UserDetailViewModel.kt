@@ -48,6 +48,11 @@ class UserDetailViewModel(
                         navController.navigate(Routes.MainScreen.route)
                     }
                 }
+                "logout" -> {
+                    viewModelScope.launch(Main) {
+                        navController.navigate(Routes.LoginScreen.route + "/logout")
+                    }
+                }
                 else -> {
                     stateHandle["error"] = ret.getString("status")
                 }

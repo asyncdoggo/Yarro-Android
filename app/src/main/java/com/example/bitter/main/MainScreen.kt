@@ -112,7 +112,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
                             onDismissRequest = { viewModel.setExpanded(false) }
                         ) {
                             DropdownMenuItem(onClick = {
-                                viewModel.dropDownClicked(navController)
+                                viewModel.profileButtonClicked(navController)
                             }) {
                                 Text("Profile")
                             }
@@ -173,7 +173,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
                 Button(
                     onClick = {
                         if(contentValue != "") {
-                            viewModel.postButtonOnClick(uname,key)
+                            viewModel.postButtonOnClick(uname,key,navController)
                             coroutineScope.launch {
                                 listState.animateScrollToItem(postItems.size)
                             }
@@ -206,7 +206,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
     if(persistkey){
         LaunchedEffect(key1 = true) {
             viewModel.setPersist(false)
-            viewModel.getPostLoop(uname,key)
+            viewModel.getPostLoop(uname,key,navController)
         }
     }
 

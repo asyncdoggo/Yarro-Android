@@ -11,7 +11,6 @@ import com.example.bitter.util.postForm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.json.JSONException
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,13 +40,13 @@ class MainViewModel(
                     savedStateHandle["logout"] = true
                     editor.clear()
                     editor.apply()
-                    viewModelScope.launch {
-                        navController.navigate(Routes.LoginScreen.route)
-                    }
                 }
                 else -> {
                     println("logout error")
                 }
+            }
+            viewModelScope.launch {
+                navController.navigate(Routes.LoginScreen.route + "/logout")
             }
         }
     }
@@ -60,13 +59,13 @@ class MainViewModel(
         savedStateHandle["expanded"] = state
     }
 
-    fun dropDownClicked(navController: NavController) {
+    fun profileButtonClicked(navController: NavController) {
             setExpanded(false)
             savedStateHandle["logout"] = true
             navController.navigate(Routes.UserProfileScreen.route)
     }
 
-    fun postButtonOnClick(uname: String?, key: String?) {
+    fun postButtonOnClick(uname: String?, key: String?,navController: NavController) {
         val postform = JSONObject()
         postform.put("subject", "sendpost")
         postform.put("uname", uname)
@@ -79,6 +78,12 @@ class MainViewModel(
                     "success" -> {
                         savedStateHandle["contentValue"] = ""
                     }
+                    "logout" -> {
+                        savedStateHandle["logout"] = true
+                        viewModelScope.launch(Dispatchers.Main) {
+                            navController.navigate(Routes.LoginScreen.route + "/logout")
+                        }
+                    }
                     else -> {
                     }
                 }
@@ -86,7 +91,7 @@ class MainViewModel(
         }
     }
 
-    fun getPostLoop(uname: String?, key: String?) {
+    fun getPostLoop(uname: String?, key: String?,navController: NavController) {
         val postform = JSONObject()
         postform.put("subject", "getpost")
         postform.put("uname", uname)
@@ -118,6 +123,12 @@ class MainViewModel(
                                         datetime = datetime
                                     )
                                 )
+                            }
+                        }
+                        "logout" -> {
+                            viewModelScope.launch(Dispatchers.Main) {
+                                savedStateHandle["logout"] = true
+                                navController.navigate(Routes.LoginScreen.route + "/logout")
                             }
                         }
                         else -> {

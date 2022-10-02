@@ -346,7 +346,10 @@ fun RegisterScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(top = 20.dp, bottom = 5.dp)
                 ) {
-                    Text(text = error)
+                    Text(
+                        text = error,
+                        color = Color.Red
+                    )
                 }
             }
         }

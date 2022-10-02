@@ -163,8 +163,8 @@ fun ForgotPassScreen(navController: NavController) {
                 Text(
                     text = error,
                     fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(40.dp)
+                    modifier = Modifier.padding(40.dp),
+                    color = Color.Red
                 )
 
             }

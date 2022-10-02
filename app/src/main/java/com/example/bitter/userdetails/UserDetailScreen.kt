@@ -366,7 +366,10 @@ fun UserDetailScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(top = 20.dp, bottom = 5.dp)
                 ) {
-                    Text(text = errortext)
+                    Text(
+                        text = errortext,
+                        color = Color.Red
+                    )
                 }
             }
         }

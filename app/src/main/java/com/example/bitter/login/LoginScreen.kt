@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
@@ -37,7 +36,7 @@ import com.example.bitter.data.Routes
 import com.example.bitter.login.LoginViewModel
 
 @Composable
-fun LoginScreenSetup(navController: NavController) {
+fun LoginScreenSetup(navController: NavController, error: String?) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
@@ -51,12 +50,12 @@ fun LoginScreenSetup(navController: NavController) {
             viewModel.autoLogin(uname, key,editor,navController)
         }
     }
-    LoginScreen(navController)
+    LoginScreen(navController,error)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController,error: String?) {
 
     val viewModel = viewModel<LoginViewModel>()
 
@@ -288,7 +287,10 @@ fun LoginScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(top = 20.dp)
             ) {
-                Text(text = errortext)
+                Text(
+                    text = if(error == "logout") "You have been Logged out" else errortext,
+                    color = Color.Red
+                )
             }
         }
     }
@@ -298,5 +300,5 @@ fun LoginScreen(navController: NavController) {
 @Preview
 @Composable
 fun LoginPrev() {
-    LoginScreen(navController = NavController(LocalContext.current))
+    LoginScreen(navController = NavController(LocalContext.current),"")
 }

@@ -41,7 +41,6 @@ class LoginViewModel(
                             editor.putString("uname", uname)
                             editor.putString("key", key)
                             editor.apply()
-                            setLoading(false)
                             viewModelScope.launch(Dispatchers.Main) {
                                 navController.navigate(Routes.MainScreen.route)
                             }
