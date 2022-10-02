@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,299 +52,322 @@ fun UserDetailScreen(navController: NavController) {
     val errortext by viewModel.error.collectAsState()
 
     val dialogState = rememberMaterialDialogState()
+    val loading by viewModel.loading.collectAsState()
 
-
-    Box(
-        modifier = Modifier
-            .background(Color(0xFFF3FCFF))
-            .fillMaxSize()
-            .padding(10.dp)
-
-    ) {
-
+    if (loading) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
+                .background(Color(0x4DFFFFFF)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "User Details",
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.h1,
-                    fontFamily = FontFamily.Serif
-                )
-            }
+            Text(
+                text = "Loading",
+                modifier = Modifier.padding(10.dp),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+            CircularProgressIndicator()
+        }
+    }
+    else {
 
-            Spacer(modifier = Modifier.padding(20.dp))
+        Box(
+            modifier = Modifier
+                .background(Color(0xFFF3FCFF))
+                .fillMaxSize()
+                .padding(10.dp)
 
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(10.dp)
-            ) {
-                Text(
-                    text = "Enter your details (optional)",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
-                    style = TextStyle.Default,
-                    fontFamily = FontFamily.Default
-                )
-            }
+        ) {
 
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                            .fillMaxWidth()
-            ) {
-                Text(
-                    text = "First name",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 10.dp)
-            )
-            {
-                TextField(
-                    value = fname,
-                    onValueChange = {
-                        viewModel.setVal("fname",it)
-                    },
-                    singleLine = true,
-                    placeholder = { Text(text = "First name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = bgColorLight
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    )
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                            .fillMaxWidth()
+                    .padding(10.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text(
-                    text = "Last name",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp)
-            )
-            {
-                TextField(
-                    value = lname,
-                    onValueChange = {
-                        viewModel.setVal("lname",it)
-                    },
-                    singleLine = true,
-                    placeholder = { Text(text = "Last name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = bgColorLight
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    )
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "Gender",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp)
-            )
-            {
-                TextField(
-                    value = gender,
-                    onValueChange = {
-                        viewModel.setVal("gender",it)
-                    },
-                    singleLine = true,
-                    placeholder = { Text(text = "Gender") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = bgColorLight
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next
-                    )
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "mobile number",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            {
-                TextField(
-                    value = mob, onValueChange = { viewModel.setVal("mob",it) },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = bgColorLight
-                    )
-                )
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "Date of birth",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-
-            TextField(
-                value = dob,
-                readOnly = true,
-                onValueChange = {/* DO NOTHING */},
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = bgColorLight
-                ),
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "",
-                        modifier = Modifier.clickable {
-                            dialogState.show()
-                        }
-                    )
-                }
-            )
-
-
-            MaterialDialog(
-                dialogState = dialogState,
-                buttons = {
-                    positiveButton("Ok")
-                    negativeButton("Cancel")
-                }
-            ) {
-                datepicker { date ->
-                    viewModel.setVal("dob",date.toString())
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 5.dp)
-            )
-            {
-                Button(
-                    onClick = {
-                        viewModel.saveButtonClick(uname,key,navController)
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp)
-                        .fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xff0065ff),
-                        contentColor = Color.White
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Next",
-                        fontSize = 20.sp
+                        text = "User Details",
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.h1,
+                        fontFamily = FontFamily.Serif
                     )
                 }
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 5.dp)
-            ) {
-                Text(text = errortext)
+
+                Spacer(modifier = Modifier.padding(20.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(10.dp)
+                ) {
+                    Text(
+                        text = "Enter your details (optional)",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
+                        style = TextStyle.Default,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "First name",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.caption,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                )
+                {
+                    TextField(
+                        value = fname,
+                        onValueChange = {
+                            viewModel.setVal("fname", it)
+                        },
+                        singleLine = true,
+                        placeholder = { Text(text = "First name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = bgColorLight
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                            capitalization = KeyboardCapitalization.Words
+                        )
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Last name",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.caption,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                )
+                {
+                    TextField(
+                        value = lname,
+                        onValueChange = {
+                            viewModel.setVal("lname", it)
+                        },
+                        singleLine = true,
+                        placeholder = { Text(text = "Last name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = bgColorLight
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next,
+                            capitalization = KeyboardCapitalization.Words
+
+                        )
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    Text(
+                        text = "Gender",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.caption,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp)
+                )
+                {
+                    TextField(
+                        value = gender,
+                        onValueChange = {
+                            viewModel.setVal("gender", it)
+                        },
+                        singleLine = true,
+                        placeholder = { Text(text = "Gender") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = bgColorLight
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        )
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    Text(
+                        text = "mobile number",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.caption,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+                {
+                    TextField(
+                        value = mob, onValueChange = { viewModel.setVal("mob", it) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
+                        ),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = bgColorLight
+                        )
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    Text(
+                        text = "Date of birth",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.caption,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+
+                TextField(
+                    value = dob,
+                    readOnly = true,
+                    onValueChange = {/* DO NOTHING */},
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = bgColorLight
+                    ),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "",
+                            modifier = Modifier.clickable {
+                                dialogState.show()
+                            }
+                        )
+                    }
+                )
+
+
+                MaterialDialog(
+                    dialogState = dialogState,
+                    buttons = {
+                        positiveButton("Ok")
+                        negativeButton("Cancel")
+                    }
+                ) {
+                    datepicker { date ->
+                        viewModel.setVal("dob", date.toString())
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 5.dp)
+                )
+                {
+                    Button(
+                        onClick = {
+                            viewModel.saveButtonClick(uname, key, navController)
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .padding(start = 15.dp, end = 15.dp)
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = Color(0xff0065ff),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = "Next",
+                            fontSize = 20.sp
+                        )
+                    }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 5.dp)
+                ) {
+                    Text(text = errortext)
+                }
             }
         }
     }

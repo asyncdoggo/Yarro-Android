@@ -2,24 +2,25 @@ package com.example.bitter.main
 
 import android.content.SharedPreferences.Editor
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.example.bitter.data.PostItemData
 import com.example.bitter.data.Routes
 import com.example.bitter.util.postForm
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.json.JSONException
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val persistkey = mutableStateOf(true)
+    val persistkey = savedStateHandle.getStateFlow("persist",true)
 
     var contentValue = savedStateHandle.getStateFlow("contentValue", "")
     val postItems = mutableStateListOf<PostItemData>()
@@ -94,23 +95,27 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 if (logout.value) break
-
-                postForm(postform){ ret ->
+                postForm(postform) { ret ->
                     when (ret.getString("status")) {
                         "success" -> {
                             val data = ret.getJSONObject("data")
                             postItems.clear()
                             for (i in data.keys()) {
                                 val item = data.getJSONObject(i)
+                                var datetime = item.getString("datetime")
+                                datetime =
+                                    datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
+                                println(datetime)
+
                                 postItems.add(
                                     element = PostItemData(
                                         postId = i,
                                         username = item.getString("uname"),
-                                        userId = item.getString("uid"),
                                         content = item.getString("content"),
                                         lc = item.getString("lc"),
                                         isliked = item.getInt("islike"),
-                                        byuser = uname?:""
+                                        byuser = uname ?: "",
+                                        datetime = datetime
                                     )
                                 )
                             }
@@ -125,5 +130,19 @@ class MainViewModel(
         }
     }
 
+    fun setPersist(b: Boolean) {
+        savedStateHandle["persist"] = b
+    }
+}
 
+fun String.toDate(dateFormat: String = "yyyy-MM-dd HH:mm:ss", timeZone: TimeZone = TimeZone.getTimeZone("UTC")): Date? {
+    val parser = SimpleDateFormat(dateFormat, Locale.getDefault())
+    parser.timeZone = timeZone
+    return parser.parse(this)
+}
+
+fun Date.formatTo(dateFormat: String, timeZone: TimeZone = TimeZone.getDefault()): String {
+    val formatter = SimpleDateFormat(dateFormat, Locale.getDefault())
+    formatter.timeZone = timeZone
+    return formatter.format(this)
 }

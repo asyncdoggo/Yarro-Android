@@ -19,7 +19,7 @@ class UserDetailViewModel(
     val mob = stateHandle.getStateFlow("mob","")
     val dob = stateHandle.getStateFlow("dob","")
     val error = stateHandle.getStateFlow("error","")
-
+    val loading = stateHandle.getStateFlow("loading",false)
 
     fun setVal(key:String,value:Any){
         stateHandle[key] = value
@@ -39,6 +39,7 @@ class UserDetailViewModel(
         postform.put("gender", gender.value)
         postform.put("mob", mob.value)
         postform.put("dob", dob.value)
+        setVal("loading",true)
 
         postForm(postform){ ret->
             when (ret.getString("status")) {
@@ -51,6 +52,7 @@ class UserDetailViewModel(
                     stateHandle["error"] = ret.getString("status")
                 }
             }
+            setVal("loading",false)
         }
     }
 }

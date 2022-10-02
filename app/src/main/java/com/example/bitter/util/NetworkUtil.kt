@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
-import com.example.bitter.data.postUrl
+import com.example.bitter.postUrl
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -18,7 +18,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import javax.net.ssl.*
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 
 var TRUST_ALL_CERTS: TrustManager = object : X509TrustManager {
@@ -34,8 +36,8 @@ fun postForm(
     callback: (JSONObject) -> Unit
 ) {
 
-    val sslContext = SSLContext.getInstance("SSL")
-    sslContext.init(null, arrayOf(TRUST_ALL_CERTS), SecureRandom())
+//    val sslContext = SSLContext.getInstance("SSL")
+//    sslContext.init(null, arrayOf(TRUST_ALL_CERTS), SecureRandom())
 
 
     val body =
@@ -55,19 +57,20 @@ fun postForm(
     okHttpClient.newCall(request).enqueue(
         object : Callback {
             override fun onFailure(call: Call, e: java.io.IOException) {
+                val ret = JSONObject()
+                ret.put("status", "failure")
+                callback(ret)
                 e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseString = String(response.body.bytes())
-                val ret = JSONObject(responseString)
                 try {
+                    val responseString = String(response.body.bytes())
+                    val ret = JSONObject(responseString)
                     callback(ret)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
                 }
-                catch(e: NetworkErrorException){
-                    e.printStackTrace()
+                catch (_:JSONException){
+
                 }
             }
 

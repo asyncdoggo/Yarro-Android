@@ -1,4 +1,4 @@
-package com.example.bitter.data
+package com.example.bitter.main
 
 import Bitter.R
 import androidx.compose.foundation.BorderStroke
@@ -23,20 +23,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.bitter.postUrl
 import com.example.bitter.util.postForm
 import org.json.JSONObject
 
-lateinit var postUrl: String
 
 
 data class PostItemData(
     var postId: String,
     var username:String,
-    var userId:String,
     var content: String,
     var lc :String,
     var isliked: Int,
-    var byuser: String
+    var byuser: String,
+    var datetime: String
 )
 
 @Composable
@@ -47,7 +47,8 @@ fun PostItem(
     key: String,
     postId: String,
     isliked: Int,
-    byuser: String
+    byuser: String,
+    datetime:String
 ) {
     var _lc = lc
     Row(
@@ -96,9 +97,9 @@ fun PostItem(
                     fontSize = 20.sp
                 )
             }
-            Row(
-                modifier = Modifier
 
+            Row(
+                modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = {
                     val postform = JSONObject()
@@ -129,7 +130,20 @@ fun PostItem(
                     text = _lc,
                     modifier = Modifier.padding(top = 15.dp)
                 )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = datetime,
+                        modifier = Modifier.padding(top = 30.dp, end = 15.dp),
+                        fontSize = 11.sp
+                    )
+                }
             }
+
         }
     }
 }
@@ -138,5 +152,14 @@ fun PostItem(
 @Preview(showBackground = true)
 @Composable
 fun Text() {
-    PostItem(username = "user1", content = "lorem ipsum dolor sit amet, col amit amze dfsdj fsdkfljsdf ksdfdsfhfjsdhd gfjsddgshf jdgsfhdsj gfshgff hgdsjfh gdsjfhg dsjfhg dsjfhsdgfdshgfdshf dshgfdsfhsgdjfshdgfshdgfsjdhgfsjdhfgshdfgdshfgdsjfhgdsjfasish", lc = "1", key = "12", postId = "11", isliked = 1, byuser = "")
+    PostItem(
+        username = "user1",
+        content = "lorem ipsum dolor sit amet, col amit amze dfsdj fsdkfljsdf ksdfdsfhfjsdhd gfjsddgshf jdgsfhdsj gfshgff hgdsjfh gdsjfhg dsjfhg dsjfhsdgfdshgfdshf dshgfdsfhsgdjfshdgfshdgfsjdhgfsjdhfgshdfgdshfgdsjfhgdsjfasish",
+        lc = "1",
+        key = "12",
+        postId = "11",
+        isliked = 1,
+        byuser = "",
+        datetime = "13:34 pm, 12-01-2022"
+    )
 }

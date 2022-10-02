@@ -21,7 +21,7 @@ class RegisterViewModel(
     val error = stateHandle.getStateFlow("error","")
     val password1Visible = stateHandle.getStateFlow("password1Visible",false)
     val password2Visible = stateHandle.getStateFlow("password2Visible",false)
-
+    val loading = stateHandle.getStateFlow("loading",false)
 
     fun setVal(key:String,value:Any){
         stateHandle[key] = value
@@ -30,39 +30,50 @@ class RegisterViewModel(
     fun registerButtonOnClick(editor: Editor,navController:NavController) {
        stateHandle["error"] = ""
         if (password1.value == password2.value) {
+            setVal("loading", true)
             val regForm = JSONObject()
             regForm.put("subject", "register")
             regForm.put("email", email.value)
             regForm.put("uname", username.value)
             regForm.put("passwd1", password1.value)
-
-            postForm(regForm) { ret ->
-                val e  = when (ret.getString("status")) {
-                    "success" -> {
-                        val retuname = ret.getString("uname")
-                        val retkey = ret.getString("key")
-                        editor.putString("uname", retuname)
-                        editor.putString("key", retkey)
-                        editor.apply()
-                        viewModelScope.launch(Dispatchers.Main) {
-                            navController.navigate(Routes.UserDetailsScreen.route)
+            try {
+                postForm(regForm) { ret ->
+                    val e = when (ret.getString("status")) {
+                        "success" -> {
+                            val retuname = ret.getString("uname")
+                            val retkey = ret.getString("key")
+                            editor.putString("uname", retuname)
+                            editor.putString("key", retkey)
+                            editor.apply()
+                            viewModelScope.launch(Dispatchers.Main) {
+                                navController.navigate(Routes.UserDetailsScreen.route)
+                            }
+                            ""
                         }
-                        ""
+                        "alreadyuser" -> {
+                            "Username already exists"
+                        }
+                        "alreadyemail" -> {
+                            "Email already exists"
+                        }
+                        "failure" -> {
+                            "Network Error"
+                        }
+                        else -> {
+                            ret.getString("status")
+                        }
                     }
-                    "alreadyuser" -> {
-                        "Username already exists"
-                    }
-                    "alreadyemail" -> {
-                        "Email already exists"
-                    }
-                    else -> {
-                        ret.getString("status")
-                    }
+                    stateHandle["error"] = e
+                    setVal("loading", false)
                 }
-                stateHandle["error"] = e
+            } catch (_: Exception) {
+
             }
-        } else {
+        }
+
+        else {
             stateHandle["error"] = "Passwords do not match"
         }
+
     }
 }

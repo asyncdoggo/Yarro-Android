@@ -20,38 +20,47 @@ class LoginViewModel(
     var password = savedStateHandle.getStateFlow("password", "")
     var passwordVisible = savedStateHandle.getStateFlow("passwordVisible", false)
     var errortext = savedStateHandle.getStateFlow("error", "")
+    var loading = savedStateHandle.getStateFlow("loading",false)
 
-    private var _uname = ""
-    private var _key = ""
 
     fun loginButtonOnClick(navController: NavController, editor: Editor) {
+        setLoading(true)
         val loginForm = JSONObject()
         loginForm.put("subject", "login")
         loginForm.put("uname", username.value)
         loginForm.put("passwd", password.value)
 
         viewModelScope.launch(Dispatchers.IO) {
-            postForm(loginForm) { ret ->
-                when (ret.getString("status")) {
-                    "success" -> {
-                        _key = ret.getString("key")
-                        _uname = ret.getString("uname")
+            try {
+                postForm(loginForm) { ret ->
+                    when (ret.getString("status")) {
+                        "success" -> {
+                            val key = ret.getString("key")
+                            val uname = ret.getString("uname")
 
-                        editor.putString("uname", _uname)
-                        editor.putString("key", _key)
-                        editor.apply()
-
-                        viewModelScope.launch(Dispatchers.Main) {
-                            navController.navigate(Routes.MainScreen.route)
+                            editor.putString("uname", uname)
+                            editor.putString("key", key)
+                            editor.apply()
+                            setLoading(false)
+                            viewModelScope.launch(Dispatchers.Main) {
+                                navController.navigate(Routes.MainScreen.route)
+                            }
+                        }
+                        "badpasswd" -> {
+                            savedStateHandle["error"] = "Username or password is incorrect"
+                        }
+                        "failure" -> {
+                            savedStateHandle["error"] = "Network Error"
+                        }
+                        else -> {
+                            savedStateHandle["error"] = "Unknown Error"
                         }
                     }
-                    "badpasswd" -> {
-                        savedStateHandle["error"] = "Username or password is incorrect"
-                    }
-                    else -> {
-                        savedStateHandle["error"] = "Unknown Error"
-                    }
+                    setLoading(false)
                 }
+            }
+            catch (_:Exception){
+                setLoading(false)
             }
         }
     }
@@ -66,8 +75,8 @@ class LoginViewModel(
             postForm(loginForm) { ret ->
                 when (ret.getString("status")) {
                     "success" -> {
-                        _key = ret.getString("key")
-                        _uname = ret.getString("uname")
+                        val _key = ret.getString("key")
+                        val _uname = ret.getString("uname")
                         editor.putString("uname", _uname)
                         editor.putString("key", _key)
                         editor.apply()
@@ -92,6 +101,9 @@ class LoginViewModel(
 
     fun onVisibleButtonClick() {
         savedStateHandle["passwordVisible"] = !passwordVisible.value
+    }
+    private fun setLoading(b: Boolean){
+        savedStateHandle["loading"] = b
     }
 
 

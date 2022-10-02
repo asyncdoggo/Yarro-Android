@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
@@ -66,8 +67,26 @@ fun LoginScreen(navController: NavController) {
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val editor = keyPref.edit()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val loading by viewModel.loading.collectAsState()
 
-
+    if (loading) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0x4DFFFFFF)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Loading",
+                modifier = Modifier.padding(10.dp),
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp
+            )
+            CircularProgressIndicator()
+        }
+    }
+   else{
     Box(
         modifier = Modifier
             .background(Color(0xFFF3FCFF))
@@ -75,7 +94,6 @@ fun LoginScreen(navController: NavController) {
             .padding(10.dp)
 
     ) {
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -128,7 +146,7 @@ fun LoginScreen(navController: NavController) {
             )
             {
                 TextField(
-                    value = username, onValueChange = {  viewModel.onUsernameChange(it) },
+                    value = username, onValueChange = { viewModel.onUsernameChange(it) },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -168,7 +186,10 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
                     keyboardActions = KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
@@ -218,7 +239,7 @@ fun LoginScreen(navController: NavController) {
             {
                 Button(
                     onClick = {
-                        viewModel.loginButtonOnClick(navController,editor)
+                        viewModel.loginButtonOnClick(navController, editor)
                     },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -271,6 +292,7 @@ fun LoginScreen(navController: NavController) {
             }
         }
     }
+}
 }
 
 @Preview

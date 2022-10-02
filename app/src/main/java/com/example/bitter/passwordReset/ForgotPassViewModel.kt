@@ -11,29 +11,39 @@ class ForgotPassViewModel(
 
     val email = stateHandle.getStateFlow("email","")
     val error = stateHandle.getStateFlow("error","")
+    val loading = stateHandle.getStateFlow("loading",false)
 
     fun onEmailChange(it: String) {
         stateHandle["email"] = it
     }
 
     fun resetButtonOnClick(){
+        stateHandle["loading"] = true
         val forgotPassForm = JSONObject()
         forgotPassForm.put("subject", "forgotpass")
         forgotPassForm.put("email", email)
-
-        postForm(forgotPassForm) { ret ->
-            val e = when (ret.getString("status")) {
-                "success" -> {
-                    "Email sent successfully"
+        try {
+            postForm(forgotPassForm) { ret ->
+                val e = when (ret.getString("status")) {
+                    "success" -> {
+                        "Email sent successfully"
+                    }
+                    "noemail" -> {
+                        "Email not found"
+                    }
+                    "failure" -> {
+                        "Network Error"
+                    }
+                    else -> {
+                        "Unknown Error"
+                    }
                 }
-                "noemail" -> {
-                    "Email not found"
-                }
-                else -> {
-                    "Unknown Error"
-                }
+                stateHandle["error"] = e
+                stateHandle["loading"] = false
             }
-            stateHandle["error"] = e
+        }
+        catch (_:Exception){
+            stateHandle["loading"] = false
         }
     }
 

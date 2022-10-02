@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.bitter.data.Routes
-import com.example.bitter.data.postUrl
 import com.example.bitter.main.MainScreenSetup
 import com.example.bitter.passwordReset.ForgotPassScreen
 import com.example.bitter.profile.ProfileScreenSetup
@@ -17,6 +16,7 @@ import com.example.bitter.register.RegisterScreen
 import com.example.bitter.userdetails.UserDetailScreen
 import kotlin.system.exitProcess
 
+var postUrl: String = ""
 
 class MainActivity : ComponentActivity() {
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.bitter.data.*
+import com.example.bitter.postUrl
 import kotlinx.coroutines.launch
 
 
@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 fun MainScreenSetup(navController: NavController){
 
     val context = LocalContext.current
+
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
     val key = keyPref.getString("key", null)
@@ -70,7 +71,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
     val listState = rememberLazyListState()
 
     val coroutineScope = rememberCoroutineScope()
-
+    val persistkey by viewModel.persistkey.collectAsState()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -150,7 +151,8 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
                         key = key?:"",
                         postId = item.postId,
                         isliked = item.isliked,
-                        byuser = item.byuser
+                        byuser = item.byuser,
+                        datetime = item.datetime
                     )
                 }
 
@@ -201,9 +203,9 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
             }
         }
     }
-    if(viewModel.persistkey.value){
+    if(persistkey){
         LaunchedEffect(key1 = true) {
-            viewModel.persistkey.value = false
+            viewModel.setPersist(false)
             viewModel.getPostLoop(uname,key)
         }
     }

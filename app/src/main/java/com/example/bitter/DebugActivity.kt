@@ -28,7 +28,7 @@ class DebugActivity : ComponentActivity() {
 @Preview(showSystemUi = true)
 @Composable
 fun DebugPage() {
-    val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+    val keyPref = LocalContext.current.getSharedPreferences("url", Context.MODE_PRIVATE)
 
     var url by remember {
         mutableStateOf(keyPref.getString("url","").toString())

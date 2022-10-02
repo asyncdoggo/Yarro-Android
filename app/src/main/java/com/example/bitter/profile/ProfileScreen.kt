@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.bitter.data.postUrl
+import com.example.bitter.postUrl
 import com.example.bitter.util.postImage
 import com.example.bitter.util.removeCoilCache
 import com.vanpra.composematerialdialogs.MaterialDialog
