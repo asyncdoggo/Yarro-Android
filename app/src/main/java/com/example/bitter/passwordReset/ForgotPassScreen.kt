@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.bitter.ui.theme.bgColorLight
+import com.example.bitter.ui.theme.buttonColor
 
 @Composable
 fun ForgotPassScreen(navController: NavController) {
@@ -45,7 +45,7 @@ fun ForgotPassScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0x4DFFFFFF)),
+                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -61,19 +61,18 @@ fun ForgotPassScreen(navController: NavController) {
     else {
         Box(
             modifier = Modifier
-                .background(bgColorLight)
+                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
                 .padding(10.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f)
                     .padding(10.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.padding(50.dp))
-
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
@@ -83,7 +82,7 @@ fun ForgotPassScreen(navController: NavController) {
                 ) {
                     Text(
                         text = "Reset password",
-                        fontSize = 40.sp,
+                        fontSize = 35.sp,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.h1,
                         fontFamily = FontFamily.Serif
@@ -92,39 +91,23 @@ fun ForgotPassScreen(navController: NavController) {
                 Spacer(modifier = Modifier.padding(20.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp)
-                ) {
-                    Text(
-                        text = "Email",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = email,
                         onValueChange = {
                             viewModel.onEmailChange(it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "Email") },
+                        label = { Text(text = "Enter your Email") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -143,12 +126,13 @@ fun ForgotPassScreen(navController: NavController) {
                     onClick = {
                         viewModel.resetButtonOnClick()
                     },
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(5.dp),
                     modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                        .size(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xff0065ff),
+                        backgroundColor = MaterialTheme.colors.buttonColor,
                         contentColor = Color.White
                     )
 
@@ -164,7 +148,7 @@ fun ForgotPassScreen(navController: NavController) {
                     text = error,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(40.dp),
-                    color = Color.Red
+                    color = MaterialTheme.colors.error
                 )
 
             }

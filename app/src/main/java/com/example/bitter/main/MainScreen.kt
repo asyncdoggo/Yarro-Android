@@ -4,6 +4,7 @@ import Bitter.R
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -76,6 +77,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
         Row(
@@ -88,7 +90,7 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
                 title = {
                     Text(text = "B-itter")
                 },
-                backgroundColor = Color.White,
+                backgroundColor = MaterialTheme.colors.background,
                 contentColor = Color.Blue,
                 actions = {
                     Box(
@@ -192,12 +194,12 @@ fun MainScreen(navController: NavController, uname: String?, key: String?) {
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                TextField(
+                OutlinedTextField(
                     value = contentValue,
                     onValueChange = { viewModel.onContentValueChange(it) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.White
+                        backgroundColor = Color.Transparent
                     )
                 )
             }

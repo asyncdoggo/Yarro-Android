@@ -17,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +37,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bitter.data.Routes
 import com.example.bitter.postUrl
+import com.example.bitter.ui.theme.profPicColor
+import com.example.bitter.userdetails.noRippleClickable
 import com.example.bitter.util.postImage
 import com.example.bitter.util.removeCoilCache
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -72,7 +73,6 @@ fun ProfileScreen(navController: NavController) {
     val errortext by viewModel.error.collectAsState()
     val checked by viewModel.checked.collectAsState()
     val details by viewModel.details.collectAsState()
-    val editable by viewModel.editable.collectAsState()
 
     val imageUri = viewModel.imageUri
 
@@ -96,6 +96,7 @@ fun ProfileScreen(navController: NavController) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.verticalScroll(rememberScrollState())
+            .padding(start = 20.dp,end = 20.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -135,7 +136,7 @@ fun ProfileScreen(navController: NavController) {
             Text(
                 "Change Profile Picture",
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFA00BCD),
+                color = MaterialTheme.colors.profPicColor,
                 modifier = Modifier
                     .clickable { launcher.launch("image/*") }
             )
@@ -147,34 +148,9 @@ fun ProfileScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
+                .padding(top = 20.dp, bottom = 10.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "username", fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(start = 16.dp)
-
-            ) {
-                Text(text = uname?:"")
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(1f)
-            ) {
-                IconButton(onClick = { viewModel.setVal("editable",!editable)}) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "edit"
-                    )
-                }
-            }
+            Text(text = uname?:"username")
         }
 
         Row(
@@ -182,36 +158,26 @@ fun ProfileScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "First Name", fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 5.dp)
-            ) {
-                TextField(
-                    value = fname,
-                    onValueChange = { viewModel.setVal("fname",it) },
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        unfocusedIndicatorColor = if (!editable) Color.Transparent else Color.Black,
-                        focusedIndicatorColor = if (!editable) Color.Transparent else Color.Black
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    readOnly = !editable
+                .padding(bottom = 12.dp)
+        )
+        {
+            OutlinedTextField(
+                value = fname,
+                onValueChange = {
+                    viewModel.setVal("fname", it)
+                },
+                singleLine = true,
+                label = { Text(text = "First Name") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Words
                 )
-            }
+            )
         }
 
         Row(
@@ -219,40 +185,27 @@ fun ProfileScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "Last Name",
-                    fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 5.dp)
-            ) {
-                TextField(
-                    value = lname,
-                    onValueChange = {
-                        viewModel.setVal("lname", it)
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        unfocusedIndicatorColor = if (!editable
-                        ) Color.Transparent else Color.Black,
-                        focusedIndicatorColor = if (!editable) Color.Transparent else Color.Black
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    readOnly = !editable
+                .padding(bottom = 12.dp)
+        )
+        {
+            OutlinedTextField(
+                value = lname,
+                onValueChange = {
+                    viewModel.setVal("lname", it)
+                },
+                singleLine = true,
+                label = { Text(text = "Last Name") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Words
+
                 )
-            }
+            )
         }
 
         Row(
@@ -260,40 +213,25 @@ fun ProfileScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "Gender",
-                    fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 5.dp)
-            ) {
-                TextField(
-                    value = gender,
-                    onValueChange = {
-                        viewModel.setVal("gender", it)
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        unfocusedIndicatorColor = if (!editable
-                        ) Color.Transparent else Color.Black,
-                        focusedIndicatorColor = if (!editable) Color.Transparent else Color.Black
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Next,
-                        capitalization = KeyboardCapitalization.Sentences
-                    ),
-                    readOnly = !editable
+                .padding(bottom = 12.dp)
+        )
+        {
+            OutlinedTextField(
+                value = gender,
+                onValueChange = {
+                    viewModel.setVal("gender", it)
+                },
+                singleLine = true,
+                label = { Text(text = "Gender") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
                 )
-            }
+            )
         }
 
         Row(
@@ -301,84 +239,59 @@ fun ProfileScreen(navController: NavController) {
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "Mobile", fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
+                .padding(bottom = 12.dp)
+        )
+        {
+            OutlinedTextField(
+                value = mob, onValueChange = { viewModel.setVal("mob", it) },
+                singleLine = true,
+                label = { Text(text = "Mobile Number")},
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(top = 5.dp)
-            ) {
-                TextField(
-                    value = mob,
-                    onValueChange = { viewModel.setVal("mob",it) },
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        unfocusedIndicatorColor = if (!editable) Color.Transparent else Color.Black,
-                        focusedIndicatorColor = if (!editable) Color.Transparent else Color.Black
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
-                    ),
-                    readOnly = !editable
+                    .fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent
                 )
-            }
+            )
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(0.2f)
-            ) {
-                Text(text = "D.O.B", fontWeight = FontWeight.Bold)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(start = 16.dp)
-            ) {
-                Text(text = dob)
-            }
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth(1f)
-            ) {
-                IconButton(onClick = { dialogState.show() }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "DOB",
-                        modifier = Modifier.clickable {
-                            dialogState.show()
-                        }
-                    )
-                }
-                MaterialDialog(
-                    dialogState = dialogState,
-                    buttons = {
-                        positiveButton("Ok")
-                        negativeButton("Cancel")
+        OutlinedTextField(
+            value = dob,
+            enabled = false,
+            onValueChange = {/* DO NOTHING */},
+            label = { Text(text = "Date of birth")},
+            modifier = Modifier.fillMaxWidth()
+                .noRippleClickable { dialogState.show() },
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.Transparent,
+                disabledLabelColor = Color(0xFF636c6b),
+                disabledTextColor = Color.Black
+            ),
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "",
+                    modifier = Modifier.clickable {
+                        dialogState.show()
                     }
-                ) {
-                    datepicker { date ->
-                        viewModel.setVal("dob",date.toString())
-                    }
-                }
+                )
+            }
+        )
+        MaterialDialog(
+            dialogState = dialogState,
+            buttons = {
+                positiveButton("Ok")
+                negativeButton("Cancel")
+            }
+        ) {
+            datepicker { date ->
+                viewModel.setVal("dob",date.toString())
             }
         }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,

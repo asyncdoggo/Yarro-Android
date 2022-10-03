@@ -1,8 +1,11 @@
 package com.example.bitter.userdetails
 
 import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,8 +17,10 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -24,11 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.bitter.ui.theme.bgColorLight
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -39,6 +44,7 @@ fun UserDetailScreen(navController: NavController) {
 
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+    val editor = keyPref.edit()
     val uname = keyPref.getString("uname", null)
     val key = keyPref.getString("key", null)
 
@@ -54,11 +60,23 @@ fun UserDetailScreen(navController: NavController) {
     val dialogState = rememberMaterialDialogState()
     val loading by viewModel.loading.collectAsState()
 
+    var backPressedTime: Long = 0
+    BackHandler {
+        val t = System.currentTimeMillis()
+
+        if (t - backPressedTime > 2000){
+            backPressedTime = t
+            Toast.makeText(context,"Press back again to logout", Toast.LENGTH_SHORT).show()
+        }
+        else viewModel.logout(uname?:"",key?:"",editor,navController)
+    }
+
+
     if (loading) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0x4DFFFFFF)),
+                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -75,7 +93,7 @@ fun UserDetailScreen(navController: NavController) {
 
         Box(
             modifier = Modifier
-                .background(Color(0xFFF3FCFF))
+                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
                 .padding(10.dp)
 
@@ -92,6 +110,7 @@ fun UserDetailScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
+                        .padding(top = 20.dp,bottom = 25.dp)
                 ) {
                     Text(
                         text = "User Details",
@@ -101,8 +120,6 @@ fun UserDetailScreen(navController: NavController) {
                         fontFamily = FontFamily.Serif
                     )
                 }
-
-                Spacer(modifier = Modifier.padding(20.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.Start,
@@ -119,38 +136,23 @@ fun UserDetailScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "First name",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = fname,
                         onValueChange = {
                             viewModel.setVal("fname", it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "First name") },
+                        label = { Text(text = "First Name") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -161,38 +163,23 @@ fun UserDetailScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Last name",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = lname,
                         onValueChange = {
                             viewModel.setVal("lname", it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "Last name") },
+                        label = { Text(text = "Last Lame") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -204,40 +191,23 @@ fun UserDetailScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                ) {
-                    Text(
-                        text = "Gender",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = gender,
                         onValueChange = {
                             viewModel.setVal("gender", it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "Gender") },
+                        label = { Text(text = "Gender") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -247,31 +217,17 @@ fun UserDetailScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                ) {
-                    Text(
-                        text = "mobile number",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = mob, onValueChange = { viewModel.setVal("mob", it) },
                         singleLine = true,
+                        label = { Text(text = "Mobile Number")},
                         modifier = Modifier
                             .fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
@@ -279,34 +235,22 @@ fun UserDetailScreen(navController: NavController) {
                             imeAction = ImeAction.Next
                         ),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         )
                     )
                 }
 
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                ) {
-                    Text(
-                        text = "Date of birth",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                TextField(
+                OutlinedTextField(
                     value = dob,
-                    readOnly = true,
+                    enabled = false,
                     onValueChange = {/* DO NOTHING */},
-                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(text = "Date of birth")},
+                    modifier = Modifier.fillMaxWidth()
+                        .noRippleClickable { dialogState.show() },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = bgColorLight
+                        backgroundColor = Color.Transparent,
+                        disabledLabelColor = Color(0xFF636c6b),
+                        disabledTextColor = Color.Black
                     ),
                     trailingIcon = {
                         Icon(
@@ -318,7 +262,6 @@ fun UserDetailScreen(navController: NavController) {
                         )
                     }
                 )
-
 
                 MaterialDialog(
                     dialogState = dialogState,
@@ -344,10 +287,11 @@ fun UserDetailScreen(navController: NavController) {
                         onClick = {
                             viewModel.saveButtonClick(uname, key, navController)
                         },
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(5.dp),
                         modifier = Modifier
-                            .padding(start = 15.dp, end = 15.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(top = 25.dp)
+                            .size(50.dp),
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = Color(0xff0065ff),
                             contentColor = Color.White
@@ -374,4 +318,19 @@ fun UserDetailScreen(navController: NavController) {
             }
         }
     }
+}
+
+
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier =
+    composed {
+        clickable(indication = null,
+            interactionSource = remember { MutableInteractionSource() }) {
+            onClick()
+        }
+    }
+
+@Preview
+@Composable
+fun UserDetailsScreenprev() {
+    UserDetailScreen(navController = NavController(LocalContext.current))
 }

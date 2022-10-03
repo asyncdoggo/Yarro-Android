@@ -1,5 +1,6 @@
 package com.example.bitter.userdetails
 
+import android.content.SharedPreferences
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,4 +61,29 @@ class UserDetailViewModel(
             setVal("loading",false)
         }
     }
+
+    fun logout(uname: String, key: String, editor: SharedPreferences.Editor, navController: NavController) {
+        val postform = JSONObject()
+        postform.put("subject","logout")
+        postform.put("uname", uname)
+        postform.put("key", key)
+
+
+        postForm(postform){ ret->
+            when (ret.getString("status")) {
+                "success" -> {
+                    stateHandle["logout"] = true
+                    editor.clear()
+                    editor.apply()
+                }
+                else -> {
+                    println("logout error")
+                }
+            }
+            viewModelScope.launch {
+                navController.navigate(Routes.LoginScreen.route + "/logout")
+            }
+        }
+    }
+
 }

@@ -11,7 +11,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +37,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bitter.data.Routes
 import com.example.bitter.login.LoginViewModel
+import com.example.bitter.ui.theme.BitterTheme
+import com.example.bitter.ui.theme.buttonColor
+import com.example.bitter.ui.theme.linkColor
 
 @Composable
 fun LoginScreenSetup(navController: NavController, error: String?) {
@@ -50,7 +56,9 @@ fun LoginScreenSetup(navController: NavController, error: String?) {
             viewModel.autoLogin(uname, key,editor,navController)
         }
     }
-    LoginScreen(navController,error)
+    BitterTheme {
+        LoginScreen(navController,error)
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -72,7 +80,7 @@ fun LoginScreen(navController: NavController,error: String?) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0x4DFFFFFF)),
+                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -88,7 +96,7 @@ fun LoginScreen(navController: NavController,error: String?) {
    else{
     Box(
         modifier = Modifier
-            .background(Color(0xFFF3FCFF))
+            .background(MaterialTheme.colors.background)
             .fillMaxSize()
             .padding(10.dp)
 
@@ -120,37 +128,23 @@ fun LoginScreen(navController: NavController,error: String?) {
             }
             Spacer(modifier = Modifier.padding(20.dp))
 
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp)
-            ) {
-                Text(
-                    text = "Username",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp)
+                    .padding(bottom = 25.dp)
             )
             {
-                TextField(
-                    value = username, onValueChange = { viewModel.onUsernameChange(it) },
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { viewModel.onUsernameChange(it) },
+                    label = { Text(text = "Enter your username")},
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFF3FCFF)
+                        backgroundColor = Color.Transparent
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
@@ -161,26 +155,12 @@ fun LoginScreen(navController: NavController,error: String?) {
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = "Password",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.caption,
-                    fontFamily = FontFamily.Default
-                )
-
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
             )
             {
-                TextField(
-                    value = password, onValueChange = { viewModel.onPasswordChanged(it) },
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { viewModel.onPasswordChanged(it) },
+                    label = { Text(text = "Enter your password")},
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -207,7 +187,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                         }
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color(0xFFF3FCFF)
+                        backgroundColor = Color.Transparent
                     )
                 )
             }
@@ -216,7 +196,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(7.dp)
+                    .padding(top = 12.dp)
             ) {
                 Text(
                     text = "Forgot password?",
@@ -224,7 +204,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                     modifier = Modifier.clickable {
                         navController.navigate(Routes.ForgotPassScreen.route)
                     },
-                    color = Color(0xff0000ee)
+                    color = MaterialTheme.colors.linkColor
                 )
             }
 
@@ -233,19 +213,19 @@ fun LoginScreen(navController: NavController,error: String?) {
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 5.dp)
+                    .padding(top = 80.dp, bottom = 5.dp)
             )
             {
                 Button(
                     onClick = {
                         viewModel.loginButtonOnClick(navController, editor)
                     },
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(size = 5.dp),
                     modifier = Modifier
-                        .padding(start = 15.dp, end = 15.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .size(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xff0065ff),
+                        backgroundColor = MaterialTheme.colors.buttonColor,
                         contentColor = Color.White
                     )
 
@@ -271,7 +251,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                 Text(
                     text = buildAnnotatedString {
                         append("New to B-itter? ")
-                        withStyle(style = SpanStyle(color = Color(0xff0000ee))) {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colors.linkColor)) {
                             append("Register here")
                         }
                     },
@@ -289,7 +269,7 @@ fun LoginScreen(navController: NavController,error: String?) {
             ) {
                 Text(
                     text = if(error == "logout") "You have been Logged out" else errortext,
-                    color = Color.Red
+                    color = MaterialTheme.colors.error
                 )
             }
         }

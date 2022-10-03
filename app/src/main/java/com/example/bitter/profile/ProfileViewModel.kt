@@ -27,7 +27,6 @@ class ProfileViewModel(
     val gender = stateHandle.getStateFlow("gender","")
     val mob = stateHandle.getStateFlow("mob","")
     val dob = stateHandle.getStateFlow("dob","")
-    val editable = stateHandle.getStateFlow("editable",false)
     val error = stateHandle.getStateFlow("error","")
 
 
@@ -85,8 +84,10 @@ class ProfileViewModel(
                     stateHandle["fname"] = data.getString("fname")
                     stateHandle["lname"] = data.getString("lname")
                     stateHandle["gender"] = data.getString("gender")
-                    stateHandle["mob"] = data.getString("mob")
-                    stateHandle["dob"] = data.getString("dob")
+                    val m = data.getString("mob")
+                    stateHandle["mob"] = if(m == "0") "" else m
+                    val d = data.getString("dob")
+                    stateHandle["dob"] = if(m == "0000-00-00") "" else d
                     stateHandle["details"] = false
                     ""
                 }

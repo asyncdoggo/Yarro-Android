@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.bitter.ui.theme.bgColorLight
+import com.example.bitter.ui.theme.buttonColor
 
 
 @Composable
@@ -59,7 +59,7 @@ fun RegisterScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0x4DFFFFFF)),
+                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -77,7 +77,7 @@ fun RegisterScreen(navController: NavController) {
 
         Box(
             modifier = Modifier
-                .background(bgColorLight)
+                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
                 .padding(10.dp)
 
@@ -90,7 +90,7 @@ fun RegisterScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
             ) {
 
-                Spacer(modifier = Modifier.padding(50.dp))
+                Spacer(modifier = Modifier.padding(40.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.Start,
@@ -108,39 +108,25 @@ fun RegisterScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.padding(20.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Email",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = email,
                         onValueChange = {
                             viewModel.setVal("email", it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "Enter your Email") },
+                        label = { Text(text = "Enter your Email") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -150,38 +136,23 @@ fun RegisterScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Username",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 10.dp)
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = username,
                         onValueChange = {
                             viewModel.setVal("username", it)
                         },
                         singleLine = true,
-                        placeholder = { Text(text = "username") },
+                        label = { Text(text = "Enter your username") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -191,33 +162,17 @@ fun RegisterScreen(navController: NavController) {
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                ) {
-                    Text(
-                        text = "Password",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = password1, onValueChange = { viewModel.setVal("password1", it) },
                         singleLine = true,
-                        placeholder = { Text(text = "password") },
+                        label = { Text(text = "Enter your password") },
                         modifier = Modifier
                             .fillMaxWidth(),
                         visualTransformation = if (password1Visible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -243,39 +198,24 @@ fun RegisterScreen(navController: NavController) {
                             }
                         },
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight
+                            backgroundColor = Color.Transparent
 
                         )
                     )
                 }
 
                 Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                ) {
-                    Text(
-                        text = "Reenter Password",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.caption,
-                        fontFamily = FontFamily.Default
-                    )
-                }
-
-                Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(bottom = 12.dp)
                 )
                 {
-                    TextField(
+                    OutlinedTextField(
                         value = password2, onValueChange = { viewModel.setVal("password2", it) },
                         singleLine = true,
-                        placeholder = { Text(text = "password") },
+                        label = { Text(text = "Reenter your password") },
                         modifier = Modifier
                             .fillMaxWidth(),
                         visualTransformation = if (password2Visible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -301,7 +241,7 @@ fun RegisterScreen(navController: NavController) {
                             }
                         },
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = bgColorLight,
+                            backgroundColor = Color.Transparent,
                             focusedIndicatorColor = if (password1 == password2) Color.Green else Color.Red
                         ),
                         keyboardActions = KeyboardActions(
@@ -317,19 +257,19 @@ fun RegisterScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 5.dp)
                 )
                 {
                     Button(
                         onClick = {
                             viewModel.registerButtonOnClick(editor, navController)
                         },
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(5.dp),
                         modifier = Modifier
-                            .padding(start = 15.dp, end = 15.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(top = 25.dp)
+                            .size(50.dp),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = Color(0xff0065ff),
+                            backgroundColor = MaterialTheme.colors.buttonColor,
                             contentColor = Color.White
                         )
                     ) {
