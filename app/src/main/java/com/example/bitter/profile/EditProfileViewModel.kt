@@ -1,5 +1,7 @@
 package com.example.bitter.profile
 
+import android.content.SharedPreferences
+import android.content.SharedPreferences.Editor
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -15,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-class ProfileViewModel(
+class EditProfileViewModel(
     private val stateHandle: SavedStateHandle
 ) :ViewModel(){
     val checked = stateHandle.getStateFlow("checked",true)
@@ -37,7 +39,8 @@ class ProfileViewModel(
     fun saveButtonClick(
         uname: String?,
         key: String?,
-        navController:NavController
+        navController:NavController,
+        editor:Editor
     ) {
         val postform = JSONObject()
         postform.put("subject", "udetails")
@@ -58,8 +61,12 @@ class ProfileViewModel(
                     "Mobile number should be 10 digit number"
                 }
                 "logout" -> {
+                    editor.clear()
+                    editor.commit()
                     viewModelScope.launch(Dispatchers.Main) {
-                        navController.navigate(Routes.LoginScreen.route + "/logout")
+                        navController.navigate(Routes.LoginScreen.route + "/logout"){
+                            popUpTo(Routes.MainScreen.route)
+                        }
                     }
                     ""
                 }
@@ -71,7 +78,12 @@ class ProfileViewModel(
         }
     }
 
-    fun getUserDetails(uname: String?, key: String?,navController: NavController) {
+    fun getUserDetails(
+        uname: String?,
+        key: String?,
+        navController: NavController,
+        editor: Editor
+    ) {
         val postform = JSONObject()
         postform.put("subject", "getudetails")
         postform.put("key", key)
@@ -92,8 +104,12 @@ class ProfileViewModel(
                     ""
                 }
                 "logout" -> {
+                    editor.clear()
+                    editor.commit()
                     viewModelScope.launch(Dispatchers.Main) {
-                        navController.navigate(Routes.LoginScreen.route + "/logout")
+                        navController.navigate(Routes.LoginScreen.route + "/logout"){
+                            popUpTo(Routes.MainScreen.route)
+                        }
                     }
                     ""
                 }
