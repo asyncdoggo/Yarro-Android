@@ -68,6 +68,5 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.0")
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation "io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc"
-
-
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.26.4-beta"
 }
