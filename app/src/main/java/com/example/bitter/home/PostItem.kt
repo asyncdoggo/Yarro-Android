@@ -1,4 +1,4 @@
-package com.example.bitter.main
+package com.example.bitter.home
 
 import Bitter.R
 import androidx.compose.foundation.BorderStroke
@@ -11,7 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,7 +50,6 @@ fun PostItem(
     byuser: String,
     datetime:String
 ) {
-    var _lc = lc
     Row(
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
@@ -69,11 +68,11 @@ fun PostItem(
                 placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(65.dp)
+                    .size(60.dp)
             )
         }
 
-        Column(modifier = Modifier.padding(start = 10.dp)) {
+        Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -81,20 +80,22 @@ fun PostItem(
             ){
                 Text(
                     text = username,
+                    color = MaterialTheme.colors.onBackground,
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.caption
                 )
             }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp)
+                    .padding(start = 10.dp,end = 1.dp)
             ) {
                 Text(
                     text = content,
-                    fontSize = 20.sp
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 16.sp
                 )
             }
 
@@ -111,8 +112,7 @@ fun PostItem(
                     postForm(postform){ ret->
                         when (ret.getString("status")) {
                             "success" -> {
-                                val temp = _lc.toInt() + 1
-                                _lc = temp.toString()
+
                             }
                             else -> {
                             }
@@ -123,11 +123,12 @@ fun PostItem(
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Like Button",
-                        tint = if(isliked == 1) Color.Blue else Color.Black
+                        tint = if(isliked == 1) Color.Blue else MaterialTheme.colors.onBackground
                     )
                 }
                 Text(
-                    text = _lc,
+                    text = lc,
+                    color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.padding(top = 15.dp)
                 )
 
@@ -138,6 +139,7 @@ fun PostItem(
                 ) {
                     Text(
                         text = datetime,
+                        color = MaterialTheme.colors.onBackground,
                         modifier = Modifier.padding(top = 30.dp, end = 15.dp),
                         fontSize = 11.sp
                     )
@@ -151,7 +153,7 @@ fun PostItem(
 
 @Preview(showBackground = true)
 @Composable
-fun Text() {
+fun Test() {
     PostItem(
         username = "user1",
         content = "lorem ipsum dolor sit amet, col amit amze dfsdj fsdkfljsdf ksdfdsfhfjsdhd gfjsddgshf jdgsfhdsj gfshgff hgdsjfh gdsjfhg dsjfhg dsjfhsdgfdshgfdshf dshgfdsfhsgdjfshdgfshdgfsjdhgfsjdhfgshdfgdshfgdsjfhgdsjfasish",

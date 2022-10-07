@@ -37,7 +37,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.bitter.data.Routes
 import com.example.bitter.login.LoginViewModel
-import com.example.bitter.ui.theme.BitterTheme
 import com.example.bitter.ui.theme.buttonColor
 import com.example.bitter.ui.theme.linkColor
 
@@ -56,9 +55,7 @@ fun LoginScreenSetup(navController: NavController, error: String?) {
             viewModel.autoLogin(uname, key,editor,navController)
         }
     }
-    BitterTheme {
-        LoginScreen(navController,error)
-    }
+    LoginScreen(navController,error)
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -70,7 +67,7 @@ fun LoginScreen(navController: NavController,error: String?) {
     val username by viewModel.username.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
-    val errortext by viewModel.errortext.collectAsState()
+    val errortext by viewModel.errortext.collectAsState(if(error == "logout") "You have been logged out" else "")
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val editor = keyPref.edit()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -86,6 +83,7 @@ fun LoginScreen(navController: NavController,error: String?) {
         ) {
             Text(
                 text = "Loading",
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.padding(10.dp),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
@@ -121,6 +119,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                 Text(
                     text = "B-itter",
                     fontSize = 50.sp,
+                    color = MaterialTheme.colors.onBackground,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.h1,
                     fontFamily = FontFamily.Cursive
@@ -144,7 +143,8 @@ fun LoginScreen(navController: NavController,error: String?) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent
+                        backgroundColor = Color.Transparent,
+                        textColor = MaterialTheme.colors.onBackground
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
@@ -187,7 +187,8 @@ fun LoginScreen(navController: NavController,error: String?) {
                         }
                     },
                     colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent
+                        backgroundColor = Color.Transparent,
+                        textColor = MaterialTheme.colors.onBackground
                     )
                 )
             }
@@ -233,6 +234,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                     Text(
                         text = "Login",
                         fontSize = 20.sp,
+                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -255,6 +257,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                             append("Register here")
                         }
                     },
+                    color = MaterialTheme.colors.onBackground,
                     fontSize = 15.sp
                 )
 
@@ -268,7 +271,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                     .padding(top = 20.dp)
             ) {
                 Text(
-                    text = if(error == "logout") "You have been Logged out" else errortext,
+                    text = errortext,
                     color = MaterialTheme.colors.error
                 )
             }

@@ -51,6 +51,7 @@ fun ForgotPassScreen(navController: NavController) {
         ) {
             Text(
                 text = "Loading",
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.padding(10.dp),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
@@ -83,6 +84,7 @@ fun ForgotPassScreen(navController: NavController) {
                     Text(
                         text = "Reset password",
                         fontSize = 35.sp,
+                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.h1,
                         fontFamily = FontFamily.Serif

@@ -39,8 +39,8 @@ class LoginViewModel(
                             val uname = ret.getString("uname")
 
                             editor.putString("uname", uname)
-                            editor.putString("key", key)
-                            editor.apply()
+                            .putString("key", key)
+                            .commit()
                             viewModelScope.launch(Dispatchers.Main) {
                                 navController.navigate(Routes.MainScreen.route)
                             }
@@ -77,8 +77,8 @@ class LoginViewModel(
                         val _key = ret.getString("key")
                         val _uname = ret.getString("uname")
                         editor.putString("uname", _uname)
-                        editor.putString("key", _key)
-                        editor.apply()
+                        .putString("key", _key)
+                        .commit()
 
                         viewModelScope.launch(Dispatchers.Main) {
                             navController.navigate(Routes.MainScreen.route)

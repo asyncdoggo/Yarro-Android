@@ -1,6 +1,5 @@
 package com.example.bitter.util
 
-import android.accounts.NetworkErrorException
 import android.content.Context
 import android.graphics.Bitmap
 import coil.annotation.ExperimentalCoilApi
@@ -11,14 +10,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
-import org.json.JSONException
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
@@ -63,14 +59,14 @@ fun postForm(
                 e.printStackTrace()
             }
 
-            override fun onResponse(call: Call, response: Response) {
+            override fun onResponse(call:Call, response: Response) {
                 try {
                     val responseString = String(response.body.bytes())
                     val ret = JSONObject(responseString)
                     callback(ret)
                 }
-                catch (_:JSONException){
-
+                catch (_:Exception){
+                    callback(JSONObject().put("status","failure"))
                 }
             }
 
@@ -102,11 +98,11 @@ fun postImage(
     val client = OkHttpClient()
 
     client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call: Call, e: IOException) {
+        override fun onFailure(call:Call, e: IOException) {
             e.printStackTrace()
         }
 
-        override fun onResponse(call: Call, response: Response) {
+        override fun onResponse(call:Call, response: Response) {
             val responseString = String(response.body.bytes())
             val ret = JSONObject(responseString)
             println(ret)
@@ -140,3 +136,23 @@ fun removeCoilCache(context: Context) {
     imageLoader.diskCache?.clear()
     imageLoader.memoryCache?.clear()
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

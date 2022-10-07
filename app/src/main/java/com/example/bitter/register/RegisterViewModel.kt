@@ -44,9 +44,9 @@ class RegisterViewModel(
                             val retkey = ret.getString("key")
                             editor.putString("uname", retuname)
                             editor.putString("key", retkey)
-                            editor.apply()
+                            editor.commit()
                             viewModelScope.launch(Dispatchers.Main) {
-                                navController.navigate(Routes.UserDetailsScreen.route)
+                                navController.navigate(Routes.MainScreen.route)
                             }
                             ""
                         }

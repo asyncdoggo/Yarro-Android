@@ -65,6 +65,7 @@ fun RegisterScreen(navController: NavController) {
         ) {
             Text(
                 text = "Loading",
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.padding(10.dp),
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
@@ -100,6 +101,7 @@ fun RegisterScreen(navController: NavController) {
                     Text(
                         text = "Register",
                         fontSize = 40.sp,
+                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.h1,
                         fontFamily = FontFamily.Serif
@@ -126,7 +128,8 @@ fun RegisterScreen(navController: NavController) {
                         label = { Text(text = "Enter your Email") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.Transparent
+                            backgroundColor = Color.Transparent,
+                            textColor = MaterialTheme.colors.onBackground
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -152,7 +155,8 @@ fun RegisterScreen(navController: NavController) {
                         label = { Text(text = "Enter your username") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.Transparent
+                            backgroundColor = Color.Transparent,
+                            textColor = MaterialTheme.colors.onBackground
                         ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -198,7 +202,8 @@ fun RegisterScreen(navController: NavController) {
                             }
                         },
                         colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.Transparent
+                            backgroundColor = Color.Transparent,
+                            textColor = MaterialTheme.colors.onBackground
 
                         )
                     )
@@ -242,7 +247,8 @@ fun RegisterScreen(navController: NavController) {
                         },
                         colors = TextFieldDefaults.textFieldColors(
                             backgroundColor = Color.Transparent,
-                            focusedIndicatorColor = if (password1 == password2) Color.Green else Color.Red
+                            focusedIndicatorColor = if (password1 == password2) Color.Green else Color.Red,
+                            textColor = MaterialTheme.colors.onBackground
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {

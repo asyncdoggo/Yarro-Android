@@ -12,11 +12,11 @@ val bgColorLight = Color(0xFFF3FCFF)
 
 val Colors.linkColor: Color
 @Composable
-get() = if(isLight) Color(0xff0000ee) else Color.Blue //TODO: Create dark color
+get() = if(isLight) Color(0xff0000ee) else Color(0xFF00EFFF)
 
 val Colors.buttonColor: Color
 @Composable
-get() = if(isLight) Color(0xff0065ff) else Color.Blue //TODO: Create dark color
+get() = Color(0xff0065ff)
 
 
 val Colors.profPicColor: Color
