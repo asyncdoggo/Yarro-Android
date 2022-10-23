@@ -28,28 +28,26 @@ import com.example.bitter.util.postForm
 import org.json.JSONObject
 
 
-
-data class PostItemData(
-    var postId: String,
-    var username:String,
-    var content: String,
-    var lc :String,
-    var isliked: Int,
-    var byuser: String,
-    var datetime: String
-)
-
 @Composable
-fun PostItem(
-    username : String,
+fun PostCard(
+    index: Int,
+    username: String,
     content: String,
-    lc: String,
+    lc: Int,
     key: String,
     postId: String,
-    isliked: Int,
-    byuser: String,
-    datetime:String
+    isLiked: Int,
+    byUser: String,
+    datetime:String,
+    likeCallback: (Int) -> List<Int>
 ) {
+    var _lc by remember {
+        mutableStateOf(lc)
+    }
+    var _isLiked by remember {
+        mutableStateOf(isLiked)
+    }
+
     Row(
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier
@@ -76,13 +74,13 @@ fun PostItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp)
+                    .padding(start = 10.dp, top = 5.dp)
             ){
                 Text(
                     text = username,
                     color = MaterialTheme.colors.onBackground,
                     textAlign = TextAlign.Center,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.caption
                 )
@@ -90,7 +88,7 @@ fun PostItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp,end = 1.dp)
+                    .padding(start = 10.dp, end = 1.dp)
             ) {
                 Text(
                     text = content,
@@ -102,17 +100,20 @@ fun PostItem(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = {
+                IconButton(
+                    onClick = {
                     val postform = JSONObject()
                     postform.put("subject","updatelc")
-                    postform.put("uname",byuser)
+                    postform.put("uname",byUser)
                     postform.put("key",key)
                     postform.put("pid",postId)
 
                     postForm(postform){ ret->
                         when (ret.getString("status")) {
                             "success" -> {
-
+                               val l = likeCallback(index)
+                                _lc = l[0]
+                                _isLiked = l[1]
                             }
                             else -> {
                             }
@@ -123,11 +124,11 @@ fun PostItem(
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Like Button",
-                        tint = if(isliked == 1) Color.Blue else MaterialTheme.colors.onBackground
+                        tint = if(_isLiked == 1) Color.Blue else MaterialTheme.colors.onBackground
                     )
                 }
                 Text(
-                    text = lc,
+                    text = _lc.toString(),
                     color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.padding(top = 15.dp)
                 )
@@ -154,14 +155,15 @@ fun PostItem(
 @Preview(showBackground = true)
 @Composable
 fun Test() {
-    PostItem(
+    PostCard(
+        0,
         username = "user1",
         content = "lorem ipsum dolor sit amet, col amit amze dfsdj fsdkfljsdf ksdfdsfhfjsdhd gfjsddgshf jdgsfhdsj gfshgff hgdsjfh gdsjfhg dsjfhg dsjfhsdgfdshgfdshf dshgfdsfhsgdjfshdgfshdgfsjdhgfsjdhfgshdfgdshfgdsjfhgdsjfasish",
-        lc = "1",
+        lc = 1,
         key = "12",
         postId = "11",
-        isliked = 1,
-        byuser = "",
+        isLiked = 1,
+        byUser = "",
         datetime = "13:34 pm, 12-01-2022"
-    )
+    ) { listOf(1,2) }
 }

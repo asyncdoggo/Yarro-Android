@@ -124,7 +124,7 @@ fun ForgotPassScreen(navController: NavController) {
                     )
                 }
 
-                Button(
+                OutlinedButton(
                     onClick = {
                         viewModel.resetButtonOnClick()
                     },

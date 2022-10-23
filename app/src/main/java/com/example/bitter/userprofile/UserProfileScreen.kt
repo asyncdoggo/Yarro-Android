@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,7 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.bitter.home.PostItem
+import com.example.bitter.home.PostCard
 import com.example.bitter.postUrl
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -35,6 +36,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
     val editor = keyPref.edit()
 
     val postItems = viewModel.postItems
+    val fullname = viewModel.fullname.collectAsState()
 
     Box(
         modifier = Modifier
@@ -64,7 +66,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
                 )
 
                 Text(
-                    text = "fullname",
+                    text = fullname.value,
                     modifier = Modifier.padding(30.dp),
                     fontSize = 16.sp
                 )
@@ -82,7 +84,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
                     modifier = Modifier.padding(end = 20.dp)
                 )
                 
-                Button(
+                OutlinedButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 25.dp, end = 25.dp),
@@ -110,21 +112,33 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
 
             LazyColumn{
                 items(postItems) { item ->
-                    PostItem(
+                    PostCard(
+                        index = postItems.indexOf(item),
                         username = item.username,
                         content = item.content,
                         lc = item.lc,
                         key = key?:"",
                         postId = item.postId,
-                        isliked = item.isliked,
-                        byuser = item.byuser,
+                        isLiked = item.isliked,
+                        byUser = item.byuser,
                         datetime = item.datetime
-                    )
+                    ){
+                        if(postItems[it].isliked == 0){
+                            postItems[it].lc += 1
+                            postItems[it].isliked = 1
+                        }
+                        else{
+                            postItems[it].lc -= 1
+                            postItems[it].isliked = 0
+                        }
+                        listOf(postItems[it].lc,postItems[it].isliked)
+                    }
                 }
             }
 
             LaunchedEffect(key1 = true){
                 viewModel.getPosts(uname,key,innerNavController, editor)
+                viewModel.getName(uname,key)
             }
 
         }

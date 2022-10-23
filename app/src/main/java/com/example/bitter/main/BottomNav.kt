@@ -12,9 +12,10 @@ import com.example.bitter.data.Routes
 fun BottomNav(navController: NavController) {
     val items = listOf(
         Routes.Home,
-        Routes.Profile,
         Routes.Chat,
+        Routes.Profile
     )
+
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.secondary,
         contentColor = MaterialTheme.colors.onSecondary

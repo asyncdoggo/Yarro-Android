@@ -265,7 +265,7 @@ fun RegisterScreen(navController: NavController) {
                         .fillMaxWidth()
                 )
                 {
-                    Button(
+                    OutlinedButton(
                         onClick = {
                             viewModel.registerButtonOnClick(editor, navController)
                         },

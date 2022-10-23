@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.bitter.data.PostItem
 import com.example.bitter.data.Routes
 import com.example.bitter.util.postForm
 import kotlinx.coroutines.Dispatchers.IO
@@ -23,7 +24,7 @@ class HomeViewModel : ViewModel() {
     var navController:NavController? = null
 
 
-    var postItems = mutableStateListOf<PostItemData>()
+    var postItems = mutableStateListOf<PostItem>()
         private set
     var isRefreshing = mutableStateOf(false)
     private set
@@ -73,7 +74,6 @@ class HomeViewModel : ViewModel() {
                 when (ret.getString("status")) {
                     "success" -> {
                         val data = ret.getJSONObject("data")
-                        println(data)
                         postItems.clear()
                         for (i in data.keys()) {
                             val item = data.getJSONObject(i)
@@ -82,11 +82,11 @@ class HomeViewModel : ViewModel() {
                                 datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
 
                             postItems.add(
-                                element = PostItemData(
+                                element = PostItem(
                                     postId = i,
                                     username = item.getString("uname"),
                                     content = item.getString("content"),
-                                    lc = item.getString("lc"),
+                                    lc = item.getInt("lc"),
                                     isliked = item.getInt("islike"),
                                     byuser = uname?:"",
                                     datetime = datetime
@@ -109,7 +109,6 @@ class HomeViewModel : ViewModel() {
                     }
                 }
             }
-
         }
     }
 }

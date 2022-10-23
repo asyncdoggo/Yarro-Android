@@ -4,7 +4,6 @@ import LoginScreenSetup
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -13,9 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.bitter.chat.ChatScreen
+import com.example.bitter.chat.UserChatScreen
 import com.example.bitter.data.Routes
+import com.example.bitter.home.HomeScreen
 import com.example.bitter.home.NewPostScreen
-import com.example.bitter.home.StartHomeScreen
 import com.example.bitter.passwordReset.ForgotPassScreen
 import com.example.bitter.profile.EditProfileScreenSetup
 import com.example.bitter.register.RegisterScreen
@@ -61,6 +62,12 @@ fun MainScreen() {
         composable(Routes.NewPostScreen.route){
             NewPostScreen(navController = outerNavController)
         }
+
+
+        //test
+        composable("test"){
+            UserChatScreen(navController = outerNavController)
+        }
     }
 }
 
@@ -78,13 +85,13 @@ fun BottomNavHost(outerNavController: NavController) {
     ) {
         NavHost(innerNavController, startDestination = Routes.Home.route) {
             composable(Routes.Home.route) {
-                StartHomeScreen(navController = outerNavController)
+                HomeScreen(outerNavController = outerNavController)
             }
             composable(Routes.Profile.route) {
                 UserProfileScreen(outerNavController = outerNavController, innerNavController = innerNavController)
             }
             composable(Routes.Chat.route) {
-                Text(text = "Coming soon") // TODO: Chatting, fullname
+                ChatScreen(navController = innerNavController)
             }
         }
     }

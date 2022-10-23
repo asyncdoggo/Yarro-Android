@@ -217,7 +217,7 @@ fun LoginScreen(navController: NavController,error: String?) {
                     .padding(top = 80.dp, bottom = 5.dp)
             )
             {
-                Button(
+                OutlinedButton(
                     onClick = {
                         viewModel.loginButtonOnClick(navController, editor)
                     },
@@ -234,7 +234,6 @@ fun LoginScreen(navController: NavController,error: String?) {
                     Text(
                         text = "Login",
                         fontSize = 20.sp,
-                        color = MaterialTheme.colors.onBackground,
                         fontWeight = FontWeight.Medium
                     )
                 }

@@ -39,6 +39,7 @@ import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
 import com.example.bitter.ui.theme.profPicColor
+import com.example.bitter.util.postImage
 import com.example.bitter.util.removeCoilCache
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -72,7 +73,7 @@ fun EditProfileScreen(navController: NavController) {
     val mob by viewModel.mob.collectAsState()
     val dob by viewModel.dob.collectAsState()
     val errortext by viewModel.error.collectAsState()
-    val checked by viewModel.checked.collectAsState()
+    val imageSelected by viewModel.checked.collectAsState()
     val details by viewModel.details.collectAsState()
 
     val imageUri = viewModel.imageUri
@@ -109,7 +110,10 @@ fun EditProfileScreen(navController: NavController) {
                     Box(
                         Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
-                        IconButton(onClick = { viewModel.saveButtonClick(uname,key,navController,editor) }) {
+                        IconButton(onClick = {
+                            viewModel.saveButtonClick(uname,key,navController,editor)
+                            bitmap?.let { postImage(context,it,uname!!,key!!) }
+                        }) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
                                 contentDescription = "Done"
@@ -138,7 +142,7 @@ fun EditProfileScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(20.dp)
             ) {
-                if (checked) {
+                if (imageSelected) {
                     AsyncImage(
                         model = "$postUrl/images/$uname",
                         contentDescription = "image",

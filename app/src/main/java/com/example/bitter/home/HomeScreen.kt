@@ -5,17 +5,18 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,13 +32,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 
-@Composable
-fun StartHomeScreen(navController: NavController) {
-    HomeScreen(outerNavController = navController)
-}
-
-
-
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -59,6 +54,9 @@ fun HomeScreen(
     val isRefreshing = viewModel.isRefreshing.value
 
     val listState = rememberLazyListState()
+    var showFloatingAction by remember {
+        mutableStateOf(true)
+    }
 
 
     Scaffold(
@@ -88,12 +86,14 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    outerNavController.navigate(Routes.NewPostScreen.route)
+            AnimatedVisibility(visible = showFloatingAction, enter = scaleIn(), exit = scaleOut()) {
+                FloatingActionButton(
+                    onClick = {
+                        outerNavController.navigate(Routes.NewPostScreen.route)
+                    }
+                ) {
+                    Icon(Icons.Filled.Add, "New Post")
                 }
-            ) {
-                Icon(Icons.Filled.Add, "New Post")
             }
         },
         modifier = Modifier
@@ -124,19 +124,32 @@ fun HomeScreen(
                 )
                 {
                     items(postItems) { item ->
-                        PostItem(
+                        PostCard(
+                            index = postItems.indexOf(item),
                             username = item.username,
                             content = item.content,
                             lc = item.lc,
                             key = key ?: "",
                             postId = item.postId,
-                            isliked = item.isliked,
-                            byuser = item.byuser,
+                            isLiked = item.isliked,
+                            byUser = item.byuser,
                             datetime = item.datetime
-                        )
+                        ){
+                            if(postItems[it].isliked == 0){
+                                postItems[it].lc += 1
+                                postItems[it].isliked = 1
+                            }
+                            else{
+                                postItems[it].lc -= 1
+                                postItems[it].isliked = 0
+                            }
+                            listOf(postItems[it].lc,postItems[it].isliked)
+                        }
                     }
-
                 }
+
+
+                showFloatingAction = listState.isScrollingDown()
             }
         }
     }
@@ -154,7 +167,22 @@ fun HomeScreen(
             Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
         } else viewModel.logout()
     }
+}
 
-
-
+@Composable
+private fun LazyListState.isScrollingDown(): Boolean {
+    var previousIndex by remember(this) { mutableStateOf(firstVisibleItemIndex) }
+    var previousScrollOffset by remember(this) { mutableStateOf(firstVisibleItemScrollOffset) }
+    return remember(this) {
+        derivedStateOf {
+            if (previousIndex != firstVisibleItemIndex) {
+                previousIndex > firstVisibleItemIndex
+            } else {
+                previousScrollOffset >= firstVisibleItemScrollOffset
+            }.also {
+                previousIndex = firstVisibleItemIndex
+                previousScrollOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
 }

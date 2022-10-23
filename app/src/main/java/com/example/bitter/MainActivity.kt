@@ -12,6 +12,7 @@ import androidx.compose.ui.composed
 import com.example.bitter.main.MainScreen
 import com.example.bitter.ui.theme.BitterTheme
 
+
 var postUrl: String = ""
 
 class MainActivity : ComponentActivity() {
@@ -39,3 +40,4 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
             onClick()
         }
     }
+
