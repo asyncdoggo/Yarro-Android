@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,34 +39,18 @@ import com.example.bitter.login.LoginViewModel
 import com.example.bitter.ui.theme.buttonColor
 import com.example.bitter.ui.theme.linkColor
 
-@Composable
-fun LoginScreenSetup(navController: NavController, error: String?) {
-    val context = LocalContext.current
-    val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-    val uname = keyPref.getString("uname", null)
-    val key = keyPref.getString("key", null)
-
-    val viewModel = viewModel<LoginViewModel>()
-
-    if(uname != null && key != null) {
-        val editor = keyPref.edit()
-        LaunchedEffect(key1 = true) {
-            viewModel.autoLogin(uname, key,editor,navController)
-        }
-    }
-    LoginScreen(navController,error)
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(navController: NavController,error: String?) {
-
-    val viewModel = viewModel<LoginViewModel>()
+fun LoginScreen(
+    navController: NavController,
+    viewModel: LoginViewModel = viewModel()
+) {
 
     val username by viewModel.username.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
-    val errortext by viewModel.errortext.collectAsState(if(error == "logout") "You have been logged out" else "")
+    val errortext by viewModel.errortext.collectAsState()
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val editor = keyPref.edit()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -282,5 +265,5 @@ fun LoginScreen(navController: NavController,error: String?) {
 @Preview
 @Composable
 fun LoginPrev() {
-    LoginScreen(navController = NavController(LocalContext.current),"")
+    LoginScreen(navController = NavController(LocalContext.current))
 }

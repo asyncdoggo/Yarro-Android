@@ -1,4 +1,4 @@
-package com.example.bitter.passwordReset
+package com.example.bitter.resetpass
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background

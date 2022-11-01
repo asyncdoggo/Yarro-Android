@@ -32,8 +32,7 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
-    val key = keyPref.getString("key", null)
-    val editor = keyPref.edit()
+    val token = keyPref.getString("token", null)
 
     val postItems = viewModel.postItems
     val fullname = viewModel.fullname.collectAsState()
@@ -114,10 +113,9 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
                 items(postItems) { item ->
                     PostCard(
                         index = postItems.indexOf(item),
-                        username = item.username,
                         content = item.content,
                         lc = item.lc,
-                        key = key?:"",
+                        token = token?:"",
                         postId = item.postId,
                         isLiked = item.isliked,
                         byUser = item.byuser,
@@ -137,10 +135,9 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
             }
 
             LaunchedEffect(key1 = true){
-                viewModel.getPosts(uname,key,innerNavController, editor)
-                viewModel.getName(uname,key)
+                viewModel.getPosts(token,innerNavController)
+                viewModel.getName(uname,token)
             }
-
         }
     }
 }

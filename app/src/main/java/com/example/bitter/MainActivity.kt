@@ -9,7 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import com.example.bitter.main.MainScreen
+import com.example.bitter.main.MainNav
 import com.example.bitter.ui.theme.BitterTheme
 
 
@@ -27,12 +27,17 @@ class MainActivity : ComponentActivity() {
         // url
         setContent {
             BitterTheme {
-                MainScreen()
+                MainNav()
                 BackHandler { finishAndRemoveTask() }
             }
         }
     }
 }
+
+
+
+
+
 inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier =
     composed {
         clickable(indication = null,

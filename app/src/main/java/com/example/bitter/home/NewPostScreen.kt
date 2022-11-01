@@ -25,7 +25,7 @@ fun NewPostScreen(navController: NavController) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
-    val key = keyPref.getString("key", null)
+    val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
 
     val viewModel = viewModel<NewPostViewModel>()
@@ -34,7 +34,7 @@ fun NewPostScreen(navController: NavController) {
 
 
     viewModel.uname = uname?:""
-    viewModel.key = key?:""
+    viewModel.token = token?:""
     viewModel.editor = editor
     viewModel.navController = navController
 

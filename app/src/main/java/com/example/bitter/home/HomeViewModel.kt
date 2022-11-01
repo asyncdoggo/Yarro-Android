@@ -8,10 +8,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.bitter.data.PostItem
 import com.example.bitter.data.Routes
-import com.example.bitter.util.postForm
-import kotlinx.coroutines.Dispatchers.IO
+import com.example.bitter.util.ApiService
 import kotlinx.coroutines.launch
-import org.json.JSONObject
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,7 +20,7 @@ class HomeViewModel : ViewModel() {
 
 
     var uname: String? = ""
-    var key:String? = ""
+    var token:String? = ""
     var editor: Editor? = null
     var navController:NavController? = null
 
@@ -29,34 +30,14 @@ class HomeViewModel : ViewModel() {
     var isRefreshing = mutableStateOf(false)
     private set
 
-    private var delayms = 10000L
 
 
     fun logout() {
-        
-        delayms = 0L
-        val postform = JSONObject()
-        postform.put("subject", "logout")
-        postform.put("uname", uname)
-        postform.put("key", key)
-
-
-        postForm(postform) { ret ->
-            when (ret.getString("status")) {
-                "success" -> {
-                    
-                }
-                else -> {
-                    println("logout error")
-                }
-            }
-            editor?.clear()
-            editor?.commit()
-            viewModelScope.launch {
-                navController?.navigate(Routes.LoginScreen.route + "/logout") {
-                    popUpTo(Routes.MainScreen.route)
-                }
-            }
+        editor?.clear()
+        editor?.apply()
+        viewModelScope.launch {
+            val response = ApiService.logout(token)
+            navController?.navigate(Routes.LoginScreen.route)
         }
     }
 
@@ -64,52 +45,79 @@ class HomeViewModel : ViewModel() {
 
     fun getPost() {
         if(uname == null){return}
-        val postform = JSONObject()
-        postform.put("subject", "getpost")
-        postform.put("uname", uname)
-        postform.put("key", key)
-        postform.put("self", "false")
-        viewModelScope.launch(IO) {
-            postForm(postform) { ret ->
-                when (ret.getString("status")) {
-                    "success" -> {
-                        val data = ret.getJSONObject("data")
-                        postItems.clear()
-                        for (i in data.keys()) {
-                            val item = data.getJSONObject(i)
-                            var datetime = item.getString("datetime")
-                            datetime =
-                                datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
 
-                            postItems.add(
-                                element = PostItem(
-                                    postId = i,
-                                    username = item.getString("uname"),
-                                    content = item.getString("content"),
-                                    lc = item.getInt("lc"),
-                                    isliked = item.getInt("islike"),
-                                    byuser = uname?:"",
-                                    datetime = datetime
-                                )
+        viewModelScope.launch {
+            val response = ApiService.getPosts(token,"false")
+            if(response.status == "success"){
+                val data = response.data
+                if (data != null) {
+                    postItems.clear()
+                    for(i in data.keys){
+                        val item = data.getValue(i)
+                        var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
+                        datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
+                        postItems.add(
+                            element = PostItem(
+                                postId = i,
+                                username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
+                                content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
+                                lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
+                                isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
+                                byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
+                                datetime = datetime
                             )
-                        }
-                        postItems.reverse()
-                    }
-                    "logout" -> {
-                        
-//                        editor?.clear()
-//                        editor?.commit()
-//                        viewModelScope.launch(Main) {
-//                            navController?.navigate(Routes.LoginScreen.route + "/logout")
-//                        }
-
-                    }
-                    else -> {
-                        println(ret.getString("status"))
+                        )
                     }
                 }
             }
+
         }
+//        val postform = JSONObject()
+//        postform.put("subject", "getpost")
+//        postform.put("uname", uname)
+//        postform.put("key", key)
+//        postform.put("self", "false")
+//        viewModelScope.launch(IO) {
+//            postForm(postform) { ret ->
+//                when (ret.getString("status")) {
+//                    "success" -> {
+//                        val data = ret.getJSONObject("data")
+//                        postItems.clear()
+//                        for (i in data.keys()) {
+//                            val item = data.getJSONObject(i)
+//                            var datetime = item.getString("datetime")
+//                            datetime =
+//                                datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
+//
+//                            postItems.add(
+//                                element = PostItem(
+//                                    postId = i,
+//                                    username = item.getString("uname"),
+//                                    content = item.getString("content"),
+//                                    lc = item.getInt("lc"),
+//                                    isliked = item.getInt("islike"),
+//                                    byuser = uname?:"",
+//                                    datetime = datetime
+//                                )
+//                            )
+//                        }
+//                        postItems.reverse()
+//                    }
+//                    "logout" -> {
+//
+////                        editor?.clear()
+////                        editor?.commit()
+////                        viewModelScope.launch(Main) {
+////                            navController?.navigate(Routes.LoginScreen.route + "/logout")
+////                        }
+//
+//                    }
+//                    else -> {
+//                        println(ret.getString("status"))
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

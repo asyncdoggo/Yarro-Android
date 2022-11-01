@@ -1,46 +1,42 @@
 package com.example.bitter.main
 
-import LoginScreenSetup
+import LoginScreen
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.example.bitter.LoadingScreen
 import com.example.bitter.chat.ChatScreen
-import com.example.bitter.chat.UserChatScreen
 import com.example.bitter.data.Routes
 import com.example.bitter.home.HomeScreen
 import com.example.bitter.home.NewPostScreen
-import com.example.bitter.passwordReset.ForgotPassScreen
 import com.example.bitter.profile.EditProfileScreenSetup
 import com.example.bitter.register.RegisterScreen
+import com.example.bitter.resetpass.ForgotPassScreen
 import com.example.bitter.userprofile.UserProfileScreen
 
 @Composable
-fun MainScreen() {
+fun MainNav() {
     val outerNavController = rememberNavController()
 
     NavHost(
         navController = outerNavController,
-        startDestination = Routes.LoginScreen.route + "/{error}"
+        startDestination = "loadingscreen"
     ) {
-        composable(
-            route = Routes.LoginScreen.route + "/{error}",
-            arguments = listOf(
-                navArgument("error") {
-                    type = NavType.StringType
-                }
-            )
-        ) {
-            LoginScreenSetup(
-                navController = outerNavController,
-                it.arguments?.getString("error")
+
+        composable(route = "loadingscreen"){
+            LoadingScreen(outerNavController)
+        }
+
+
+        composable(route = Routes.LoginScreen.route) {
+            LoginScreen(
+                navController = outerNavController
             )
         }
 
@@ -61,12 +57,6 @@ fun MainScreen() {
         }
         composable(Routes.NewPostScreen.route){
             NewPostScreen(navController = outerNavController)
-        }
-
-
-        //test
-        composable("test"){
-            UserChatScreen(navController = outerNavController)
         }
     }
 }

@@ -43,10 +43,10 @@ fun HomeScreen(
 
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
-    val key = keyPref.getString("key", null)
+    val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
     viewModel.uname = uname
-    viewModel.key = key
+    viewModel.token = token
     viewModel.editor = editor
     viewModel.navController = outerNavController
 
@@ -121,15 +121,15 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier.fillMaxWidth()
+                        .padding(5.dp)
                 )
                 {
                     items(postItems) { item ->
                         PostCard(
                             index = postItems.indexOf(item),
-                            username = item.username,
                             content = item.content,
                             lc = item.lc,
-                            key = key ?: "",
+                            token = token ?: "",
                             postId = item.postId,
                             isLiked = item.isliked,
                             byUser = item.byuser,

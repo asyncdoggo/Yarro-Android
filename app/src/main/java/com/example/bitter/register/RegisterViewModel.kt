@@ -6,10 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.bitter.data.Routes
-import com.example.bitter.util.postForm
-import kotlinx.coroutines.Dispatchers
+import com.example.bitter.util.ApiService
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class RegisterViewModel(
     private val stateHandle: SavedStateHandle
@@ -29,51 +27,28 @@ class RegisterViewModel(
 
     fun registerButtonOnClick(editor: Editor,navController:NavController) {
        stateHandle["error"] = ""
+        stateHandle["loading"] = true
         if (password1.value == password2.value) {
-            setVal("loading", true)
-            val regForm = JSONObject()
-            regForm.put("subject", "register")
-            regForm.put("email", email.value)
-            regForm.put("uname", username.value)
-            regForm.put("passwd1", password1.value)
-            try {
-                postForm(regForm) { ret ->
-                    val e = when (ret.getString("status")) {
-                        "success" -> {
-                            val retuname = ret.getString("uname")
-                            val retkey = ret.getString("key")
-                            editor.putString("uname", retuname)
-                            editor.putString("key", retkey)
-                            editor.commit()
-                            viewModelScope.launch(Dispatchers.Main) {
-                                navController.navigate(Routes.MainScreen.route)
-                            }
-                            ""
-                        }
-                        "alreadyuser" -> {
-                            "Username already exists"
-                        }
-                        "alreadyemail" -> {
-                            "Email already exists"
-                        }
-                        "failure" -> {
-                            "Network Error"
-                        }
-                        else -> {
-                            ret.getString("status")
-                        }
+            viewModelScope.launch {
+                val response = ApiService.register(username.value,password1.value,email.value)
+                when (response.status) {
+                    "success" -> {
+                        editor.putString("token",response.token)
+                            .putString("uname",response.uname)
+                        editor.apply()
+                        navController.navigate(Routes.MainScreen.route)
                     }
-                    stateHandle["error"] = e
-                    setVal("loading", false)
-                }
-            } catch (_: Exception) {
+                    "userexists" -> {
+                        stateHandle["error"] = "username already exists"
+                        stateHandle["loading"] = false
 
+                    }
+                    else -> {
+                        stateHandle["error"] = "Error"
+                        stateHandle["loading"] = false
+                    }
+                }
             }
         }
-
-        else {
-            stateHandle["error"] = "Passwords do not match"
-        }
-
     }
 }

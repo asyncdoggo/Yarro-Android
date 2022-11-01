@@ -2,15 +2,29 @@ package com.example.bitter.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Base64
+import android.util.Log
 import coil.annotation.ExperimentalCoilApi
 import coil.imageLoader
+import com.example.bitter.models.PostResponseModel
+import com.example.bitter.models.StatusResponseModel
+import com.example.bitter.models.UserDetailsModel
 import com.example.bitter.postUrl
+import io.ktor.client.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
+import io.ktor.client.features.observer.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
+import io.ktor.http.Headers
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okio.IOException
-import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -25,90 +39,6 @@ var TRUST_ALL_CERTS: TrustManager = object : X509TrustManager {
     override fun getAcceptedIssuers(): Array<X509Certificate> {
         return arrayOf()
     }
-}
-
-fun postForm(
-    PostForm: JSONObject,
-    callback: (JSONObject) -> Unit
-) {
-
-//    val sslContext = SSLContext.getInstance("SSL")
-//    sslContext.init(null, arrayOf(TRUST_ALL_CERTS), SecureRandom())
-
-
-    val body =
-        PostForm.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-    val request = Request.Builder()
-        .url(postUrl)
-        .post(body)
-        .header("Accept", "application/json")
-        .header("Content-Type", "application/json")
-        .build()
-
-    val okHttpClient = OkHttpClient.Builder()
-//        .hostnameVerifier { _, _ -> true }
-//        .sslSocketFactory(sslContext.socketFactory, TRUST_ALL_CERTS as X509TrustManager)
-        .build()
-
-    okHttpClient.newCall(request).enqueue(
-        object : Callback {
-            override fun onFailure(call: Call, e: java.io.IOException) {
-                val ret = JSONObject()
-                ret.put("status", "failure")
-                callback(ret)
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call:Call, response: Response) {
-                try {
-                    val responseString = String(response.body.bytes())
-                    val ret = JSONObject(responseString)
-                    callback(ret)
-                }
-                catch (_:Exception){
-                    callback(JSONObject().put("status","failure"))
-                }
-            }
-
-        })
-}
-
-fun postImage(
-    context: Context,
-    bitmap: Bitmap,
-    uname: String,
-    key: String
-) {
-    val fileData = MultipartBody.Builder()
-        .setType(MultipartBody.FORM)
-        .addFormDataPart("uname", uname)
-        .addFormDataPart("key", key)
-        .addFormDataPart(
-            "image",
-            filename = uname,
-            bitmapToPng(context, bitmap).asRequestBody("image/*".toMediaTypeOrNull())
-        )
-        .build()
-
-    val request = Request.Builder()
-        .url("$postUrl/sendimage")
-        .post(fileData)
-        .build()
-
-    val client = OkHttpClient()
-
-    client.newCall(request).enqueue(object : Callback {
-        override fun onFailure(call:Call, e: IOException) {
-            e.printStackTrace()
-        }
-
-        override fun onResponse(call:Call, response: Response) {
-            val responseString = String(response.body.bytes())
-            val ret = JSONObject(responseString)
-            println(ret)
-        }
-
-    })
 }
 
 fun bitmapToPng(context: Context, bitmap: Bitmap): File {
@@ -139,13 +69,172 @@ fun removeCoilCache(context: Context) {
 
 
 
+// KTOR CONFIG
+
+
+private val ktorHttpClient = HttpClient(Android){
+    install(JsonFeature){
+        serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        })
+
+        engine {
+            connectTimeout = 60_000
+            socketTimeout = 60_000
+        }
+    }
+
+    install(Logging){
+        logger = object : Logger {
+            override fun log(message: String) {
+                Log.v("Logger ktor:",message)
+            }
+        }
+        level = LogLevel.ALL
+    }
+
+    install(ResponseObserver) {
+        onResponse { response ->
+            Log.d("HTTP status:", "${response.status.value}")
+        }
+    }
+
+    install(DefaultRequest) {
+        header(HttpHeaders.ContentType, ContentType.Application.Json)
+    }
+}
+
+object ApiService{
+    suspend fun login(username: String, password: String): StatusResponseModel {
+        val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
+
+        return ktorHttpClient.post("$postUrl/api/login") {
+            headers {
+                header(HttpHeaders.Authorization, "Basic $encoded".trim())
+            }
+        }
+    }
+
+    suspend fun register(username: String, password: String, email: String): StatusResponseModel {
+        return ktorHttpClient.post("$postUrl/api/register") {
+           body = buildJsonObject {
+               put("uname",username)
+               put("passwd1",password)
+               put("email",email)
+           }
+        }
+    }
+
+    suspend fun forgotPass(email: String): StatusResponseModel {
+        return ktorHttpClient.post("$postUrl/api/resetrequest") {
+            body = buildJsonObject {
+                put("email",email)
+            }
+        }
+    }
+
+    suspend fun getPosts(token: String?, self: String): PostResponseModel {
+        return ktorHttpClient.post("$postUrl/api/posts") {
+            headers {
+                header("x-access-tokens", token)
+            }
+            body = buildJsonObject {
+                put("self", self)
+            }
+        }
+    }
+
+    suspend fun sendPost(token: String?, content: String): StatusResponseModel {
+        return ktorHttpClient.post("$postUrl/api/newpost") {
+            headers {
+                header("x-access-tokens", token)
+            }
+            body = buildJsonObject {
+                put("content", content)
+            }
+        }
+    }
+
+    suspend fun getUserDetails(token: String?): UserDetailsModel {
+        return ktorHttpClient.post("$postUrl/api/userdetails") {
+            headers {
+                header("x-access-tokens", token)
+            }
+        }
+    }
+
+    suspend fun postImage(token : String, bitmap: Bitmap,context: Context,uname:String){
+        return HttpClient(Android).submitFormWithBinaryData(
+            url = "$postUrl/api/sendimage",
+            formData = formData{
+                append("image", bitmapToPng(context, bitmap).readBytes(), Headers.build {
+                    append(HttpHeaders.ContentDisposition, "filename=${uname}")
+                })
+            }
+        ){
+            headers {
+                header("x-access-tokens", token)
+            }
+        }
+    }
+
+    suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,token: String?): StatusResponseModel {
+        return ktorHttpClient.post("$postUrl/api/updatedata") {
+            headers {
+                header("x-access-tokens", token)
+            }
+            body = buildJsonObject {
+                put("fname", fname)
+                put("lname", lname)
+                put("gender", gender)
+                put("mob", mob)
+                put("dob", dob)
+            }
+        }
+    }
+
+    suspend fun getFullName(token: String?): JsonObject{
+        return ktorHttpClient.post("$postUrl/api/fullname") {
+            headers {
+                header("x-access-tokens", token)
+            }
+        }
+    }
+
+    suspend fun likePost(postId: String, token: String): PostResponseModel {
+        return ktorHttpClient.post("$postUrl/api/like") {
+            headers {
+                header("x-access-tokens", token)
+            }
+            body = buildJsonObject {
+                put("pid", postId)
+            }
+        }
+    }
+
+    suspend fun checkLogin(token: String):PostResponseModel {
+        return ktorHttpClient.post("$postUrl/api/checklogin") {
+            body = buildJsonObject {
+                put("token", token)
+            }
+        }
+    }
+
+    suspend fun logout(token: String?): PostResponseModel {
+        return ktorHttpClient.post("$postUrl/api/logout") {
+            body = buildJsonObject {
+                put("token", token)
+            }
+        }
+    }
+
+}
 
 
 
-
-
-
-
+// !KTOR CONFIG
 
 
 

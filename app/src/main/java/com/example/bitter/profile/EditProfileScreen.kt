@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,11 +40,12 @@ import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
 import com.example.bitter.ui.theme.profPicColor
-import com.example.bitter.util.postImage
+import com.example.bitter.util.ApiService
 import com.example.bitter.util.removeCoilCache
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -64,9 +66,9 @@ fun EditProfileScreen(navController: NavController) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
-    val key = keyPref.getString("key", null)
+    val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
-
+    val coroutineScope = rememberCoroutineScope()
     val fname by viewModel.fname.collectAsState()
     val lname by viewModel.lname.collectAsState()
     val gender by viewModel.gender.collectAsState()
@@ -111,8 +113,12 @@ fun EditProfileScreen(navController: NavController) {
                         Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
                         IconButton(onClick = {
-                            viewModel.saveButtonClick(uname,key,navController,editor)
-                            bitmap?.let { postImage(context,it,uname!!,key!!) }
+                            viewModel.saveButtonClick(token,navController)
+                            bitmap?.let {
+                                coroutineScope.launch {
+                                    ApiService.postImage(token?:"",bitmap,context,uname?:"")
+                                }
+                            }
                         }) {
                             Icon(
                                 imageVector = Icons.Filled.Check,
@@ -344,7 +350,7 @@ fun EditProfileScreen(navController: NavController) {
     }
 
     if (details) {
-        viewModel.getUserDetails(uname,key,navController,editor)
+        viewModel.getUserDetails(token,navController,editor)
     }
 }
 
