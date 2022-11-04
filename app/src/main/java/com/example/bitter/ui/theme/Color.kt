@@ -19,6 +19,6 @@ val Colors.buttonColor: Color
 get() = Color(0xff0065ff)
 
 
-val Colors.profPicColor: Color
-@Composable
-get() = if(isLight) Color(0xFFA00BCD) else Color.Blue //TODO: Create dark color
+val Colors.chatCardColor: Color
+    @Composable
+    get() = if(isLight) Color(0xffefefef) else Color(0xff5647d4)

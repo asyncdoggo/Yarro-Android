@@ -37,28 +37,6 @@ class UserProfileViewModel(
                 }
             }
         }
-
-
-//        val postform = JSONObject()
-//            .put("subject","getfullname")
-//            .put("uname",uname)
-//            .put("key",key)
-//
-//        viewModelScope.launch(IO) {
-//            postForm(postform){
-//                ret ->
-//                when (ret.getString("status")) {
-//                    "success" -> {
-//                        val name = ret.getString("name")
-//                        setVal("fullname",name)
-//                    }
-//                    else -> {
-//                        println(ret.getString("status"))
-//                    }
-//                }
-//
-//            }
-//        }
     }
 
     fun getPosts(token: String?,navController: NavController) {
@@ -88,55 +66,5 @@ class UserProfileViewModel(
                 }
             }
         }
-
-//        val postform = JSONObject()
-//            .put("subject", "getpost")
-//            .put("uname", uname)
-//            .put("key", key)
-//            .put("self","true")
-//
-//        viewModelScope.launch(IO) {
-//                postForm(postform) { ret ->
-//                    when (ret.getString("status")) {
-//                        "success" -> {
-//                            val data = ret.getJSONObject("data")
-//                            postItems.clear()
-//                            for (i in data.keys()) {
-//                                val item = data.getJSONObject(i)
-//                                var datetime = item.getString("datetime")
-//                                datetime =
-//                                    datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-//
-//                                postItems.add(
-//                                    element = PostItem(
-//                                        postId = i,
-//                                        username = item.getString("uname"),
-//                                        content = item.getString("content"),
-//                                        lc = item.getInt("lc"),
-//                                        isliked = item.getInt("islike"),
-//                                        byuser = uname ?: "",
-//                                        datetime = datetime
-//                                    )
-//                                )
-//                            }
-//                            postItems.reverse()
-//                        }
-//                        "logout" -> {
-//                            stateHandle["logout"] = true
-//                            editor.clear()
-//                            editor.commit()
-//                            viewModelScope.launch(Dispatchers.Main) {
-//                                navController.navigate(Routes.LoginScreen.route + "/logout"){
-//                                    popUpTo(Routes.MainScreen.route)
-//                                }
-//                            }
-//                        }
-//                        else -> {
-//                            println(ret.getString("status"))
-//                        }
-//                    }
-//                }
-//
-//        }
     }
 }

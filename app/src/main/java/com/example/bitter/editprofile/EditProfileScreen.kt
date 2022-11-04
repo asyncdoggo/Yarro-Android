@@ -1,4 +1,4 @@
-package com.example.bitter.profile
+package com.example.bitter.editprofile
 
 import Bitter.R
 import android.annotation.SuppressLint
@@ -39,7 +39,7 @@ import coil.compose.AsyncImage
 import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
-import com.example.bitter.ui.theme.profPicColor
+import com.example.bitter.ui.theme.linkColor
 import com.example.bitter.util.ApiService
 import com.example.bitter.util.removeCoilCache
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -179,7 +179,7 @@ fun EditProfileScreen(navController: NavController) {
                 Text(
                     "Change Profile Picture",
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colors.profPicColor,
+                    color = MaterialTheme.colors.linkColor,
                     modifier = Modifier
                         .clickable { launcher.launch("image/*") }
                 )

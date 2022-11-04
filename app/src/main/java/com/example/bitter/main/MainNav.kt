@@ -15,7 +15,7 @@ import com.example.bitter.chat.ChatScreen
 import com.example.bitter.data.Routes
 import com.example.bitter.home.HomeScreen
 import com.example.bitter.home.NewPostScreen
-import com.example.bitter.profile.EditProfileScreenSetup
+import com.example.bitter.editprofile.EditProfileScreenSetup
 import com.example.bitter.register.RegisterScreen
 import com.example.bitter.resetpass.ForgotPassScreen
 import com.example.bitter.userprofile.UserProfileScreen

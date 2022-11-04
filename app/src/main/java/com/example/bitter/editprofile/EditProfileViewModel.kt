@@ -1,4 +1,4 @@
-package com.example.bitter.profile
+package com.example.bitter.editprofile
 
 import android.content.SharedPreferences.Editor
 import android.graphics.Bitmap
