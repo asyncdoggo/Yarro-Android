@@ -38,13 +38,8 @@ class RegisterViewModel(
                         editor.apply()
                         navController.navigate(Routes.MainScreen.route)
                     }
-                    "userexists" -> {
-                        stateHandle["error"] = "username already exists"
-                        stateHandle["loading"] = false
-
-                    }
                     else -> {
-                        stateHandle["error"] = "Error"
+                        stateHandle["error"] = response.status
                         stateHandle["loading"] = false
                     }
                 }

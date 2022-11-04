@@ -32,10 +32,6 @@ class LoginViewModel(
                     editor.apply()
                     navController.navigate(Routes.MainScreen.route)
                 }
-                "failure" -> {
-                    savedStateHandle["error"] = "Username or password is wrong"
-                    savedStateHandle["loading"] = false
-                }
                 else -> {
                     savedStateHandle["error"] = "Error"
                     savedStateHandle["loading"] = false

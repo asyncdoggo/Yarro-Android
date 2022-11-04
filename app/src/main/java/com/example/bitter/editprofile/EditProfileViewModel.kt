@@ -48,40 +48,7 @@ class EditProfileViewModel(
                 }
             }
         }
-//        val postform = JSONObject()
-//        postform.put("subject", "udetails")
-//        postform.put("key", key)
-//        postform.put("uname", uname)
-//        postform.put("fname", fname.value)
-//        postform.put("lname", lname.value)
-//        postform.put("gender", gender.value)
-//        postform.put("mob", mob.value)
-//        postform.put("dob", dob.value)
-//
-//        postForm(postform){ ret->
-//            val e = when (ret.getString("status")) {
-//                "success" -> {
-//                    "Saved Successfully"
-//                }
-//                "mob" -> {
-//                    "Mobile number should be 10 digit number"
-//                }
-//                "logout" -> {
-//                    editor.clear()
-//                    editor.commit()
-//                    viewModelScope.launch(Dispatchers.Main) {
-//                        navController.navigate(Routes.LoginScreen.route + "/logout"){
-//                            popUpTo(Routes.MainScreen.route)
-//                        }
-//                    }
-//                    ""
-//                }
-//                else -> {
-//                    ret.getString("status")
-//                }
-//            }
-//            stateHandle["error"] = e
-//        }
+
     }
 
     fun getUserDetails(
@@ -97,50 +64,12 @@ class EditProfileViewModel(
                     stateHandle["fname"] = data.fname
                     stateHandle["lname"] = data.lname
                     stateHandle["gender"] = data.gender
-                    val m = data.mob
-                    stateHandle["mob"] = if(m == "0") "" else m
-                    val d = data.dob
-                    stateHandle["dob"] = if(m == "0000-00-00") "" else d
+                    stateHandle["mob"] = data.mob
+                    stateHandle["dob"] = data.dob
                     stateHandle["details"] = false
                 }
             }
         }
-//        val postform = JSONObject()
-//        postform.put("subject", "getudetails")
-//        postform.put("key", key)
-//        postform.put("uname", uname)
-//
-//        postForm(postform){ ret->
-//            val e = when (ret.getString("status")) {
-//                "success" -> {
-//                    val data = ret.getJSONObject("data")
-//                    stateHandle["fname"] = data.getString("fname")
-//                    stateHandle["lname"] = data.getString("lname")
-//                    stateHandle["gender"] = data.getString("gender")
-//                    val m = data.getString("mob")
-//                    stateHandle["mob"] = if(m == "0") "" else m
-//                    val d = data.getString("dob")
-//                    stateHandle["dob"] = if(m == "0000-00-00") "" else d
-//                    stateHandle["details"] = false
-//                    ""
-//                }
-//                "logout" -> {
-//                    editor.clear()
-//                    editor.commit()
-//                    viewModelScope.launch(Dispatchers.Main) {
-//                        navController.navigate(Routes.LoginScreen.route + "/logout"){
-//                            popUpTo(Routes.MainScreen.route)
-//                        }
-//                    }
-//                    ""
-//                }
-//                else -> {
-//                    ret.getString("status")
-//                }
-//            }
-//            stateHandle["error"] = e
-//
-//        }
     }
 
     fun setImage(uri: Uri?) {
