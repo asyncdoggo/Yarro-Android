@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +35,8 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
 
-    val postItems = viewModel.postItems
     val fullname = viewModel.fullname.collectAsState()
+    val posts = viewModel.getPosts(context,uname?:"").observeAsState(listOf())
 
     Box(
         modifier = Modifier
@@ -110,33 +111,24 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
             }
 
             LazyColumn{
-                items(postItems) { item ->
+                items(posts.value.reversed()) { item ->
                     PostCard(
-                        index = postItems.indexOf(item),
                         content = item.content,
                         lc = item.lc,
-                        token = token?:"",
+                        dlc = item.dlc,
+                        token = token ?: "",
                         postId = item.postId,
                         isLiked = item.isliked,
+                        isDisliked = item.isdisliked,
                         byUser = item.byuser,
-                        datetime = item.datetime
-                    ){
-                        if(postItems[it].isliked == 0){
-                            postItems[it].lc += 1
-                            postItems[it].isliked = 1
-                        }
-                        else{
-                            postItems[it].lc -= 1
-                            postItems[it].isliked = 0
-                        }
-                        listOf(postItems[it].lc,postItems[it].isliked)
-                    }
+                        datetime = item.datetime,
+                    )
                 }
             }
 
             LaunchedEffect(key1 = true){
-                viewModel.getPosts(token,innerNavController)
-                viewModel.getName(uname,token)
+                viewModel.getName(token)
+                viewModel.updateLikes(context,token)
             }
         }
     }

@@ -17,6 +17,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,7 @@ import com.example.bitter.data.Routes
 import com.example.bitter.postUrl
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import io.ktor.utils.io.*
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -40,7 +42,6 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
-
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
@@ -49,15 +50,16 @@ fun HomeScreen(
     viewModel.token = token
     viewModel.editor = editor
     viewModel.navController = outerNavController
-
-    val postItems = viewModel.postItems
     val isRefreshing = viewModel.isRefreshing.value
-
+    var expanded by remember {
+        mutableStateOf(false)
+    }
     val listState = rememberLazyListState()
     var showFloatingAction by remember {
         mutableStateOf(true)
     }
 
+    val posts = viewModel.updatePosts(context).observeAsState(listOf())
 
     Scaffold(
         scaffoldState = rememberScaffoldState(),
@@ -72,17 +74,27 @@ fun HomeScreen(
                     Box(
                         Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
-                        AsyncImage(
-                            model = "$postUrl/images/$uname",
-                            contentDescription = "icon",
-                            placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(50.dp)
-                        )
+                        IconButton(onClick = { expanded = true }) {
+                            AsyncImage(
+                                model = "$postUrl/images/$uname",
+                                contentDescription = "icon",
+                                placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(50.dp)
+                            )
+                        }
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                            DropdownMenuItem(onClick = { viewModel.logout() }) {
+                            Text(text = "Logout")
+                        }
                     }
                 },
-                elevation = AppBarDefaults.TopAppBarElevation
+                elevation = AppBarDefaults.TopAppBarElevation,
             )
         },
         floatingActionButton = {
@@ -113,38 +125,31 @@ fun HomeScreen(
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = {
-                    viewModel.getPost()
+                    viewModel.fetchNewPosts(context, latestPost = keyPref.getString("post","0")?:"0")
+                    viewModel.updateLikes(context,token)
                 },
             ) {
                 LazyColumn(
                     state = listState,
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(5.dp)
                 )
                 {
-                    items(postItems) { item ->
+                    items(posts.value.reversed()) { item ->
                         PostCard(
-                            index = postItems.indexOf(item),
                             content = item.content,
                             lc = item.lc,
+                            dlc = item.dlc,
                             token = token ?: "",
                             postId = item.postId,
                             isLiked = item.isliked,
+                            isDisliked = item.isdisliked,
                             byUser = item.byuser,
-                            datetime = item.datetime
-                        ){
-                            if(postItems[it].isliked == 0){
-                                postItems[it].lc += 1
-                                postItems[it].isliked = 1
-                            }
-                            else{
-                                postItems[it].lc -= 1
-                                postItems[it].isliked = 0
-                            }
-                            listOf(postItems[it].lc,postItems[it].isliked)
-                        }
+                            datetime = item.datetime,
+                        )
                     }
                 }
 
@@ -155,7 +160,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(key1 = true){
-        viewModel.getPost()
+        viewModel.updateLikes(context,token)
     }
 
     var backPressedTime: Long = 0

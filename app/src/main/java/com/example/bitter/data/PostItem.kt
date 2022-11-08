@@ -17,9 +17,14 @@ data class PostItem(
 
     @ColumnInfo(name = "lc")
     var lc :Int,
+    @ColumnInfo(name = "dlc")
+    var dlc :Int,
 
     @ColumnInfo(name = "isLiked")
     var isliked: Int,
+
+    @ColumnInfo(name = "isdisLiked")
+    var isdisliked: Int,
 
     @ColumnInfo(name = "byuser")
     var byuser: String,

@@ -135,13 +135,13 @@ object ApiService{
         }
     }
 
-    suspend fun getPosts(token: String?, self: String): PostResponseModel {
+    suspend fun getPosts(token: String?, post: String): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/posts") {
             headers {
                 header("x-access-tokens", token)
             }
             body = buildJsonObject {
-                put("self", self)
+                put("latest", post)
             }
         }
     }
@@ -203,13 +203,19 @@ object ApiService{
         }
     }
 
-    suspend fun likePost(postId: String, token: String): PostResponseModel {
+    suspend fun likePost(postId: String, token: String,like:Boolean): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/like") {
             headers {
                 header("x-access-tokens", token)
             }
             body = buildJsonObject {
                 put("pid", postId)
+                if(like){
+                    put("islike", 1)
+                }
+                else{
+                    put("islike", 0)
+                }
             }
         }
     }
@@ -226,6 +232,14 @@ object ApiService{
         return ktorHttpClient.post("$postUrl/api/logout") {
             body = buildJsonObject {
                 put("token", token)
+            }
+        }
+    }
+
+    suspend fun updateLikeData(token: String?): PostResponseModel {
+        return ktorHttpClient.post("$postUrl/api/likedata") {
+            headers {
+                header("x-access-tokens", token)
             }
         }
     }

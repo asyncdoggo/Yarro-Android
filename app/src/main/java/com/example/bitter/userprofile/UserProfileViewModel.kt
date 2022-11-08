@@ -1,16 +1,16 @@
 package com.example.bitter.userprofile
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
+import com.example.bitter.data.PostDatabase
 import com.example.bitter.data.PostItem
-import com.example.bitter.home.formatTo
-import com.example.bitter.home.toDate
+import com.example.bitter.data.PostRepository
 import com.example.bitter.util.ApiService
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -25,7 +25,13 @@ class UserProfileViewModel(
         stateHandle[k] = v
     }
 
-    fun getName(uname: String?,token: String?){
+    fun getPosts(context: Context,uname: String): LiveData<List<PostItem>> {
+        val postDao = PostDatabase.getInstance(context).postDao()
+        val repository = PostRepository(postDao)
+        return repository.getPosts(uname)
+    }
+
+    fun getName(token: String?){
         viewModelScope.launch {
             val response = ApiService.getFullName(token)
             when(response["status"]?.jsonPrimitive?.content.toString()){
@@ -38,33 +44,27 @@ class UserProfileViewModel(
             }
         }
     }
-
-    fun getPosts(token: String?,navController: NavController) {
-
+    fun updateLikes(context: Context,token: String?) {
+        val postDao = PostDatabase.getInstance(context).postDao()
+        val repository = PostRepository(postDao)
         viewModelScope.launch {
-            val response = ApiService.getPosts(token,"true")
-            if(response.status == "success"){
+            val response = ApiService.updateLikeData(token)
+            if(response.status == "success") {
                 val data = response.data
                 if (data != null) {
-                    postItems.clear()
-                    for(i in data.keys){
+                    for(i in data.keys) {
                         val item = data.getValue(i)
-                        var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
-                        datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-                        postItems.add(
-                            element = PostItem(
-                                postId = i,
-                                username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
-                                content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
-                                lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
-                                isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
-                                byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
-                                datetime = datetime
-                            )
+                        repository.update(
+                            i,
+                            item.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
+                            item.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
+                            item.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
+                            item.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
                         )
                     }
                 }
             }
         }
+
     }
 }
