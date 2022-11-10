@@ -15,5 +15,5 @@ jobs:
     - name: Build
       uses: vgaidarji/android-github-actions-build@v1.0.1
       with:
-        args: "./gradlew assembleDebug"
+        args: "gradle assembleDebug"
 
