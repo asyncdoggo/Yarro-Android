@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: automated-build-android-app-with-github-action
-      uses: amirisback/automated-build-android-app-with-github-action@2.1.0
+    - name: Build
+      uses: vgaidarji/android-github-actions-build@v1.0.1
+      with:
+        args: "./gradlew assembleDebug"
 
