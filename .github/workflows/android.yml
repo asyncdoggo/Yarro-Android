@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: sparkfabrik/android-build-action@v1.2.0
-      with:
-        project-path: android
-        output-path: my-app.apk
+    - name: automated-build-android-app-with-github-action
+      uses: amirisback/automated-build-android-app-with-github-action@2.1.0
+
