@@ -12,8 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Change wrapper permissions
+      run: chmod +x gradlew
     - name: Build
       uses: vgaidarji/android-github-actions-build@v1.0.1
       with:
-        args: "gradle assembleDebug"
+        args: "gradlew assembleDebug"
 
