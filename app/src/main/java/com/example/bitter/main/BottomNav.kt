@@ -12,7 +12,7 @@ import com.example.bitter.data.Routes
 fun BottomNav(navController: NavController) {
     val items = listOf(
         Routes.Home,
-        Routes.Chat,
+//        Routes.Chat,
         Routes.Profile
     )
 

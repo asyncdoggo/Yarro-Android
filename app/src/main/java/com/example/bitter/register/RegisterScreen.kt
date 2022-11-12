@@ -1,6 +1,7 @@
 package com.example.bitter.register
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -53,6 +54,7 @@ fun RegisterScreen(navController: NavController) {
     val password1Visible by viewModel.password1Visible.collectAsState()
     val password2Visible by viewModel.password2Visible.collectAsState()
     val loading by viewModel.loading.collectAsState()
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
 
 
     if (loading) {
@@ -252,7 +254,12 @@ fun RegisterScreen(navController: NavController) {
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                viewModel.registerButtonOnClick(editor, navController)
+                                try {
+                                    viewModel.registerButtonOnClick(editor, navController)
+                                }
+                                catch (e:Exception){
+                                    toast.show()
+                                }
                             }
                         )
                     )
@@ -267,7 +274,12 @@ fun RegisterScreen(navController: NavController) {
                 {
                     OutlinedButton(
                         onClick = {
-                            viewModel.registerButtonOnClick(editor, navController)
+                            try {
+                                viewModel.registerButtonOnClick(editor, navController)
+                            }
+                            catch (e:Exception){
+                                toast.show()
+                            }
                         },
                         shape = RoundedCornerShape(5.dp),
                         modifier = Modifier

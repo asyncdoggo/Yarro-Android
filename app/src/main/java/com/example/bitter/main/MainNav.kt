@@ -98,34 +98,37 @@ fun BottomNavHost(outerNavController: NavController) {
 
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
-            val response = ApiService.getPosts(token,latestPost?:"")
-            if(response.status == "success"){
-                val data = response.data
-                if (data != null) {
-                    var pid = "0"
-                    for(i in data.keys){
-                        val item = data.getValue(i)
-                        var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
-                        datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-                        repository.insert(
-                            PostItem(
-                                postId = i,
-                                username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
-                                content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
-                                lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
-                                dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
-                                isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
-                                isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int?:0,
-                                byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
-                                datetime = datetime
+            try {
+                val response = ApiService.getPosts(token,latestPost?:"")
+                if(response.status == "success"){
+                    val data = response.data
+                    if (data != null) {
+                        var pid = "0"
+                        for(i in data.keys){
+                            val item = data.getValue(i)
+                            var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
+                            datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
+                            repository.insert(
+                                PostItem(
+                                    postId = i,
+                                    username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
+                                    content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
+                                    lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
+                                    dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
+                                    isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
+                                    isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int?:0,
+                                    byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
+                                    datetime = datetime
+                                )
                             )
-                        )
-                        pid = i
+                            pid = i
+                        }
+                        editor.putString("post", pid)
+                        editor.apply()
                     }
-                    editor.putString("post", pid)
-                    editor.apply()
                 }
             }
+            catch (_:Exception){}
         }
     }
 
@@ -138,11 +141,11 @@ fun BottomNavHost(outerNavController: NavController) {
                 HomeScreen(outerNavController = outerNavController)
             }
             composable(Routes.Profile.route) {
-                UserProfileScreen(outerNavController = outerNavController, innerNavController = innerNavController)
+                UserProfileScreen(outerNavController = outerNavController)
             }
-            composable(Routes.Chat.route) {
-                ChatScreen(navController = innerNavController)
-            }
+//            composable(Routes.Chat.route) {
+//                ChatScreen(navController = innerNavController)
+//            }
         }
     }
 }

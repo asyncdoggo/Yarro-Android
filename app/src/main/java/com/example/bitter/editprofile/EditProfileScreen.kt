@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,6 +78,7 @@ fun EditProfileScreen(navController: NavController) {
     val errortext by viewModel.error.collectAsState()
     val imageSelected by viewModel.checked.collectAsState()
     val details by viewModel.details.collectAsState()
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
 
     val imageUri = viewModel.imageUri
 
@@ -113,11 +115,16 @@ fun EditProfileScreen(navController: NavController) {
                         Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
                         IconButton(onClick = {
-                            viewModel.saveButtonClick(token,navController)
-                            bitmap?.let {
-                                coroutineScope.launch {
-                                    ApiService.postImage(token?:"",bitmap,context,uname?:"")
+                            try {
+                                viewModel.saveButtonClick(token,navController)
+                                bitmap?.let {
+                                    coroutineScope.launch {
+                                        ApiService.postImage(token?:"",bitmap,context,uname?:"")
+                                    }
                                 }
+                            }
+                            catch (e: Exception){
+                                toast.show()
                             }
                         }) {
                             Icon(
@@ -350,7 +357,12 @@ fun EditProfileScreen(navController: NavController) {
     }
 
     if (details) {
-        viewModel.getUserDetails(token,navController,editor)
+        try {
+            viewModel.getUserDetails(token,navController,editor)
+        }
+        catch (e:Exception){
+            toast.show()
+        }
     }
 }
 

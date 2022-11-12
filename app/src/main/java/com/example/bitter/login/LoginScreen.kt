@@ -1,4 +1,5 @@
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -55,6 +56,9 @@ fun LoginScreen(
     val editor = keyPref.edit()
     val keyboardController = LocalSoftwareKeyboardController.current
     val loading by viewModel.loading.collectAsState()
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",
+        Toast.LENGTH_LONG)
+
 
     if (loading) {
         Column(
@@ -155,7 +159,13 @@ fun LoginScreen(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
-                            viewModel.loginButtonOnClick(navController, editor = editor)
+                            try {
+                                viewModel.loginButtonOnClick(navController, editor = editor)
+                            }
+                            catch(e: Exception){
+                                toast.show()
+                                e.printStackTrace()
+                            }
                         }
                     ),
                     trailingIcon = {
@@ -202,7 +212,11 @@ fun LoginScreen(
             {
                 OutlinedButton(
                     onClick = {
-                        viewModel.loginButtonOnClick(navController, editor)
+                        try {
+                            viewModel.loginButtonOnClick(navController, editor)
+                        }catch (e:Exception){
+                            toast.show()
+                        }
                     },
                     shape = RoundedCornerShape(size = 5.dp),
                     modifier = Modifier
