@@ -143,9 +143,9 @@ fun BottomNavHost(outerNavController: NavController) {
             composable(Routes.Profile.route) {
                 UserProfileScreen(outerNavController = outerNavController)
             }
-            composable(Routes.Chat.route) {
-                ChatScreen(navController = innerNavController)
-            }
+//            composable(Routes.Chat.route) {
+//                ChatScreen(navController = innerNavController)
+//            }
         }
     }
 }
