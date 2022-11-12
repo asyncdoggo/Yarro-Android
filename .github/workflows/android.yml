@@ -30,6 +30,16 @@ jobs:
       # Set Repository Name As Env Variable
       - name: Set repository name as env variable
         run: echo "repository_name=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
+        
+        
+      - name: Decode Keystore
+        env:
+            ENCODED_STRING: ${{ secrets.KEYSTORE }}
+        run: |
+            TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+            mkdir "${TMP_KEYSTORE_FILE_PATH}"
+            echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/bitterKeystore.jks
+
 
       - name: Set Up JDK
         uses: actions/setup-java@v1
@@ -43,13 +53,19 @@ jobs:
       - name: Run gradle tests
         run: ./gradlew test
 
-      # Run Build Project
-      - name: Build gradle project
-        run: ./gradlew build
+#       # Run Build Project
+#       - name: Build gradle project
+#         run: ./gradlew build
 
       # Create APK Release
       - name: Build apk release project (APK) - ${{ env.main_project_module }} module
-        run: ./gradlew assemble
+#         run: ./gradlew assemble
+        run: ./gradlew app:bundleRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+        
 
       # Noted For Output [main_project_module]/build/outputs/apk/release/
       - name: Upload APK Release - ${{ env.repository_name }}
