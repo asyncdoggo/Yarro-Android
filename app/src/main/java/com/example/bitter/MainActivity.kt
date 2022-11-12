@@ -13,18 +13,12 @@ import com.example.bitter.main.MainNav
 import com.example.bitter.ui.theme.BitterTheme
 
 
-var postUrl: String = ""
+var postUrl: String = "https://subpixel.pythonanywhere.com"
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // url
-        val url = intent.getStringExtra("url")
-        if (url != null) {
-            postUrl = "http://$url"
-        }
-        // url
         setContent {
             BitterTheme {
                 MainNav()

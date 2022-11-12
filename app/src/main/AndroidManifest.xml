@@ -17,12 +17,6 @@ xmlns:tools="http://schemas.android.com/tools">
 
     <activity
         android:name="com.example.bitter.MainActivity"
-        android:exported="false"
-        android:windowSoftInputMode="adjustResize" />
-
-
-    <activity
-        android:name="com.example.bitter.DebugActivity"
         android:exported="true"
         android:theme="@style/Theme.Bitter"
         android:windowSoftInputMode="adjustResize" >

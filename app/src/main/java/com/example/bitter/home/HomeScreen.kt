@@ -58,6 +58,7 @@ fun HomeScreen(
     var showFloatingAction by remember {
         mutableStateOf(true)
     }
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
 
     val posts = viewModel.updatePosts(context).observeAsState(listOf())
 
@@ -89,7 +90,14 @@ fun HomeScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                            DropdownMenuItem(onClick = { viewModel.logout() }) {
+                            DropdownMenuItem(onClick = {
+                                try{
+                                    viewModel.logout()
+                                }
+                                catch (e:Exception){
+                                    toast.show()
+                                }
+                            }) {
                             Text(text = "Logout")
                         }
                     }
@@ -126,7 +134,12 @@ fun HomeScreen(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = {
                     viewModel.fetchNewPosts(context, latestPost = keyPref.getString("post","0")?:"0")
-                    viewModel.updateLikes(context,token)
+                    try {
+                        viewModel.updateLikes(context,token)
+                    }
+                    catch (e:Exception){
+                        toast.show()
+                    }
                 },
             ) {
                 LazyColumn(
@@ -160,17 +173,27 @@ fun HomeScreen(
     }
 
     LaunchedEffect(key1 = true){
-        viewModel.updateLikes(context,token)
+        try {
+            viewModel.updateLikes(context,token)
+        }
+        catch (e:Exception){
+            toast.show()
+        }
     }
 
     var backPressedTime: Long = 0
     BackHandler {
-        val t = System.currentTimeMillis()
+        try {
+            val t = System.currentTimeMillis()
 
-        if (t - backPressedTime > 2000) {
-            backPressedTime = t
-            Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
-        } else viewModel.logout()
+            if (t - backPressedTime > 2000) {
+                backPressedTime = t
+                Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
+            } else viewModel.logout()
+        }
+        catch (e:Exception){
+            toast.show()
+        }
     }
 }
 

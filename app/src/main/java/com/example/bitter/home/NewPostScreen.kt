@@ -27,7 +27,7 @@ fun NewPostScreen(navController: NavController) {
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
-
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val viewModel = viewModel<NewPostViewModel>()
     val contentValue by viewModel.contentValue.collectAsState()
 
@@ -51,7 +51,7 @@ fun NewPostScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            val toast = Toast.makeText(context,"Content can't be empty",Toast.LENGTH_SHORT)
+            val toast1 = Toast.makeText(context,"Content can't be empty",Toast.LENGTH_SHORT)
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -68,7 +68,12 @@ fun NewPostScreen(navController: NavController) {
                                 Modifier.wrapContentSize(Alignment.TopEnd)
                             ) {
                                 IconButton(onClick = {
-                                    if(!viewModel.addPost()){
+                                    try {
+                                        if(!viewModel.addPost()){
+                                            toast1.show()
+                                        }
+                                    }
+                                    catch (e:Exception){
                                         toast.show()
                                     }
                                 }) {

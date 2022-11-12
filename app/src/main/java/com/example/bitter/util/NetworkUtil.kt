@@ -28,18 +28,6 @@ import okhttp3.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.security.cert.X509Certificate
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
-
-
-var TRUST_ALL_CERTS: TrustManager = object : X509TrustManager {
-    override fun checkClientTrusted(chain: Array<X509Certificate?>?, authType: String?) {}
-    override fun checkServerTrusted(chain: Array<X509Certificate?>?, authType: String?) {}
-    override fun getAcceptedIssuers(): Array<X509Certificate> {
-        return arrayOf()
-    }
-}
 
 fun bitmapToPng(context: Context, bitmap: Bitmap): File {
     //create a file to write bitmap data

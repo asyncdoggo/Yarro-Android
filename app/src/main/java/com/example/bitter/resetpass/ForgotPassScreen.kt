@@ -1,5 +1,6 @@
 package com.example.bitter.resetpass
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,6 +37,8 @@ fun ForgotPassScreen(navController: NavController) {
     val error by viewModel.error.collectAsState()
 
     val loading by viewModel.loading.collectAsState()
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",
+        Toast.LENGTH_LONG)
 
     BackHandler {
         navController.popBackStack()
@@ -117,7 +120,12 @@ fun ForgotPassScreen(navController: NavController) {
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                viewModel.resetButtonOnClick()
+                                try {
+                                    viewModel.resetButtonOnClick()
+                                }
+                                catch (e:Exception){
+                                    toast.show()
+                                }
                             }
                         )
 
@@ -126,7 +134,12 @@ fun ForgotPassScreen(navController: NavController) {
 
                 OutlinedButton(
                     onClick = {
-                        viewModel.resetButtonOnClick()
+                        try {
+                            viewModel.resetButtonOnClick()
+                        }
+                        catch (e:Exception){
+                            toast.show()
+                        }
                     },
                     shape = RoundedCornerShape(5.dp),
                     modifier = Modifier

@@ -2,6 +2,7 @@ package com.example.bitter.userprofile
 
 import Bitter.R
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,12 +30,15 @@ import com.example.bitter.data.Routes
 import com.example.bitter.ui.theme.buttonColor
 
 @Composable
-fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavController: NavController,innerNavController:NavController) {
+fun UserProfileScreen(
+    viewModel: UserProfileViewModel = viewModel(),
+    outerNavController: NavController
+) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
-
+    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val fullname = viewModel.fullname.collectAsState()
     val posts = viewModel.getPosts(context,uname?:"").observeAsState(listOf())
 
@@ -127,8 +131,13 @@ fun UserProfileScreen(viewModel: UserProfileViewModel = viewModel(), outerNavCon
             }
 
             LaunchedEffect(key1 = true){
-                viewModel.getName(token)
-                viewModel.updateLikes(context,token)
+                try {
+                    viewModel.getName(token)
+                    viewModel.updateLikes(context,token)
+                }
+                catch (e:Exception){
+                    toast.show()
+                }
             }
         }
     }
