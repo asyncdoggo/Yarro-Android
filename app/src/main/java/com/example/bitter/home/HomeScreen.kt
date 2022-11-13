@@ -92,7 +92,7 @@ fun HomeScreen(
                     ) {
                             DropdownMenuItem(onClick = {
                                 try{
-                                    viewModel.logout()
+                                    viewModel.logout(context)
                                 }
                                 catch (e:Exception){
                                     toast.show()
@@ -189,7 +189,7 @@ fun HomeScreen(
             if (t - backPressedTime > 2000) {
                 backPressedTime = t
                 Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
-            } else viewModel.logout()
+            } else viewModel.logout(context)
         }
         catch (e:Exception){
             toast.show()

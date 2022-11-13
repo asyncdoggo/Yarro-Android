@@ -11,14 +11,17 @@ import com.example.bitter.models.StatusResponseModel
 import com.example.bitter.models.UserDetailsModel
 import com.example.bitter.postUrl
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.features.*
+import io.ktor.client.features.cookies.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import io.ktor.client.features.observer.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.Headers
 import kotlinx.serialization.json.JsonObject
@@ -98,21 +101,29 @@ object ApiService{
     suspend fun login(username: String, password: String): StatusResponseModel {
         val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
 
-        return ktorHttpClient.post("$postUrl/api/login") {
+        val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
             headers {
                 header(HttpHeaders.Authorization, "Basic $encoded".trim())
             }
         }
+        val token = e.setCookie()[0].value
+        val f = e.receive<StatusResponseModel>()
+        f.token = token
+        return f
     }
 
     suspend fun register(username: String, password: String, email: String): StatusResponseModel {
-        return ktorHttpClient.post("$postUrl/api/register") {
+        val e: HttpResponse = ktorHttpClient.post("$postUrl/api/register") {
            body = buildJsonObject {
                put("uname",username)
                put("passwd1",password)
                put("email",email)
            }
         }
+        val token = e.setCookie()[0].value
+        val f = e.receive<StatusResponseModel>()
+        f.token = token
+        return f
     }
 
     suspend fun forgotPass(email: String): StatusResponseModel {
@@ -125,19 +136,20 @@ object ApiService{
 
     suspend fun getPosts(token: String?, post: String): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/posts") {
-            headers {
-                header("x-access-tokens", token)
+            headers{
+                header("Cookie", "token=${token}")
             }
             body = buildJsonObject {
                 put("latest", post)
             }
         }
+
     }
 
     suspend fun sendPost(token: String?, content: String): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/newpost") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
             body = buildJsonObject {
                 put("content", content)
@@ -148,7 +160,7 @@ object ApiService{
     suspend fun getUserDetails(token: String?): UserDetailsModel {
         return ktorHttpClient.post("$postUrl/api/userdetails") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
         }
     }
@@ -163,7 +175,7 @@ object ApiService{
             }
         ){
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
         }
     }
@@ -171,7 +183,7 @@ object ApiService{
     suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,token: String?): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/updatedata") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
             body = buildJsonObject {
                 put("fname", fname)
@@ -186,7 +198,7 @@ object ApiService{
     suspend fun getFullName(token: String?): JsonObject{
         return ktorHttpClient.post("$postUrl/api/fullname") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
         }
     }
@@ -194,7 +206,7 @@ object ApiService{
     suspend fun likePost(postId: String, token: String,like:Boolean): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/like") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
             body = buildJsonObject {
                 put("pid", postId)
@@ -210,16 +222,17 @@ object ApiService{
 
     suspend fun checkLogin(token: String):PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/checklogin") {
-            body = buildJsonObject {
-                put("token", token)
+            headers{
+                header("Cookie", "token=${token}")
             }
+
         }
     }
 
     suspend fun logout(token: String?): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/logout") {
-            body = buildJsonObject {
-                put("token", token)
+            headers {
+                header("Cookie", "token=${token}")
             }
         }
     }
@@ -227,7 +240,7 @@ object ApiService{
     suspend fun updateLikeData(token: String?): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/likedata") {
             headers {
-                header("x-access-tokens", token)
+                header("Cookie", "token=${token}")
             }
         }
     }

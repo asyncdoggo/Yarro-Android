@@ -28,11 +28,14 @@ class HomeViewModel : ViewModel() {
 
 
 
-    fun logout() {
+    fun logout(context: Context) {
+        val postDao = PostDatabase.getInstance(context).postDao()
+        val repository = PostRepository(postDao)
         editor?.clear()
         editor?.apply()
         viewModelScope.launch {
-            val response = ApiService.logout(token)
+            ApiService.logout(token)
+            repository.deleteAll()
             navController?.navigate(Routes.LoginScreen.route)
         }
     }
@@ -61,7 +64,6 @@ class HomeViewModel : ViewModel() {
                         repository.insert(
                             PostItem(
                                 postId = i,
-                                username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
                                 content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
                                 lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
                                 dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
@@ -91,11 +93,11 @@ class HomeViewModel : ViewModel() {
                     for(i in data.keys) {
                         val item = data.getValue(i)
                         repository.update(
-                            i,
-                            item.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
+                            pid = i,
+                            lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
+                            dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
+                            isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
+                            isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int?:0,
                         )
                     }
                 }

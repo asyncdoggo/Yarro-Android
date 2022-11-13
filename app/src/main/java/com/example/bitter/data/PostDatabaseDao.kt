@@ -11,6 +11,9 @@ interface PostDatabaseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: PostItem)
 
+    @Query("SELECT MAX(postId) from PostTable")
+    suspend fun getLatest() : String
+
     @Delete
     suspend fun delete(item: PostItem)
 
@@ -23,6 +26,6 @@ interface PostDatabaseDao {
     @Query("DELETE FROM PostTable")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM PostTable where username = :uname")
+    @Query("SELECT * FROM PostTable where byuser = :uname")
     fun getPosts(uname:String): LiveData<List<PostItem>>
 }

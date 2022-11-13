@@ -9,8 +9,6 @@ import androidx.room.PrimaryKey
 data class PostItem(
     @PrimaryKey
     var postId: String,
-    @ColumnInfo(name = "username")
-    var username:String,
 
     @ColumnInfo(name = "content")
     var content: String,

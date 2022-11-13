@@ -15,7 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.bitter.LoadingScreen
-import com.example.bitter.chat.ChatScreen
 import com.example.bitter.data.PostDatabase
 import com.example.bitter.data.PostItem
 import com.example.bitter.data.PostRepository
@@ -88,7 +87,7 @@ fun BottomNavHost(outerNavController: NavController) {
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
-    val latestPost = keyPref.getString("post","0")
+//    val latestPost = keyPref.getString("post","0")
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -96,10 +95,13 @@ fun BottomNavHost(outerNavController: NavController) {
     val postDao = PostDatabase.getInstance(context).postDao()
     val repository = PostRepository(postDao)
 
+    var latestPost: String?
+
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
+            latestPost = repository.getLatest()
             try {
-                val response = ApiService.getPosts(token,latestPost?:"")
+                val response = ApiService.getPosts(token, latestPost?:"0")
                 if(response.status == "success"){
                     val data = response.data
                     if (data != null) {
@@ -111,7 +113,6 @@ fun BottomNavHost(outerNavController: NavController) {
                             repository.insert(
                                 PostItem(
                                     postId = i,
-                                    username = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
                                     content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
                                     lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
                                     dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,

@@ -8,13 +8,14 @@ class PostRepository(private val postDatabaseDao: PostDatabaseDao) {
     fun getPosts(uname:String): LiveData<List<PostItem>> {
         return postDatabaseDao.getPosts(uname)
     }
-
-
+    
     suspend fun getPostById(id:String) = postDatabaseDao.getPostById(id)
 
     suspend fun insert(postItem: PostItem){
         postDatabaseDao.insert(postItem)
     }
+
+    suspend fun getLatest() = postDatabaseDao.getLatest()
 
     suspend fun update(pid:String, lc: Int, dlc:Int,isliked:Int,isdisliked:Int){
         postDatabaseDao.update(pid,lc,dlc,isliked,isdisliked)
