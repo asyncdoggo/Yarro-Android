@@ -115,7 +115,7 @@ fun UserProfileScreen(
             }
 
             LazyColumn{
-                items(posts.value.reversed()) { item ->
+                items(posts.value.asReversed()) { item ->
                     PostCard(
                         content = item.content,
                         lc = item.lc,

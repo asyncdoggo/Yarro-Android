@@ -2,7 +2,6 @@ package com.example.bitter.home
 
 import android.content.Context
 import android.content.SharedPreferences.Editor
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,11 +20,9 @@ import java.util.*
 
 class HomeViewModel : ViewModel() {
     var uname: String? = ""
-    var token:String? = ""
+    var token: String? = ""
     var editor: Editor? = null
-    var navController:NavController? = null
-    var isRefreshing = mutableStateOf(false)
-
+    var navController: NavController? = null
 
 
     fun logout(context: Context) {
@@ -46,60 +43,57 @@ class HomeViewModel : ViewModel() {
         return repository.getAllPosts
     }
 
-    fun fetchNewPosts(context:Context,latestPost:String){
+    suspend fun fetchNewPosts(context: Context, latestPost: String) {
         val postDao = PostDatabase.getInstance(context).postDao()
         val repository = PostRepository(postDao)
 
-
-        viewModelScope.launch {
-            val response = ApiService.getPosts(token,latestPost)
-            if(response.status == "success"){
-                val data = response.data
-                if (data != null) {
-                    var pid = "0"
-                    for(i in data.keys){
-                        val item = data.getValue(i)
-                        var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
-                        datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-                        repository.insert(
-                            PostItem(
-                                postId = i,
-                                content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
-                                lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
-                                dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
-                                isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
-                                isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int?:0,
-                                byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
-                                datetime = datetime
-                            )
+        val response = ApiService.getPosts(token, latestPost)
+        if (response.status == "success") {
+            val data = response.data
+            if (data != null && data.isNotEmpty()) {
+                var pid = "0"
+                for (i in data.keys) {
+                    val item = data.getValue(i)
+                    var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
+                    datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
+                    repository.insert(
+                        PostItem(
+                            postId = i,
+                            content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
+                            lc = item.jsonObject["lc"]?.jsonPrimitive?.int ?: 0,
+                            dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int ?: 0,
+                            isliked = item.jsonObject["islike"]?.jsonPrimitive?.int ?: 0,
+                            isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int ?: 0,
+                            byuser = item.jsonObject["uname"]?.jsonPrimitive?.content.toString(),
+                            datetime = datetime
                         )
-                        pid = i
-                    }
-                    editor?.putString("post", pid)
-                    editor?.apply()
+                    )
+                    pid = i
                 }
+                editor?.putString("post", pid)
+                editor?.apply()
             }
         }
+
     }
 
-    fun updateLikes(context: Context,token: String?) {
+    suspend fun updateLikes(context: Context, token: String?) {
         val postDao = PostDatabase.getInstance(context).postDao()
         val repository = PostRepository(postDao)
-        viewModelScope.launch {
-            val response = ApiService.updateLikeData(token)
-            if(response.status == "success") {
-                val data = response.data
-                if (data != null) {
-                    for(i in data.keys) {
-                        val item = data.getValue(i)
-                        repository.update(
-                            pid = i,
-                            lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
-                            dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
-                            isliked = item.jsonObject["islike"]?.jsonPrimitive?.int?:0,
-                            isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int?:0,
-                        )
-                    }
+
+        val response = ApiService.updateLikeData(token)
+        if (response.status == "success") {
+            val data = response.data
+            if (data != null) {
+                for (i in data.keys) {
+                    val item = data.getValue(i)
+                    repository.update(
+                        pid = i,
+                        lc = item.jsonObject["lc"]?.jsonPrimitive?.int ?: 0,
+                        dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int ?: 0,
+                        isliked = item.jsonObject["islike"]?.jsonPrimitive?.int ?: 0,
+                        isdisliked = item.jsonObject["isdislike"]?.jsonPrimitive?.int ?: 0,
+                    )
                 }
             }
         }

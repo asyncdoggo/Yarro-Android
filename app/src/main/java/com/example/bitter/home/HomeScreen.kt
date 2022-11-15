@@ -16,6 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -29,12 +32,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.bitter.data.Routes
 import com.example.bitter.postUrl
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import io.ktor.utils.io.*
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(
@@ -50,7 +52,10 @@ fun HomeScreen(
     viewModel.token = token
     viewModel.editor = editor
     viewModel.navController = outerNavController
-    val isRefreshing = viewModel.isRefreshing.value
+    var isRefreshing by remember{
+        mutableStateOf(false)
+    }
+
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -58,9 +63,28 @@ fun HomeScreen(
     var showFloatingAction by remember {
         mutableStateOf(true)
     }
-    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
+    val toast = Toast.makeText(
+        LocalContext.current,
+        "Cannot connect, please check your network connection",
+        Toast.LENGTH_LONG
+    )
 
     val posts = viewModel.updatePosts(context).observeAsState(listOf())
+    val refreshScope = rememberCoroutineScope()
+
+    fun refresh() = refreshScope.launch {
+        isRefreshing = true
+        try {
+            viewModel.updateLikes(context, token)
+            viewModel.fetchNewPosts(context, latestPost = keyPref.getString("post", "0") ?: "0")
+        } catch (e: Exception) {
+            toast.show()
+        }
+//        delay(1000)
+        isRefreshing = false
+    }
+
+    val state = rememberPullRefreshState(isRefreshing,::refresh)
 
     Scaffold(
         scaffoldState = rememberScaffoldState(),
@@ -90,14 +114,13 @@ fun HomeScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                            DropdownMenuItem(onClick = {
-                                try{
-                                    viewModel.logout(context)
-                                }
-                                catch (e:Exception){
-                                    toast.show()
-                                }
-                            }) {
+                        DropdownMenuItem(onClick = {
+                            try {
+                                viewModel.logout(context)
+                            } catch (e: Exception) {
+                                toast.show()
+                            }
+                        }) {
                             Text(text = "Logout")
                         }
                     }
@@ -122,61 +145,47 @@ fun HomeScreen(
             .fillMaxHeight(0.9f)
 
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
+                .pullRefresh(state)
         ) {
 
-
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = {
-                    viewModel.fetchNewPosts(context, latestPost = keyPref.getString("post","0")?:"0")
-                    try {
-                        viewModel.updateLikes(context,token)
-                    }
-                    catch (e:Exception){
-                        toast.show()
-                    }
-                },
-            ) {
                 LazyColumn(
                     state = listState,
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(5.dp)
+                        .padding(5.dp),
                 )
                 {
-                    items(posts.value.reversed()) { item ->
-                        PostCard(
-                            content = item.content,
-                            lc = item.lc,
-                            dlc = item.dlc,
-                            token = token ?: "",
-                            postId = item.postId,
-                            isLiked = item.isliked,
-                            isDisliked = item.isdisliked,
-                            byUser = item.byuser,
-                            datetime = item.datetime,
-                        )
+                    if (!isRefreshing) {
+                        items(posts.value.asReversed()) { item ->
+                            PostCard(
+                                content = item.content,
+                                lc = item.lc,
+                                dlc = item.dlc,
+                                token = token ?: "",
+                                postId = item.postId,
+                                isLiked = item.isliked,
+                                isDisliked = item.isdisliked,
+                                byUser = item.byuser,
+                                datetime = item.datetime,
+                            )
+                        }
                     }
                 }
-
-
                 showFloatingAction = listState.isScrollingDown()
-            }
+            PullRefreshIndicator(isRefreshing, state, Modifier.align(Alignment.TopCenter))
         }
+
     }
 
-    LaunchedEffect(key1 = true){
+    LaunchedEffect(key1 = true) {
         try {
-            viewModel.updateLikes(context,token)
-        }
-        catch (e:Exception){
+            viewModel.updateLikes(context, token)
+        } catch (e: Exception) {
             toast.show()
         }
     }
@@ -190,8 +199,7 @@ fun HomeScreen(
                 backPressedTime = t
                 Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
             } else viewModel.logout(context)
-        }
-        catch (e:Exception){
+        } catch (e: Exception) {
             toast.show()
         }
     }
