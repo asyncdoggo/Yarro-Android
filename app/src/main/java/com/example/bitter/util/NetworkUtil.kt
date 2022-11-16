@@ -195,10 +195,13 @@ object ApiService{
         }
     }
 
-    suspend fun getFullName(token: String?): JsonObject{
+    suspend fun getFullName(token: String?, uname: String?): JsonObject{
         return ktorHttpClient.post("$postUrl/api/fullname") {
             headers {
                 header("Cookie", "token=${token}")
+            }
+            body = buildJsonObject {
+                put("uname", uname)
             }
         }
     }

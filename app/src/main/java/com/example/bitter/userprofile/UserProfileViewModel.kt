@@ -1,7 +1,6 @@
 package com.example.bitter.userprofile
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -18,12 +17,7 @@ class UserProfileViewModel(
     private val stateHandle: SavedStateHandle
 ):ViewModel() {
     var fullname = stateHandle.getStateFlow("fullname","")
-    val postItems = mutableStateListOf<PostItem>()
 
-
-    private fun setVal(k:String, v:String){
-        stateHandle[k] = v
-    }
 
     fun getPosts(context: Context,uname: String): LiveData<List<PostItem>> {
         val postDao = PostDatabase.getInstance(context).postDao()
@@ -31,9 +25,9 @@ class UserProfileViewModel(
         return repository.getPosts(uname)
     }
 
-    fun getName(token: String?){
+    fun getName(token: String?, uname: String?){
         viewModelScope.launch {
-            val response = ApiService.getFullName(token)
+            val response = ApiService.getFullName(token,uname)
             when(response["status"]?.jsonPrimitive?.content.toString()){
                 "success" -> {
                     stateHandle["fullname"] = response["name"]?.jsonPrimitive?.content

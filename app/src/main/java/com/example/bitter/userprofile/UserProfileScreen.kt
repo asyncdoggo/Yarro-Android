@@ -132,7 +132,7 @@ fun UserProfileScreen(
 
             LaunchedEffect(key1 = true){
                 try {
-                    viewModel.getName(token)
+                    viewModel.getName(token,uname)
                     viewModel.updateLikes(context,token)
                 }
                 catch (e:Exception){
