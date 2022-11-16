@@ -245,6 +245,10 @@ object ApiService{
         }
     }
 
+    suspend fun checkUpdates(): JsonObject {
+        return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest")
+    }
+
 }
 
 
