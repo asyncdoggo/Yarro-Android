@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,13 +28,16 @@ import com.example.bitter.home.PostCard
 import com.example.bitter.postUrl
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.bitter.data.Routes
 import com.example.bitter.ui.theme.buttonColor
 
 @Composable
 fun UserProfileScreen(
     viewModel: UserProfileViewModel = viewModel(),
-    outerNavController: NavController
+    outerNavController: NavController,
+    username: String,
+    innerNavController: NavHostController
 ) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
@@ -40,7 +45,8 @@ fun UserProfileScreen(
     val token = keyPref.getString("token", null)
     val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val fullname = viewModel.fullname.collectAsState()
-    val posts = viewModel.getPosts(context,uname?:"").observeAsState(listOf())
+    val bio = viewModel.bio.collectAsState()
+    val posts = viewModel.getPosts(context,username).observeAsState(listOf())
 
     Box(
         modifier = Modifier
@@ -54,6 +60,22 @@ fun UserProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                if(username != uname) {
+                    IconButton(onClick = { innerNavController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
+                    }
+                }
+                Text(
+                    text = username,
+                    fontSize = 18.sp
+                )
+            }
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 20.dp, bottom = 10.dp, top = 20.dp, end = 20.dp),
@@ -61,7 +83,7 @@ fun UserProfileScreen(
                 horizontalArrangement = Arrangement.Start
             ) {
                 AsyncImage(
-                    model = "$postUrl/images/$uname",
+                    model = "$postUrl/images/$username",
                     contentDescription = "image",
                     placeholder = painterResource(id = R.drawable.ic_launcher_background),
                     modifier = Modifier
@@ -80,38 +102,37 @@ fun UserProfileScreen(
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 45.dp, bottom = 20.dp)
+                    .padding(horizontal = 20.dp, vertical = 20.dp)
             ) {
                 Text(
-                    text = uname?:"username",
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.padding(end = 20.dp)
+                    text = bio.value,
+                    fontSize = 16.sp
                 )
-                
-                OutlinedButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp, end = 25.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.buttonColor,
-                        contentColor = Color.White
-                    ),
-                    onClick = { outerNavController.navigate(Routes.EditUserProfileScreen.route) }
-                ) {
-                    Text(text = "Edit profile")
-                }
             }
-            
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.fillMaxWidth()
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
             ) {
-                Text(
-                    text = "Your Posts",
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(start = 20.dp, bottom = 10.dp)
-                )
+                if(username == uname) {
+                    OutlinedButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 25.dp, end = 25.dp)
+                            .size(35.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = MaterialTheme.colors.buttonColor,
+                            contentColor = Color.White
+                        ),
+                        onClick = { outerNavController.navigate(Routes.EditUserProfileScreen.route) }
+                    ) {
+                        Text(text = "Edit profile", fontSize = 14.sp)
+                    }
+                }
             }
 
             LazyColumn{
@@ -126,13 +147,14 @@ fun UserProfileScreen(
                         isDisliked = item.isdisliked,
                         byUser = item.byuser,
                         datetime = item.datetime,
+                        navController = null
                     )
                 }
             }
 
             LaunchedEffect(key1 = true){
                 try {
-                    viewModel.getName(token,uname)
+                    viewModel.getName(token,username)
                     viewModel.updateLikes(context,token)
                 }
                 catch (e:Exception){
@@ -142,3 +164,4 @@ fun UserProfileScreen(
         }
     }
 }
+

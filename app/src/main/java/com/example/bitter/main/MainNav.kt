@@ -9,8 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -139,10 +138,17 @@ fun BottomNavHost(outerNavController: NavController) {
     ) {
         NavHost(innerNavController, startDestination = Routes.Home.route) {
             composable(Routes.Home.route) {
-                HomeScreen(outerNavController = outerNavController)
+                HomeScreen(outerNavController = outerNavController, innerNavController = innerNavController)
             }
-            composable(Routes.Profile.route) {
-                UserProfileScreen(outerNavController = outerNavController)
+            composable(
+                Routes.Profile.route + "/{username}",
+                arguments = listOf(navArgument("username") { type = NavType.StringType })
+            ) {
+                UserProfileScreen(
+                    outerNavController = outerNavController,
+                    innerNavController = innerNavController,
+                    username = it.arguments?.getString("username")?:""
+                )
             }
 //            composable(Routes.Chat.route) {
 //                ChatScreen(navController = innerNavController)

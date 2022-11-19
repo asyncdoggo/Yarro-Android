@@ -17,6 +17,7 @@ class UserProfileViewModel(
     private val stateHandle: SavedStateHandle
 ):ViewModel() {
     var fullname = stateHandle.getStateFlow("fullname","")
+    var bio = stateHandle.getStateFlow("bio","")
 
 
     fun getPosts(context: Context,uname: String): LiveData<List<PostItem>> {
@@ -31,6 +32,7 @@ class UserProfileViewModel(
             when(response["status"]?.jsonPrimitive?.content.toString()){
                 "success" -> {
                     stateHandle["fullname"] = response["name"]?.jsonPrimitive?.content
+                    stateHandle["bio"] = response["bio"]?.jsonPrimitive?.content
                 }
                 else -> {
 

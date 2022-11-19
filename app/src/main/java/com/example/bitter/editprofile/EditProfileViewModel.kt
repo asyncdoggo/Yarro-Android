@@ -26,6 +26,7 @@ class EditProfileViewModel(
     val mob = stateHandle.getStateFlow("mob","")
     val dob = stateHandle.getStateFlow("dob","")
     val error = stateHandle.getStateFlow("error","")
+    val bio = stateHandle.getStateFlow("bio","")
 
 
     fun setVal(key:String,value:Any){
@@ -37,7 +38,7 @@ class EditProfileViewModel(
         navController:NavController,
     ) {
         viewModelScope.launch {
-            val response = ApiService.updateUserDetails(fname.value,lname.value,gender.value,mob.value,dob.value,token)
+            val response = ApiService.updateUserDetails(fname.value,lname.value,gender.value,mob.value,dob.value,bio.value,token)
 
             when(response.status){
                 "success" -> {
@@ -67,6 +68,7 @@ class EditProfileViewModel(
                     stateHandle["mob"] = data.mob
                     stateHandle["dob"] = data.dob
                     stateHandle["details"] = false
+                    stateHandle["bio"] = data.bio
                 }
             }
         }

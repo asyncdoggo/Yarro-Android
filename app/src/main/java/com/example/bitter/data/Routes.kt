@@ -3,7 +3,7 @@ package com.example.bitter.data
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.SupervisedUserCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(
@@ -23,6 +23,6 @@ sealed class Routes(
     object NewPostScreen : Routes("NewPostScreen")
 
     object Home: BottomNavItem("home", Icons.Default.Home,"home")
-    object Profile: BottomNavItem("profile", Icons.Default.SupervisedUserCircle,"profile")
+    object Profile: BottomNavItem("profile", Icons.Default.Person,"profile")
     object Chat: BottomNavItem("chat", Icons.Default.Chat,"chat")
 }

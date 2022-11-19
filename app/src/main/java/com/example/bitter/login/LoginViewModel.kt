@@ -33,7 +33,7 @@ class LoginViewModel(
                     navController.navigate(Routes.MainScreen.route)
                 }
                 else -> {
-                    savedStateHandle["error"] = "Error"
+                    savedStateHandle["error"] = response.status
                     savedStateHandle["loading"] = false
                 }
             }

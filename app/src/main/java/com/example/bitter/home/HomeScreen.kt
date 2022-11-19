@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     outerNavController: NavController,
+    innerNavController: NavController,
     viewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -172,6 +173,7 @@ fun HomeScreen(
                                 isDisliked = item.isdisliked,
                                 byUser = item.byuser,
                                 datetime = item.datetime,
+                                navController = innerNavController
                             )
                         }
                     }

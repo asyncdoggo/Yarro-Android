@@ -78,6 +78,7 @@ fun EditProfileScreen(navController: NavController) {
     val errortext by viewModel.error.collectAsState()
     val imageSelected by viewModel.checked.collectAsState()
     val details by viewModel.details.collectAsState()
+    val bio by viewModel.bio.collectAsState()
     val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
 
     val imageUri = viewModel.imageUri
@@ -336,6 +337,25 @@ fun EditProfileScreen(navController: NavController) {
                 }
             )
 
+            OutlinedTextField(
+                value = bio,
+                onValueChange = { viewModel.setVal("bio", it) },
+                label = { Text(text = "Bio") },
+                        modifier = Modifier
+                        .fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    disabledLabelColor = if (isSystemInDarkTheme()) Color(0xffb2b5b2) else Color(0xFF636c6b),
+                    disabledTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                ),
+                trailingIcon = {
+                    Text(
+                        text = "${bio.count()}/255"
+                    )
+                }
+
+            )
+
             Text(
                 text = errortext,
                 color = Color.Red,
@@ -363,6 +383,10 @@ fun EditProfileScreen(navController: NavController) {
         catch (e:Exception){
             toast.show()
         }
+    }
+
+    if(bio.count() > 255){
+        viewModel.setVal("bio",bio.substring(0,255))
     }
 }
 

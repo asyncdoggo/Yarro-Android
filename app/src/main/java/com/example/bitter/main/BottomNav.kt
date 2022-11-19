@@ -1,8 +1,10 @@
 package com.example.bitter.main
 
+import android.content.Context
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -15,6 +17,9 @@ fun BottomNav(navController: NavController) {
 //        Routes.Chat,
         Routes.Profile
     )
+
+    val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
+    val uname = keyPref.getString("uname", null)
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.secondary,
@@ -30,17 +35,30 @@ fun BottomNav(navController: NavController) {
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = MaterialTheme.colors.onPrimary,
                 alwaysShowLabel = true,
-                selected = currentRoute == item.route,
+                selected = currentRoute == if(item.route != Routes.Profile.route) item.route else item.route + "/{username}",
                 onClick = {
-                    navController.navigate(item.route) {
-
-                        navController.graph.startDestinationRoute?.let { screen_route ->
-                            popUpTo(screen_route) {
-                                saveState = true
+                    if(item.route == Routes.Home.route){
+                        navController.navigate(item.route) {
+                            navController.graph.startDestinationRoute?.let { screen_route ->
+                                popUpTo(screen_route) {
+                                    saveState = true
+                                }
                             }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
+                    }
+                    else {
+                        navController.navigate(item.route + "/${uname}") {
+
+                            navController.graph.startDestinationRoute?.let { screen_route ->
+                                popUpTo(screen_route) {
+                                    saveState = true
+                                }
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 }
             )

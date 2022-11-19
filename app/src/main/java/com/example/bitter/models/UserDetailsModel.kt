@@ -17,5 +17,6 @@ data class UserDetails(
     val age: String?,
     val gender: String?,
     val mob:String?,
-    val dob: String?
+    val dob: String?,
+    val bio: String?
 )

@@ -23,7 +23,10 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.bitter.data.Routes
+import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
 import com.example.bitter.ui.theme.buttonColor
 import kotlinx.coroutines.launch
@@ -33,7 +36,7 @@ import kotlinx.coroutines.launch
 fun PostCard(
     content: String,
     lc: Int,
-    dlc:Int,
+    dlc: Int,
     token: String,
     postId: String,
     isLiked: Int,
@@ -41,6 +44,7 @@ fun PostCard(
     byUser: String,
     datetime: String,
     viewModel: PostCardViewModel = viewModel(),
+    navController: NavController?
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -51,108 +55,117 @@ fun PostCard(
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier.padding(5.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-            //.border(border = BorderStroke(1.5.dp, color = Color.LightGray))
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(start = 10.dp, top = 10.dp)
-
+                modifier = Modifier.fillMaxWidth()
             ) {
-                AsyncImage(
-                    model = "$postUrl/images/$byUser",
-                    contentDescription = "icon",
-                    placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(60.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(start = 5.dp, top = 10.dp)
+                        .noRippleClickable {
+                            navController?.navigate(Routes.Profile.route + "/${byUser}")
+                        }
+
+                ) {
+                    AsyncImage(
+                        model = "$postUrl/images/$byUser",
+                        contentDescription = "icon",
+                        placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(50.dp)
+                    )
+
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp)
+                        ) {
+                            Text(
+                                text = byUser,
+                                color = MaterialTheme.colors.onBackground,
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.caption
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp)
+                        ) {
+                            Text(
+                                text = datetime,
+                                color = MaterialTheme.colors.onBackground,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Light
+                            )
+                        }
+                    }
+                }
+            }
+
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 65.dp, end = 5.dp, top = 13.dp)
+            ) {
+                Text(
+                    text = content,
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.SansSerif
                 )
             }
 
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp, top = 5.dp)
-                ) {
-                    Text(
-                        text = byUser,
-                        color = MaterialTheme.colors.onBackground,
-                        textAlign = TextAlign.Center,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.caption
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(start = 40.dp)
+            ) {
+                IconButton(
+                    onClick = {
+                        viewModel.updateLike(context, postId, token)
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Like Button",
+                        tint = if (isLiked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp)
-                ){
-                    Text(
-                        text = datetime,
-                        color = MaterialTheme.colors.onBackground,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Light
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 1.dp)
-                ) {
-                    Text(
-                        text = content,
-                        color = MaterialTheme.colors.onBackground,
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily.SansSerif
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(
-                        onClick = {
-                            viewModel.updateLike(context,postId,token)
-//                            likeCallback()
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.ThumbUp,
-                            contentDescription = "Like Button",
-                            tint = if (isLiked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
-                        )
-                    }
-                    Text(
-                        text = lc.toString(),
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.padding(top = 15.dp)
-                    )
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                viewModel.updateDislike(context,postId,token)
+                Text(
+                    text = lc.toString(),
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.padding(top = 15.dp)
+                )
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            viewModel.updateDislike(context, postId, token)
 //                                likeCallback()
-                            }
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.ThumbDown,
-                            contentDescription = "dislike Button",
-                            tint = if (isDisliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
-                        )
-                    }
-                    Text(
-                        text = dlc.toString(),
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.padding(top = 15.dp)
+                        }
+                    }) {
+                    Icon(
+                        imageVector = Icons.Default.ThumbDown,
+                        contentDescription = "dislike Button",
+                        tint = if (isDisliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
                     )
                 }
-
+                Text(
+                    text = dlc.toString(),
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.padding(top = 15.dp)
+                )
             }
+
         }
     }
 }
@@ -174,7 +187,8 @@ fun postprev() {
             isLiked = 1,
             isDisliked = 1,
             byUser = "username",
-            datetime = "11111"
+            datetime = "11111",
+            navController = NavController(LocalContext.current)
         )
     }
 }

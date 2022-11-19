@@ -99,17 +99,20 @@ private val ktorHttpClient = HttpClient(Android){
 
 object ApiService{
     suspend fun login(username: String, password: String): StatusResponseModel {
-        val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
+        try{
+            val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
 
-        val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
-            headers {
-                header(HttpHeaders.Authorization, "Basic $encoded".trim())
+            val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
+                headers {
+                    header(HttpHeaders.Authorization, "Basic $encoded".trim())
+                }
             }
+            val token = e.setCookie()[0].value
+            val f = e.receive<StatusResponseModel>()
+            f.token = token
+            return f
         }
-        val token = e.setCookie()[0].value
-        val f = e.receive<StatusResponseModel>()
-        f.token = token
-        return f
+        catch (e: Exception){ return StatusResponseModel(status = "failure") }
     }
 
     suspend fun register(username: String, password: String, email: String): StatusResponseModel {
@@ -180,7 +183,7 @@ object ApiService{
         }
     }
 
-    suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,token: String?): StatusResponseModel {
+    suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,bio:String,token: String?): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/updatedata") {
             headers {
                 header("Cookie", "token=${token}")
@@ -191,6 +194,7 @@ object ApiService{
                 put("gender", gender)
                 put("mob", mob)
                 put("dob", dob)
+                put("bio", bio)
             }
         }
     }
