@@ -13,17 +13,17 @@ import com.example.bitter.postUrl
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
-import io.ktor.client.features.*
-import io.ktor.client.features.cookies.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.features.observer.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.observer.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.Headers
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -64,11 +64,10 @@ fun removeCoilCache(context: Context) {
 
 
 private val ktorHttpClient = HttpClient(Android){
-    install(JsonFeature){
-        serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
+    install(ContentNegotiation){
+        json(Json {
             prettyPrint = true
             isLenient = true
-            ignoreUnknownKeys = true
         })
 
         engine {
@@ -108,7 +107,7 @@ object ApiService{
                 }
             }
             val token = e.setCookie()[0].value
-            val f = e.receive<StatusResponseModel>()
+            val f = e.body<StatusResponseModel>()
             f.token = token
             return f
         }
@@ -117,24 +116,24 @@ object ApiService{
 
     suspend fun register(username: String, password: String, email: String): StatusResponseModel {
         val e: HttpResponse = ktorHttpClient.post("$postUrl/api/register") {
-           body = buildJsonObject {
+           setBody(buildJsonObject {
                put("uname",username)
                put("passwd1",password)
                put("email",email)
-           }
+           })
         }
         val token = e.setCookie()[0].value
-        val f = e.receive<StatusResponseModel>()
+        val f = e.body<StatusResponseModel>()
         f.token = token
         return f
     }
 
     suspend fun forgotPass(email: String): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/resetrequest") {
-            body = buildJsonObject {
-                put("email",email)
-            }
-        }
+           setBody(buildJsonObject {
+               put("email",email)
+           })
+        }.body()
     }
 
     suspend fun getPosts(token: String?, post: String): PostResponseModel {
@@ -142,10 +141,10 @@ object ApiService{
             headers{
                 header("Cookie", "token=${token}")
             }
-            body = buildJsonObject {
+            setBody(buildJsonObject {
                 put("latest", post)
-            }
-        }
+            })
+        }.body()
 
     }
 
@@ -154,10 +153,10 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-            body = buildJsonObject {
+            setBody(buildJsonObject {
                 put("content", content)
-            }
-        }
+            })
+        }.body()
     }
 
     suspend fun getUserDetails(token: String?): UserDetailsModel {
@@ -165,7 +164,7 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-        }
+        }.body()
     }
 
     suspend fun postImage(token : String, bitmap: Bitmap,context: Context,uname:String){
@@ -180,7 +179,7 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-        }
+        }.body()
     }
 
     suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,bio:String,token: String?): StatusResponseModel {
@@ -188,15 +187,15 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-            body = buildJsonObject {
-                put("fname", fname)
-                put("lname", lname)
-                put("gender", gender)
-                put("mob", mob)
-                put("dob", dob)
-                put("bio", bio)
-            }
-        }
+           setBody(buildJsonObject {
+               put("fname", fname)
+               put("lname", lname)
+               put("gender", gender)
+               put("mob", mob)
+               put("dob", dob)
+               put("bio", bio)
+           })
+        }.body()
     }
 
     suspend fun getFullName(token: String?, uname: String?): JsonObject{
@@ -204,10 +203,10 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-            body = buildJsonObject {
+            setBody(buildJsonObject {
                 put("uname", uname)
-            }
-        }
+            })
+        }.body()
     }
 
     suspend fun likePost(postId: String, token: String,like:Boolean): PostResponseModel {
@@ -215,7 +214,7 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-            body = buildJsonObject {
+            setBody(buildJsonObject {
                 put("pid", postId)
                 if(like){
                     put("islike", 1)
@@ -223,8 +222,8 @@ object ApiService{
                 else{
                     put("islike", 0)
                 }
-            }
-        }
+            })
+        }.body()
     }
 
     suspend fun checkLogin(token: String):PostResponseModel {
@@ -232,8 +231,7 @@ object ApiService{
             headers{
                 header("Cookie", "token=${token}")
             }
-
-        }
+        }.body()
     }
 
     suspend fun logout(token: String?): PostResponseModel {
@@ -241,7 +239,7 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-        }
+        }.body()
     }
 
     suspend fun updateLikeData(token: String?): PostResponseModel {
@@ -249,11 +247,11 @@ object ApiService{
             headers {
                 header("Cookie", "token=${token}")
             }
-        }
+        }.body()
     }
 
     suspend fun checkUpdates(): JsonObject {
-        return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest")
+        return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest").body()
     }
 
 }
