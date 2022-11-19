@@ -19,21 +19,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeViewModel : ViewModel() {
-    var uname: String? = ""
-    var token: String? = ""
-    var editor: Editor? = null
-    var navController: NavController? = null
-
-
-    fun logout(context: Context) {
+    fun logout(editor: Editor,context: Context,navController:NavController,token: String) {
         val postDao = PostDatabase.getInstance(context).postDao()
         val repository = PostRepository(postDao)
-        editor?.clear()
-        editor?.apply()
+        editor.clear()
+        editor.apply()
         viewModelScope.launch {
             ApiService.logout(token)
             repository.deleteAll()
-            navController?.navigate(Routes.LoginScreen.route)
+            navController.navigate(Routes.LoginScreen.route)
         }
     }
 
@@ -43,7 +37,7 @@ class HomeViewModel : ViewModel() {
         return repository.getAllPosts
     }
 
-    suspend fun fetchNewPosts(context: Context, latestPost: String) {
+    suspend fun fetchNewPosts(token:String, context: Context, latestPost: String,editor:Editor) {
         val postDao = PostDatabase.getInstance(context).postDao()
         val repository = PostRepository(postDao)
 
@@ -70,8 +64,8 @@ class HomeViewModel : ViewModel() {
                     )
                     pid = i
                 }
-                editor?.putString("post", pid)
-                editor?.apply()
+                editor.putString("post", pid)
+                editor.apply()
             }
         }
 

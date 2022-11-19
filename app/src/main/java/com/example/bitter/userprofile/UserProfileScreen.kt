@@ -11,9 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +45,12 @@ fun UserProfileScreen(
     val fullname = viewModel.fullname.collectAsState()
     val bio = viewModel.bio.collectAsState()
     val posts = viewModel.getPosts(context,username).observeAsState(listOf())
+
+    val reversed by remember(posts.value) {
+        derivedStateOf {
+            posts.value.reversed()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -136,17 +140,10 @@ fun UserProfileScreen(
             }
 
             LazyColumn{
-                items(posts.value.asReversed()) { item ->
+                items(reversed) { item ->
                     PostCard(
-                        content = item.content,
-                        lc = item.lc,
-                        dlc = item.dlc,
+                        item,
                         token = token ?: "",
-                        postId = item.postId,
-                        isLiked = item.isliked,
-                        isDisliked = item.isdisliked,
-                        byUser = item.byuser,
-                        datetime = item.datetime,
                         navController = null
                     )
                 }

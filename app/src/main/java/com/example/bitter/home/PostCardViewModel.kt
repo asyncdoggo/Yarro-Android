@@ -37,29 +37,28 @@ class PostCardViewModel : ViewModel() {
         }
     }
 
-    fun updateDislike(context: Context, postId: String, token: String) {
+    suspend fun updateDislike(context: Context, postId: String, token: String) {
         val postDao = PostDatabase.getInstance(context).postDao()
         val repository = PostRepository(postDao)
 
-        viewModelScope.launch {
-            try {
-                val response = ApiService.likePost(postId, token, false)
-                when (response.status) {
-                    "success" -> {
-                        val data = response.data
-                        if (data != null) {
-                            repository.update(
-                                postId,
-                                data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
-                            )
-                        }
+        try {
+            val response = ApiService.likePost(postId, token, false)
+            when (response.status) {
+                "success" -> {
+                    val data = response.data
+                    if (data != null) {
+                        repository.update(
+                            postId,
+                            data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
+                            data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
+                            data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
+                            data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
+                        )
                     }
                 }
             }
-            catch (_:Exception){}
         }
+        catch (_:Exception){}
+
     }
 }

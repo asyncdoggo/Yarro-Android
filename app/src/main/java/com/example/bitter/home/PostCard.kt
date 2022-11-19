@@ -25,24 +25,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.bitter.data.PostItem
 import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
 import com.example.bitter.ui.theme.buttonColor
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun PostCard(
-    content: String,
-    lc: Int,
-    dlc: Int,
-    token: String,
-    postId: String,
-    isLiked: Int,
-    isDisliked: Int,
-    byUser: String,
-    datetime: String,
+    item: PostItem,
+    token:String,
     viewModel: PostCardViewModel = viewModel(),
     navController: NavController?
 ) {
@@ -69,12 +64,12 @@ fun PostCard(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.padding(start = 5.dp, top = 10.dp)
                         .noRippleClickable {
-                            navController?.navigate(Routes.Profile.route + "/${byUser}")
+                            navController?.navigate(Routes.Profile.route + "/${item.byuser}")
                         }
 
                 ) {
                     AsyncImage(
-                        model = "$postUrl/images/$byUser",
+                        model = "$postUrl/images/${item.byuser}",
                         contentDescription = "icon",
                         placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
                         modifier = Modifier
@@ -89,7 +84,7 @@ fun PostCard(
                                 .padding(start = 10.dp)
                         ) {
                             Text(
-                                text = byUser,
+                                text = item.byuser,
                                 color = MaterialTheme.colors.onBackground,
                                 textAlign = TextAlign.Center,
                                 fontSize = 16.sp,
@@ -103,7 +98,7 @@ fun PostCard(
                                 .padding(start = 10.dp)
                         ) {
                             Text(
-                                text = datetime,
+                                text = item.datetime,
                                 color = MaterialTheme.colors.onBackground,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Light
@@ -117,10 +112,10 @@ fun PostCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 65.dp, end = 5.dp, top = 13.dp)
+                    .padding(start = 65.dp, end = 5.dp, top = 10.dp)
             ) {
                 Text(
-                    text = content,
+                    text = item.content,
                     color = MaterialTheme.colors.onBackground,
                     fontSize = 20.sp,
                     fontFamily = FontFamily.SansSerif
@@ -133,34 +128,33 @@ fun PostCard(
             ) {
                 IconButton(
                     onClick = {
-                        viewModel.updateLike(context, postId, token)
+                        viewModel.updateLike(context, item.postId, token)
                     }) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
                         contentDescription = "Like Button",
-                        tint = if (isLiked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
+                        tint = if (item.isliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
                     )
                 }
                 Text(
-                    text = lc.toString(),
+                    text = item.lc.toString(),
                     color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.padding(top = 15.dp)
                 )
                 IconButton(
                     onClick = {
-                        scope.launch {
-                            viewModel.updateDislike(context, postId, token)
-//                                likeCallback()
+                        scope.launch(IO) {
+                            viewModel.updateDislike(context, item.postId, token)
                         }
                     }) {
                     Icon(
                         imageVector = Icons.Default.ThumbDown,
                         contentDescription = "dislike Button",
-                        tint = if (isDisliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
+                        tint = if (item.isdisliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
                     )
                 }
                 Text(
-                    text = dlc.toString(),
+                    text = item.dlc.toString(),
                     color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.padding(top = 15.dp)
                 )
@@ -179,15 +173,8 @@ fun postprev() {
         shape = RoundedCornerShape(20.dp),
     ) {
         PostCard(
-            content = LoremIpsum(30).values.joinToString(),
-            lc = 1,
-            dlc = 1,
-            token = "",
-            postId = "1",
-            isLiked = 1,
-            isDisliked = 1,
-            byUser = "username",
-            datetime = "11111",
+            PostItem("",LoremIpsum(30).values.joinToString(),1,1,1,1,"username","11-11-111"),
+            "",
             navController = NavController(LocalContext.current)
         )
     }

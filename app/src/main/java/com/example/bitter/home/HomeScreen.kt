@@ -36,8 +36,8 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     outerNavController: NavController,
@@ -49,10 +49,6 @@ fun HomeScreen(
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
     val editor = keyPref.edit()
-    viewModel.uname = uname
-    viewModel.token = token
-    viewModel.editor = editor
-    viewModel.navController = outerNavController
     var isRefreshing by remember{
         mutableStateOf(false)
     }
@@ -71,17 +67,23 @@ fun HomeScreen(
     )
 
     val posts = viewModel.updatePosts(context).observeAsState(listOf())
+
+    val reversed by remember(posts.value) {
+        derivedStateOf {
+            posts.value.reversed()
+        }
+    }
+
     val refreshScope = rememberCoroutineScope()
 
     fun refresh() = refreshScope.launch {
         isRefreshing = true
         try {
             viewModel.updateLikes(context, token)
-            viewModel.fetchNewPosts(context, latestPost = keyPref.getString("post", "0") ?: "0")
+            viewModel.fetchNewPosts(token?:"",context, latestPost = keyPref.getString("post", "0") ?: "0",editor)
         } catch (e: Exception) {
             toast.show()
         }
-//        delay(1000)
         isRefreshing = false
     }
 
@@ -117,7 +119,7 @@ fun HomeScreen(
                     ) {
                         DropdownMenuItem(onClick = {
                             try {
-                                viewModel.logout(context)
+                                viewModel.logout(editor,context, outerNavController,token?:"")
                             } catch (e: Exception) {
                                 toast.show()
                             }
@@ -152,33 +154,26 @@ fun HomeScreen(
                 .pullRefresh(state)
         ) {
 
-                LazyColumn(
-                    state = listState,
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                )
-                {
-                    if (!isRefreshing) {
-                        items(posts.value.asReversed()) { item ->
-                            PostCard(
-                                content = item.content,
-                                lc = item.lc,
-                                dlc = item.dlc,
-                                token = token ?: "",
-                                postId = item.postId,
-                                isLiked = item.isliked,
-                                isDisliked = item.isdisliked,
-                                byUser = item.byuser,
-                                datetime = item.datetime,
-                                navController = innerNavController
-                            )
-                        }
+            LazyColumn(
+                state = listState,
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+            )
+            {
+                if (!isRefreshing) {
+                    items(items = reversed) { item ->
+                        PostCard(
+                            item,
+                            token?:"",
+                            navController = innerNavController
+                        )
                     }
                 }
-                showFloatingAction = listState.isScrollingDown()
+            }
+            showFloatingAction = listState.isScrollingDown()
             PullRefreshIndicator(isRefreshing, state, Modifier.align(Alignment.TopCenter))
         }
 
@@ -200,7 +195,7 @@ fun HomeScreen(
             if (t - backPressedTime > 2000) {
                 backPressedTime = t
                 Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
-            } else viewModel.logout(context)
+            } else viewModel.logout(editor,context, outerNavController,token?:"")
         } catch (e: Exception) {
             toast.show()
         }
