@@ -49,26 +49,16 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun EditProfileScreenSetup(navController: NavController) {
 
     removeCoilCache(LocalContext.current)
-    EditProfileScreen(navController)
-
-    BackHandler {
-        navController.navigate(Routes.MainScreen.route)
-    }
-}
-
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Composable
-fun EditProfileScreen(navController: NavController) {
     val viewModel = viewModel<EditProfileViewModel>()
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
-    val editor = keyPref.edit()
     val coroutineScope = rememberCoroutineScope()
     val fname by viewModel.fname.collectAsState()
     val lname by viewModel.lname.collectAsState()
@@ -79,27 +69,25 @@ fun EditProfileScreen(navController: NavController) {
     val imageSelected by viewModel.checked.collectAsState()
     val details by viewModel.details.collectAsState()
     val bio by viewModel.bio.collectAsState()
-    val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
-
+    val toast = Toast.makeText(
+        LocalContext.current,
+        "Cannot connect, please check your network connection",
+        Toast.LENGTH_LONG
+    )
     val imageUri = viewModel.imageUri
-
     val bitmap = viewModel.bitmap
-
     val launcher = rememberLauncherForActivityResult(
         contract =
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) viewModel.setVal("checked",false)
+        if (uri != null) viewModel.setVal("checked", false)
         viewModel.setImage(uri)
     }
     imageUri?.let {
         val source = ImageDecoder.createSource(context.contentResolver, it)
         viewModel.setImageBitmap(ImageDecoder.decodeBitmap(source))
     }
-
     val dialogState = rememberMaterialDialogState()
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -117,14 +105,18 @@ fun EditProfileScreen(navController: NavController) {
                     ) {
                         IconButton(onClick = {
                             try {
-                                viewModel.saveButtonClick(token,navController)
+                                viewModel.saveButtonClick(token)
                                 bitmap?.let {
                                     coroutineScope.launch {
-                                        ApiService.postImage(token?:"",bitmap,context,uname?:"")
+                                        ApiService.postImage(
+                                            token ?: "",
+                                            bitmap,
+                                            context,
+                                            uname ?: ""
+                                        )
                                     }
                                 }
-                            }
-                            catch (e: Exception){
+                            } catch (e: Exception) {
                                 toast.show()
                             }
                         }) {
@@ -323,7 +315,9 @@ fun EditProfileScreen(navController: NavController) {
                     .noRippleClickable { dialogState.show() },
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
-                    disabledLabelColor = if (isSystemInDarkTheme()) Color(0xffb2b5b2) else Color(0xFF636c6b),
+                    disabledLabelColor = if (isSystemInDarkTheme()) Color(0xffb2b5b2) else Color(
+                        0xFF636c6b
+                    ),
                     disabledTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
                 ),
                 trailingIcon = {
@@ -341,11 +335,13 @@ fun EditProfileScreen(navController: NavController) {
                 value = bio,
                 onValueChange = { viewModel.setVal("bio", it) },
                 label = { Text(text = "Bio") },
-                        modifier = Modifier
-                        .fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
-                    disabledLabelColor = if (isSystemInDarkTheme()) Color(0xffb2b5b2) else Color(0xFF636c6b),
+                    disabledLabelColor = if (isSystemInDarkTheme()) Color(0xffb2b5b2) else Color(
+                        0xFF636c6b
+                    ),
                     disabledTextColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
                 ),
                 trailingIcon = {
@@ -375,18 +371,19 @@ fun EditProfileScreen(navController: NavController) {
             }
         }
     }
-
     if (details) {
         try {
-            viewModel.getUserDetails(token,navController,editor)
-        }
-        catch (e:Exception){
+            viewModel.getUserDetails(token)
+        } catch (e: Exception) {
             toast.show()
         }
     }
+    if (bio.count() > 255) {
+        viewModel.setVal("bio", bio.substring(0, 255))
+    }
 
-    if(bio.count() > 255){
-        viewModel.setVal("bio",bio.substring(0,255))
+    BackHandler {
+        navController.navigate(Routes.MainScreen.route)
     }
 }
 

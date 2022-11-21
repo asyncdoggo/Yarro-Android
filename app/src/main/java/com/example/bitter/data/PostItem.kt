@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "PostTable")
 data class PostItem(
     @PrimaryKey
-    var postId: String,
+    var postId: Int,
 
     @ColumnInfo(name = "content")
     var content: String,

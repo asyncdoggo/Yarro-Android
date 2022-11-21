@@ -11,22 +11,23 @@ abstract class PostDatabase: RoomDatabase() {
     abstract fun postDao(): PostDatabaseDao
 
     companion object {
-        private var INSTANCE: PostDatabase? = null
+        private const val DB_NAME = "post_database"
 
-        fun getInstance(context: Context): PostDatabase {
-            synchronized(this) {
-                var instance = INSTANCE
-                if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        PostDatabase::class.java,
-                        "post_database"
-                    ).fallbackToDestructiveMigration()
-                        .build()
-                    INSTANCE = instance
+        var instance: PostDatabase? = null
+        private set
+
+        fun setInstance(context: Context): PostDatabase? {
+            if (instance == null) {
+                synchronized(PostDatabase::class.java) {
+                    if (instance == null) {
+                        instance = Room.databaseBuilder(
+                            context.applicationContext,
+                            PostDatabase::class.java, DB_NAME
+                        ).build()
+                    }
                 }
-                return instance
             }
+            return instance
         }
     }
 }

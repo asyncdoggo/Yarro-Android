@@ -1,6 +1,5 @@
 package com.example.bitter.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bitter.data.PostDatabase
@@ -11,9 +10,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class PostCardViewModel : ViewModel() {
-    fun updateLike(context: Context, postId: String, token: String) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
+    fun updateLike(postId: Int, token: String) {
+        val postDao = PostDatabase.instance?.postDao()
 
         viewModelScope.launch {
             try {
@@ -22,12 +20,12 @@ class PostCardViewModel : ViewModel() {
                     "success" -> {
                         val data = response.data
                         if (data != null) {
-                            repository.update(
+                            postDao?.let { PostRepository(it) }?.update(
                                 postId,
-                                data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
-                                data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
+                                data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                                data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                                data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                                data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt() ?: 0,
                             )
                         }
                     }
@@ -37,9 +35,8 @@ class PostCardViewModel : ViewModel() {
         }
     }
 
-    suspend fun updateDislike(context: Context, postId: String, token: String) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
+    suspend fun updateDislike(postId: Int, token: String) {
+        val postDao = PostDatabase.instance?.postDao()
 
         try {
             val response = ApiService.likePost(postId, token, false)
@@ -47,12 +44,12 @@ class PostCardViewModel : ViewModel() {
                 "success" -> {
                     val data = response.data
                     if (data != null) {
-                        repository.update(
+                        postDao?.let { PostRepository(it) }?.update(
                             postId,
-                            data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
-                            data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
+                            data.jsonObject["lc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                            data.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                            data.jsonObject["islike"]?.jsonPrimitive?.content?.toInt() ?: 0,
+                            data.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt() ?: 0,
                         )
                     }
                 }

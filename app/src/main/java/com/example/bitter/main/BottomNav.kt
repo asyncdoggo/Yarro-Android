@@ -35,7 +35,9 @@ fun BottomNav(navController: NavController) {
                 selectedContentColor = MaterialTheme.colors.primary,
                 unselectedContentColor = MaterialTheme.colors.onPrimary,
                 alwaysShowLabel = true,
-                selected = currentRoute == if(item.route != Routes.Profile.route) item.route else item.route + "/{username}",
+                selected = currentRoute ==
+                        if(item.route == Routes.Profile.route) item.route + "/{username}"
+                        else item.route,
                 onClick = {
                     if(item.route == Routes.Home.route){
                         navController.navigate(item.route) {

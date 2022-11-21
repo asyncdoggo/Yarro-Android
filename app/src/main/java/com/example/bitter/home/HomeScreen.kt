@@ -44,10 +44,11 @@ fun HomeScreen(
     innerNavController: NavController,
     viewModel: HomeViewModel = viewModel()
 ) {
+    viewModel.getLatest()
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-    val uname = keyPref.getString("uname", null)
-    val token = keyPref.getString("token", null)
+    val uname = remember { keyPref.getString("uname", "") }
+    val token = remember { keyPref.getString("token", "") }
     val editor = keyPref.edit()
     var isRefreshing by remember{
         mutableStateOf(false)
@@ -66,11 +67,11 @@ fun HomeScreen(
         Toast.LENGTH_LONG
     )
 
-    val posts = viewModel.updatePosts(context).observeAsState(listOf())
+    val posts = viewModel.updatePosts()?.observeAsState(listOf())
 
-    val reversed by remember(posts.value) {
+    val reversed by remember(posts?.value) {
         derivedStateOf {
-            posts.value.reversed()
+            posts?.value?.reversed() ?: emptyList()
         }
     }
 
@@ -79,15 +80,17 @@ fun HomeScreen(
     fun refresh() = refreshScope.launch {
         isRefreshing = true
         try {
-            viewModel.updateLikes(context, token)
-            viewModel.fetchNewPosts(token?:"",context, latestPost = keyPref.getString("post", "0") ?: "0",editor)
+            viewModel.updateLikes(token)
+            viewModel.fetchNewPosts(
+                token?:""
+            )
         } catch (e: Exception) {
             toast.show()
         }
         isRefreshing = false
     }
 
-    val state = rememberPullRefreshState(isRefreshing,::refresh)
+    val pullRefreshState = rememberPullRefreshState(isRefreshing,::refresh)
 
     Scaffold(
         scaffoldState = rememberScaffoldState(),
@@ -119,7 +122,7 @@ fun HomeScreen(
                     ) {
                         DropdownMenuItem(onClick = {
                             try {
-                                viewModel.logout(editor,context, outerNavController,token?:"")
+                                viewModel.logout(editor, outerNavController, token?:"")
                             } catch (e: Exception) {
                                 toast.show()
                             }
@@ -151,7 +154,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pullRefresh(state)
+                .pullRefresh(pullRefreshState)
         ) {
 
             LazyColumn(
@@ -174,14 +177,14 @@ fun HomeScreen(
                 }
             }
             showFloatingAction = listState.isScrollingDown()
-            PullRefreshIndicator(isRefreshing, state, Modifier.align(Alignment.TopCenter))
+            PullRefreshIndicator(isRefreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         }
 
     }
 
     LaunchedEffect(key1 = true) {
         try {
-            viewModel.updateLikes(context, token)
+            refresh()
         } catch (e: Exception) {
             toast.show()
         }
@@ -195,7 +198,7 @@ fun HomeScreen(
             if (t - backPressedTime > 2000) {
                 backPressedTime = t
                 Toast.makeText(context, "Press back again to logout", Toast.LENGTH_SHORT).show()
-            } else viewModel.logout(editor,context, outerNavController,token?:"")
+            } else viewModel.logout(editor, outerNavController, token?:"")
         } catch (e: Exception) {
             toast.show()
         }

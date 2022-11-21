@@ -1,6 +1,5 @@
 package com.example.bitter.userprofile
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -20,10 +19,10 @@ class UserProfileViewModel(
     var bio = stateHandle.getStateFlow("bio","")
 
 
-    fun getPosts(context: Context,uname: String): LiveData<List<PostItem>> {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
-        return repository.getPosts(uname)
+    fun getPosts(uname: String): LiveData<List<PostItem>>? {
+        val postDao = PostDatabase.instance?.postDao()
+        val repository = postDao?.let { PostRepository(it) }
+        return repository?.getPosts(uname)
     }
 
     fun getName(token: String?, uname: String?){
@@ -40,27 +39,26 @@ class UserProfileViewModel(
             }
         }
     }
-    fun updateLikes(context: Context,token: String?) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
-        viewModelScope.launch {
-            val response = ApiService.updateLikeData(token)
-            if(response.status == "success") {
-                val data = response.data
-                if (data != null) {
-                    for(i in data.keys) {
-                        val item = data.getValue(i)
-                        repository.update(
-                            i,
-                            item.jsonObject["lc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["islike"]?.jsonPrimitive?.content?.toInt()?:0,
-                            item.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt()?:0,
-                        )
-                    }
-                }
-            }
-        }
-
-    }
+//    fun updateLikes(token: String?) {
+//        val postDao = PostDatabase.instance?.postDao()
+//        viewModelScope.launch {
+//            val response = ApiService.updateLikeData(token)
+//            if(response.status == "success") {
+//                val data = response.data
+//                if (data != null) {
+//                    for(i in data.keys) {
+//                        val item = data.getValue(i)
+//                        postDao?.let { PostRepository(it) }?.update(
+//                            i.toInt(),
+//                            item.jsonObject["lc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+//                            item.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt() ?: 0,
+//                            item.jsonObject["islike"]?.jsonPrimitive?.content?.toInt() ?: 0,
+//                            item.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt() ?: 0,
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 }

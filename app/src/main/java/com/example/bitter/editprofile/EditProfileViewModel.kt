@@ -1,6 +1,5 @@
 package com.example.bitter.editprofile
 
-import android.content.SharedPreferences.Editor
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -9,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.example.bitter.util.ApiService
 import kotlinx.coroutines.launch
 
@@ -35,7 +33,6 @@ class EditProfileViewModel(
 
     fun saveButtonClick(
         token: String?,
-        navController:NavController,
     ) {
         viewModelScope.launch {
             val response = ApiService.updateUserDetails(fname.value,lname.value,gender.value,mob.value,dob.value,bio.value,token)
@@ -53,9 +50,7 @@ class EditProfileViewModel(
     }
 
     fun getUserDetails(
-        token: String?,
-        navController: NavController,
-        editor: Editor
+        token: String?
     ) {
         viewModelScope.launch {
             val response = ApiService.getUserDetails(token)

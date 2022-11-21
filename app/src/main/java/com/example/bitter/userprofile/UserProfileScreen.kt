@@ -44,11 +44,11 @@ fun UserProfileScreen(
     val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val fullname = viewModel.fullname.collectAsState()
     val bio = viewModel.bio.collectAsState()
-    val posts = viewModel.getPosts(context,username).observeAsState(listOf())
+    val posts = viewModel.getPosts(username)?.observeAsState(listOf())
 
-    val reversed by remember(posts.value) {
+    val reversed by remember(posts?.value) {
         derivedStateOf {
-            posts.value.reversed()
+            posts?.value?.reversed() ?: emptyList()
         }
     }
 
@@ -57,106 +57,109 @@ fun UserProfileScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ){
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f),
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                if(username != uname) {
-                    IconButton(onClick = { innerNavController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
-                    }
-                }
-                Text(
-                    text = username,
-                    fontSize = 18.sp
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, bottom = 10.dp, top = 20.dp, end = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                AsyncImage(
-                    model = "$postUrl/images/$username",
-                    contentDescription = "image",
-                    placeholder = painterResource(id = R.drawable.ic_launcher_background),
+        ){
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
                     modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                )
-
-                Text(
-                    text = fullname.value,
-                    modifier = Modifier.padding(30.dp),
-                    fontSize = 16.sp
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp)
-            ) {
-                Text(
-                    text = bio.value,
-                    fontSize = 16.sp
-                )
-            }
-
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 20.dp)
-            ) {
-                if(username == uname) {
-                    OutlinedButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 25.dp, end = 25.dp)
-                            .size(35.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = MaterialTheme.colors.buttonColor,
-                            contentColor = Color.White
-                        ),
-                        onClick = { outerNavController.navigate(Routes.EditUserProfileScreen.route) }
-                    ) {
-                        Text(text = "Edit profile", fontSize = 14.sp)
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    if(username != uname) {
+                        IconButton(onClick = { innerNavController.popBackStack() }) {
+                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
+                        }
                     }
-                }
-            }
-
-            LazyColumn{
-                items(reversed) { item ->
-                    PostCard(
-                        item,
-                        token = token ?: "",
-                        navController = null
+                    Text(
+                        text = username,
+                        fontSize = 18.sp
                     )
                 }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, bottom = 10.dp, top = 20.dp, end = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    AsyncImage(
+                        model = "$postUrl/images/$username",
+                        contentDescription = "image",
+                        placeholder = painterResource(id = R.drawable.ic_launcher_background),
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                    )
+
+                    Text(
+                        text = fullname.value,
+                        modifier = Modifier.padding(30.dp),
+                        fontSize = 16.sp
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 20.dp)
+                ) {
+                    Text(
+                        text = bio.value,
+                        fontSize = 16.sp
+                    )
+                }
+
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp)
+                ) {
+                    if(username == uname) {
+                        OutlinedButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 25.dp, end = 25.dp)
+                                .size(35.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                backgroundColor = MaterialTheme.colors.buttonColor,
+                                contentColor = Color.White
+                            ),
+                            onClick = { outerNavController.navigate(Routes.EditUserProfileScreen.route) }
+                        ) {
+                            Text(text = "Edit profile", fontSize = 14.sp)
+                        }
+                    }
+                }
             }
 
-            LaunchedEffect(key1 = true){
-                try {
-                    viewModel.getName(token,username)
-                    viewModel.updateLikes(context,token)
-                }
-                catch (e:Exception){
-                    toast.show()
-                }
+
+            items(reversed) { item ->
+                PostCard(
+                    item,
+                    token = token ?: "",
+                    navController = null
+                )
+            }
+        }
+
+        LaunchedEffect(key1 = true){
+            try {
+                viewModel.getName(token,username)
+//                viewModel.updateLikes(token)
+            }
+            catch (e:Exception){
+                toast.show()
             }
         }
     }

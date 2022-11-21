@@ -42,9 +42,6 @@ fun PostCard(
     navController: NavController?
 ) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-
     Surface(
         elevation = 5.dp,
         shape = RoundedCornerShape(20.dp),
@@ -128,7 +125,7 @@ fun PostCard(
             ) {
                 IconButton(
                     onClick = {
-                        viewModel.updateLike(context, item.postId, token)
+                        viewModel.updateLike(item.postId, token)
                     }) {
                     Icon(
                         imageVector = Icons.Default.ThumbUp,
@@ -144,7 +141,7 @@ fun PostCard(
                 IconButton(
                     onClick = {
                         scope.launch(IO) {
-                            viewModel.updateDislike(context, item.postId, token)
+                            viewModel.updateDislike(item.postId, token)
                         }
                     }) {
                     Icon(
@@ -173,7 +170,7 @@ fun postprev() {
         shape = RoundedCornerShape(20.dp),
     ) {
         PostCard(
-            PostItem("",LoremIpsum(30).values.joinToString(),1,1,1,1,"username","11-11-111"),
+            PostItem(0,LoremIpsum(30).values.joinToString(),1,1,1,1,"username","11-11-111"),
             "",
             navController = NavController(LocalContext.current)
         )

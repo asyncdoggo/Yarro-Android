@@ -24,19 +24,10 @@ import androidx.navigation.NavController
 fun NewPostScreen(navController: NavController) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
-    val uname = keyPref.getString("uname", null)
     val token = keyPref.getString("token", null)
-    val editor = keyPref.edit()
     val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val viewModel = viewModel<NewPostViewModel>()
     val contentValue by viewModel.contentValue.collectAsState()
-
-
-
-    viewModel.uname = uname?:""
-    viewModel.token = token?:""
-    viewModel.editor = editor
-    viewModel.navController = navController
 
     BackHandler {
         navController.popBackStack()
@@ -69,7 +60,7 @@ fun NewPostScreen(navController: NavController) {
                             ) {
                                 IconButton(onClick = {
                                     try {
-                                        if(!viewModel.addPost()){
+                                        if(!viewModel.addPost(token?:"",navController)){
                                             toast1.show()
                                         }
                                     }

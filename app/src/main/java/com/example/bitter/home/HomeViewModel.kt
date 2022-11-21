@@ -1,6 +1,5 @@
 package com.example.bitter.home
 
-import android.content.Context
 import android.content.SharedPreferences.Editor
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -19,40 +18,45 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeViewModel : ViewModel() {
-    fun logout(editor: Editor,context: Context,navController:NavController,token: String) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
+
+    private var latestpost = 0
+
+    fun getLatest() {
+        viewModelScope.launch {
+            latestpost = PostDatabase.instance?.postDao()?.let { PostRepository(it).getLatest() }?:0
+        }
+    }
+
+    fun logout(editor: Editor, navController: NavController, token: String) {
+        val postDao = PostDatabase.instance?.postDao()
         editor.clear()
         editor.apply()
         viewModelScope.launch {
             ApiService.logout(token)
-            repository.deleteAll()
+            postDao?.let { PostRepository(it) }?.deleteAll()
             navController.navigate(Routes.LoginScreen.route)
         }
     }
 
-    fun updatePosts(context: Context): LiveData<List<PostItem>> {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
-        return repository.getAllPosts
+    fun updatePosts(): LiveData<List<PostItem>>? {
+        val postDao = PostDatabase.instance?.postDao()
+        val repository = postDao?.let { PostRepository(it) }
+        return repository?.getAllPosts
     }
 
-    suspend fun fetchNewPosts(token:String, context: Context, latestPost: String,editor:Editor) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
-
-        val response = ApiService.getPosts(token, latestPost)
+    suspend fun fetchNewPosts(token: String) {
+        val postDao = PostDatabase.instance?.postDao()
+        val response = ApiService.getPosts(token, latestpost)
         if (response.status == "success") {
             val data = response.data
             if (data != null && data.isNotEmpty()) {
-                var pid = "0"
                 for (i in data.keys) {
                     val item = data.getValue(i)
                     var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
                     datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-                    repository.insert(
+                    postDao?.let { PostRepository(it) }?.insert(
                         PostItem(
-                            postId = i,
+                            postId = i.toInt(),
                             content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
                             lc = item.jsonObject["lc"]?.jsonPrimitive?.int ?: 0,
                             dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int ?: 0,
@@ -62,18 +66,14 @@ class HomeViewModel : ViewModel() {
                             datetime = datetime
                         )
                     )
-                    pid = i
                 }
-                editor.putString("post", pid)
-                editor.apply()
             }
         }
 
     }
 
-    suspend fun updateLikes(context: Context, token: String?) {
-        val postDao = PostDatabase.getInstance(context).postDao()
-        val repository = PostRepository(postDao)
+    suspend fun updateLikes(token: String?) {
+        val postDao = PostDatabase.instance?.postDao()
 
         val response = ApiService.updateLikeData(token)
         if (response.status == "success") {
@@ -81,8 +81,8 @@ class HomeViewModel : ViewModel() {
             if (data != null) {
                 for (i in data.keys) {
                     val item = data.getValue(i)
-                    repository.update(
-                        pid = i,
+                    postDao?.let { PostRepository(it) }?.update(
+                        pid = i.toInt(),
                         lc = item.jsonObject["lc"]?.jsonPrimitive?.int ?: 0,
                         dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int ?: 0,
                         isliked = item.jsonObject["islike"]?.jsonPrimitive?.int ?: 0,

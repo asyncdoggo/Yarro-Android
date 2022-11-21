@@ -1,6 +1,5 @@
 package com.example.bitter.home
 
-import android.content.SharedPreferences
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,15 +12,10 @@ import kotlinx.coroutines.launch
 class NewPostViewModel(
     private val savedStateHandle: SavedStateHandle
 ) :ViewModel(){
-    var uname:String? = ""
-    var token:String? = ""
-    var editor: SharedPreferences.Editor? = null
-    var navController: NavController? = null
-
 
     var contentValue = savedStateHandle.getStateFlow("contentValue", "")
 
-    fun addPost(): Boolean {
+    fun addPost(token: String, navController: NavController): Boolean {
         if (contentValue.value.trim() == "") return false
         viewModelScope.launch {
             val response = ApiService.sendPost(token, contentValue.value)
@@ -29,7 +23,7 @@ class NewPostViewModel(
                 "success" -> {
                     savedStateHandle["contentValue"] = ""
                     viewModelScope.launch(Dispatchers.Main) {
-                        navController?.popBackStack()
+                        navController.popBackStack()
                     }
                 }
                 else -> {

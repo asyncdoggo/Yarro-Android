@@ -85,33 +85,30 @@ fun BottomNavHost(outerNavController: NavController) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val token = keyPref.getString("token", null)
-    val editor = keyPref.edit()
-//    val latestPost = keyPref.getString("post","0")
 
     val coroutineScope = rememberCoroutineScope()
 
 
-    val postDao = PostDatabase.getInstance(context).postDao()
-    val repository = PostRepository(postDao)
+    val postDao = PostDatabase.instance?.postDao()
+    val repository = postDao?.let { PostRepository(it) }
 
-    var latestPost: String?
+    var latestPost: Int?
 
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
-            latestPost = repository.getLatest()
+            latestPost = repository?.getLatest()
             try {
-                val response = ApiService.getPosts(token, latestPost?:"0")
+                val response = ApiService.getPosts(token, latestPost?:0)
                 if(response.status == "success"){
                     val data = response.data
                     if (data != null) {
-                        var pid = "0"
                         for(i in data.keys){
                             val item = data.getValue(i)
                             var datetime = item.jsonObject["datetime"]?.jsonPrimitive?.content.toString()
                             datetime = datetime.toDate()?.formatTo("dd MMM yyyy,  K:mm a") ?: ""
-                            repository.insert(
+                            repository?.insert(
                                 PostItem(
-                                    postId = i,
+                                    postId = i.toInt(),
                                     content = item.jsonObject["content"]?.jsonPrimitive?.content.toString(),
                                     lc = item.jsonObject["lc"]?.jsonPrimitive?.int?:0,
                                     dlc = item.jsonObject["dlc"]?.jsonPrimitive?.int?:0,
@@ -121,10 +118,7 @@ fun BottomNavHost(outerNavController: NavController) {
                                     datetime = datetime
                                 )
                             )
-                            pid = i
                         }
-                        editor.putString("post", pid)
-                        editor.apply()
                     }
                 }
             }

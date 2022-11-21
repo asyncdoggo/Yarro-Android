@@ -136,7 +136,7 @@ object ApiService{
         }.body()
     }
 
-    suspend fun getPosts(token: String?, post: String): PostResponseModel {
+    suspend fun getPosts(token: String?, post: Int): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/posts") {
             headers{
                 header("Cookie", "token=${token}")
@@ -209,7 +209,7 @@ object ApiService{
         }.body()
     }
 
-    suspend fun likePost(postId: String, token: String,like:Boolean): PostResponseModel {
+    suspend fun likePost(postId: Int, token: String,like:Boolean): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/like") {
             headers {
                 header("Cookie", "token=${token}")

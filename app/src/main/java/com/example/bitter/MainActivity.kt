@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import com.example.bitter.data.PostDatabase
 import com.example.bitter.main.MainNav
 import com.example.bitter.ui.theme.BitterTheme
 
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            PostDatabase.setInstance(this)
             BitterTheme {
                 MainNav()
                 BackHandler { finishAndRemoveTask() }
