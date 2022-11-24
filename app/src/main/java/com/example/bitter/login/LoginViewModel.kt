@@ -32,6 +32,16 @@ class LoginViewModel(
                     editor.apply()
                     navController.navigate(Routes.MainScreen.route)
                 }
+                "failure" -> {
+                    savedStateHandle["error"] = "An error occurred try again"
+                    savedStateHandle["loading"] = false
+                }
+                "email" -> {
+                    editor.putString("token",response.token)
+                        .putString("uname",response.uname)
+                    editor.apply()
+                    navController.navigate(Routes.VerifyScreen.route)
+                }
                 else -> {
                     savedStateHandle["error"] = response.status
                     savedStateHandle["loading"] = false

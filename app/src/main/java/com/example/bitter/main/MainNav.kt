@@ -4,15 +4,13 @@ import LoginScreen
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.*
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.bitter.LoadingScreen
 import com.example.bitter.data.PostDatabase
 import com.example.bitter.data.PostItem
@@ -23,22 +21,33 @@ import com.example.bitter.home.HomeScreen
 import com.example.bitter.home.NewPostScreen
 import com.example.bitter.home.formatTo
 import com.example.bitter.home.toDate
+import com.example.bitter.login.VerifyScreen
 import com.example.bitter.register.RegisterScreen
 import com.example.bitter.resetpass.ForgotPassScreen
 import com.example.bitter.userprofile.UserProfileScreen
 import com.example.bitter.util.ApiService
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainNav() {
-    val outerNavController = rememberNavController()
+    val outerNavController = rememberAnimatedNavController()
 
-    NavHost(
+    AnimatedNavHost(
         navController = outerNavController,
-        startDestination = "loadingscreen"
+        startDestination = "loadingscreen",
+        enterTransition = {
+            slideInHorizontally()
+        },
+        exitTransition = {
+            slideOutHorizontally()
+        }
     ) {
 
         composable(route = "loadingscreen"){
@@ -70,13 +79,17 @@ fun MainNav() {
         composable(Routes.NewPostScreen.route){
             NewPostScreen(navController = outerNavController)
         }
+        composable(Routes.VerifyScreen.route){
+            VerifyScreen(navController = outerNavController)
+        }
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun BottomNavHost(outerNavController: NavController) {
-    val innerNavController:NavHostController = rememberNavController()
+    val innerNavController = rememberAnimatedNavController()
 
     BackHandler {
         outerNavController.popBackStack()
@@ -92,11 +105,11 @@ fun BottomNavHost(outerNavController: NavController) {
     val postDao = PostDatabase.instance?.postDao()
     val repository = postDao?.let { PostRepository(it) }
 
-    var latestPost: Int?
+
 
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
-            latestPost = repository?.getLatest()
+            val latestPost = repository?.getLatest()
             try {
                 val response = ApiService.getPosts(token, latestPost?:0)
                 if(response.status == "success"){
@@ -130,7 +143,7 @@ fun BottomNavHost(outerNavController: NavController) {
     Scaffold(
         bottomBar = { BottomNav(navController = innerNavController) }
     ) {
-        NavHost(innerNavController, startDestination = Routes.Home.route) {
+        AnimatedNavHost(innerNavController, startDestination = Routes.Home.route) {
             composable(Routes.Home.route) {
                 HomeScreen(outerNavController = outerNavController, innerNavController = innerNavController)
             }

@@ -21,6 +21,7 @@ sealed class Routes(
     object MainScreen : Routes("MainScreen")
     object EditUserProfileScreen : Routes("EditUserProfileScreen")
     object NewPostScreen : Routes("NewPostScreen")
+    object VerifyScreen : Routes("verifyScreen")
 
     object Home: BottomNavItem("home", Icons.Default.Home,"home")
     object Profile: BottomNavItem("profile", Icons.Default.Person,"profile")

@@ -104,7 +104,10 @@ fun LoadingScreen(navController: NavController) {
                         val response = ApiService.checkLogin(token)
                         if (response.status == "success") {
                             navController.navigate(Routes.MainScreen.route)
-                        } else {
+                        }
+                        else if(response.status == "email"){
+                            navController.navigate(Routes.VerifyScreen.route)
+                        }else {
                             navController.navigate(Routes.LoginScreen.route)
                         }
                     } catch (e: Exception) {

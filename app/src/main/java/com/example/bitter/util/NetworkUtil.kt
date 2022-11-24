@@ -98,7 +98,7 @@ private val ktorHttpClient = HttpClient(Android){
 
 object ApiService{
     suspend fun login(username: String, password: String): StatusResponseModel {
-        try{
+        return try{
             val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
 
             val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
@@ -109,9 +109,10 @@ object ApiService{
             val token = e.setCookie()[0].value
             val f = e.body<StatusResponseModel>()
             f.token = token
-            return f
+            f
+        } catch (e: Exception){
+            StatusResponseModel(status = "failure")
         }
-        catch (e: Exception){ return StatusResponseModel(status = "failure") }
     }
 
     suspend fun register(username: String, password: String, email: String): StatusResponseModel {
@@ -122,7 +123,11 @@ object ApiService{
                put("email",email)
            })
         }
-        val token = e.setCookie()[0].value
+        var token = ""
+        try{
+            token = e.setCookie()[0].value
+        }
+        catch (_: Exception){}
         val f = e.body<StatusResponseModel>()
         f.token = token
         return f
@@ -252,6 +257,14 @@ object ApiService{
 
     suspend fun checkUpdates(): JsonObject {
         return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest").body()
+    }
+
+    suspend fun resendConfirm(token: String?) {
+        ktorHttpClient.post("$postUrl/api/resend_confirm") {
+            headers {
+                header("Cookie", "token=${token}")
+            }
+        }
     }
 
 }

@@ -36,7 +36,7 @@ class RegisterViewModel(
                         editor.putString("token",response.token)
                             .putString("uname",response.uname)
                         editor.apply()
-                        navController.navigate(Routes.MainScreen.route)
+                        navController.navigate(Routes.VerifyScreen.route)
                     }
                     else -> {
                         stateHandle["error"] = response.status
