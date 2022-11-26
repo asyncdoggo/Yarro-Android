@@ -9,7 +9,6 @@ import com.example.bitter.data.PostItem
 import com.example.bitter.data.PostRepository
 import com.example.bitter.util.ApiService
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class UserProfileViewModel(
@@ -39,26 +38,4 @@ class UserProfileViewModel(
             }
         }
     }
-//    fun updateLikes(token: String?) {
-//        val postDao = PostDatabase.instance?.postDao()
-//        viewModelScope.launch {
-//            val response = ApiService.updateLikeData(token)
-//            if(response.status == "success") {
-//                val data = response.data
-//                if (data != null) {
-//                    for(i in data.keys) {
-//                        val item = data.getValue(i)
-//                        postDao?.let { PostRepository(it) }?.update(
-//                            i.toInt(),
-//                            item.jsonObject["lc"]?.jsonPrimitive?.content?.toInt() ?: 0,
-//                            item.jsonObject["dlc"]?.jsonPrimitive?.content?.toInt() ?: 0,
-//                            item.jsonObject["islike"]?.jsonPrimitive?.content?.toInt() ?: 0,
-//                            item.jsonObject["isdislike"]?.jsonPrimitive?.content?.toInt() ?: 0,
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//
-//    }
 }

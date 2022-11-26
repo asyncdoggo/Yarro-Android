@@ -108,7 +108,7 @@ fun VerifyScreen(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            Button(onClick = { navController.navigate(Routes.LoginScreen.route) }) {
+            Button(onClick = { navController.navigate(Routes.LoadingScreen.route) }) {
                 Text(text = "continue")
             }
         }

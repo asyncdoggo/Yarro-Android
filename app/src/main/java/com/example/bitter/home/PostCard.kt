@@ -56,7 +56,7 @@ fun PostCard(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.padding(start = 5.dp, top = 10.dp)
                         .noRippleClickable {
-                            navController?.navigate(Routes.Profile.route + "/${item.byuser}")
+                            navController?.navigate(Routes.ProfileScreen.route + "/${item.byuser}")
                         }
 
                 ) {

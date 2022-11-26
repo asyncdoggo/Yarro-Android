@@ -43,7 +43,6 @@ fun LoadingScreen(navController: NavController) {
         mutableStateOf("")
     }
 
-
     val toast = Toast.makeText(
         LocalContext.current,
         "Cannot connect, please check your network connection",
@@ -103,7 +102,7 @@ fun LoadingScreen(navController: NavController) {
                     try {
                         val response = ApiService.checkLogin(token)
                         if (response.status == "success") {
-                            navController.navigate(Routes.MainScreen.route)
+                            navController.navigate(Routes.BottomNav.route)
                         }
                         else if(response.status == "email"){
                             navController.navigate(Routes.VerifyScreen.route)

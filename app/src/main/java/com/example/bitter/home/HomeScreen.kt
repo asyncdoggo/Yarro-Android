@@ -42,7 +42,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     outerNavController: NavController,
-    innerNavController: NavController,
     viewModel: HomeViewModel = viewModel()
 ) {
     viewModel.getLatest()
@@ -178,7 +177,7 @@ fun HomeScreen(
                         PostCard(
                             item,
                             "$token",
-                            navController = innerNavController
+                            navController = outerNavController
                         )
                         Spacer(
                             modifier = Modifier.fillMaxWidth()

@@ -13,9 +13,9 @@ import com.example.bitter.data.Routes
 @Composable
 fun BottomNav(navController: NavController) {
     val items = listOf(
-        Routes.Home,
+        Routes.HomeScreen,
 //        Routes.Chat,
-        Routes.Profile
+        Routes.ProfileScreen
     )
 
     val keyPref = LocalContext.current.getSharedPreferences("authkey", Context.MODE_PRIVATE)
@@ -36,10 +36,10 @@ fun BottomNav(navController: NavController) {
                 unselectedContentColor = MaterialTheme.colors.onPrimary,
                 alwaysShowLabel = true,
                 selected = currentRoute ==
-                        if(item.route == Routes.Profile.route) item.route + "/{username}"
+                        if(item.route == Routes.ProfileScreen.route) item.route + "/{username}"
                         else item.route,
                 onClick = {
-                    if(item.route == Routes.Home.route){
+                    if(item.route == Routes.HomeScreen.route){
                         navController.navigate(item.route) {
                             navController.graph.startDestinationRoute?.let { screen_route ->
                                 popUpTo(screen_route) {

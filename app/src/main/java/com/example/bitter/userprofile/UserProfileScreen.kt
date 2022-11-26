@@ -3,6 +3,7 @@ package com.example.bitter.userprofile
 import Bitter.R
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +27,6 @@ import com.example.bitter.home.PostCard
 import com.example.bitter.postUrl
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.bitter.data.Routes
 import com.example.bitter.ui.theme.buttonColor
 
@@ -34,8 +34,7 @@ import com.example.bitter.ui.theme.buttonColor
 fun UserProfileScreen(
     viewModel: UserProfileViewModel = viewModel(),
     outerNavController: NavController,
-    username: String,
-    innerNavController: NavHostController
+    username: String
 ) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
@@ -72,14 +71,18 @@ fun UserProfileScreen(
                         .fillMaxWidth()
                         .padding(10.dp)
                 ) {
-                    if(username != uname) {
-                        IconButton(onClick = { innerNavController.popBackStack() }) {
-                            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
-                        }
+
+                    IconButton(onClick = { outerNavController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "back",
+                            tint = MaterialTheme.colors.onBackground
+                        )
                     }
                     Text(
                         text = username,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colors.onBackground
                     )
                 }
                 Row(
@@ -145,7 +148,8 @@ fun UserProfileScreen(
 
             item{
                 Spacer(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .background(Color.Gray)
                         .size(1.dp)
                 )
@@ -159,7 +163,8 @@ fun UserProfileScreen(
                 )
 
                 Spacer(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .background(Color.Gray)
                         .size(1.dp)
                 )
@@ -176,6 +181,10 @@ fun UserProfileScreen(
                 toast.show()
             }
         }
+    }
+
+    BackHandler {
+        outerNavController.popBackStack()
     }
 }
 

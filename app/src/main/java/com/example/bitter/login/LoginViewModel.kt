@@ -30,7 +30,7 @@ class LoginViewModel(
                     editor.putString("token",response.token)
                         .putString("uname",response.uname)
                     editor.apply()
-                    navController.navigate(Routes.MainScreen.route)
+                    navController.navigate(Routes.BottomNav.route)
                 }
                 "failure" -> {
                     savedStateHandle["error"] = "An error occurred try again"

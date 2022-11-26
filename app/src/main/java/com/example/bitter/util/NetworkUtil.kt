@@ -59,12 +59,11 @@ fun removeCoilCache(context: Context) {
 }
 
 
-
 // KTOR CONFIG
 
 
-private val ktorHttpClient = HttpClient(Android){
-    install(ContentNegotiation){
+private val ktorHttpClient = HttpClient(Android) {
+    install(ContentNegotiation) {
         json(Json {
             prettyPrint = true
             isLenient = true
@@ -76,10 +75,10 @@ private val ktorHttpClient = HttpClient(Android){
         }
     }
 
-    install(Logging){
+    install(Logging) {
         logger = object : Logger {
             override fun log(message: String) {
-                Log.v("Logger ktor:",message)
+                Log.v("Logger ktor:", message)
             }
         }
         level = LogLevel.ALL
@@ -96,38 +95,42 @@ private val ktorHttpClient = HttpClient(Android){
     }
 }
 
-object ApiService{
+object ApiService {
     suspend fun login(username: String, password: String): StatusResponseModel {
-        return try{
-            val encoded = Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
+        val encoded =
+            Base64.encodeToString("$username:$password".encodeToByteArray(), Base64.DEFAULT)
 
-            val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
-                headers {
-                    header(HttpHeaders.Authorization, "Basic $encoded".trim())
-                }
+        val e: HttpResponse = ktorHttpClient.post("$postUrl/api/login") {
+            headers {
+                header(HttpHeaders.Authorization, "Basic $encoded".trim())
             }
-            val token = e.setCookie()[0].value
-            val f = e.body<StatusResponseModel>()
-            f.token = token
-            f
-        } catch (e: Exception){
-            StatusResponseModel(status = "failure")
         }
+        var token = ""
+
+        try {
+            token = e.setCookie()[0].value
+        } catch (_: Exception) {}
+
+        val f = e.body<StatusResponseModel>()
+        f.token = token
+        return f
+
+
     }
 
     suspend fun register(username: String, password: String, email: String): StatusResponseModel {
         val e: HttpResponse = ktorHttpClient.post("$postUrl/api/register") {
-           setBody(buildJsonObject {
-               put("uname",username)
-               put("passwd1",password)
-               put("email",email)
-           })
+            setBody(buildJsonObject {
+                put("uname", username)
+                put("passwd1", password)
+                put("email", email)
+            })
         }
         var token = ""
-        try{
+        try {
             token = e.setCookie()[0].value
+        } catch (_: Exception) {
         }
-        catch (_: Exception){}
         val f = e.body<StatusResponseModel>()
         f.token = token
         return f
@@ -135,15 +138,15 @@ object ApiService{
 
     suspend fun forgotPass(email: String): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/resetrequest") {
-           setBody(buildJsonObject {
-               put("email",email)
-           })
+            setBody(buildJsonObject {
+                put("email", email)
+            })
         }.body()
     }
 
     suspend fun getPosts(token: String?, post: Int): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/posts") {
-            headers{
+            headers {
                 header("Cookie", "token=${token}")
             }
             setBody(buildJsonObject {
@@ -172,38 +175,46 @@ object ApiService{
         }.body()
     }
 
-    suspend fun postImage(token : String, bitmap: Bitmap,context: Context,uname:String){
+    suspend fun postImage(token: String, bitmap: Bitmap, context: Context, uname: String) {
         return HttpClient(Android).submitFormWithBinaryData(
             url = "$postUrl/api/sendimage",
-            formData = formData{
+            formData = formData {
                 append("image", bitmapToPng(context, bitmap).readBytes(), Headers.build {
                     append(HttpHeaders.ContentDisposition, "filename=${uname}")
                 })
             }
-        ){
+        ) {
             headers {
                 header("Cookie", "token=${token}")
             }
         }.body()
     }
 
-    suspend fun updateUserDetails(fname: String, lname: String, gender: String, mob: String, dob: String,bio:String,token: String?): StatusResponseModel {
+    suspend fun updateUserDetails(
+        fname: String,
+        lname: String,
+        gender: String,
+        mob: String,
+        dob: String,
+        bio: String,
+        token: String?
+    ): StatusResponseModel {
         return ktorHttpClient.post("$postUrl/api/updatedata") {
             headers {
                 header("Cookie", "token=${token}")
             }
-           setBody(buildJsonObject {
-               put("fname", fname)
-               put("lname", lname)
-               put("gender", gender)
-               put("mob", mob)
-               put("dob", dob)
-               put("bio", bio)
-           })
+            setBody(buildJsonObject {
+                put("fname", fname)
+                put("lname", lname)
+                put("gender", gender)
+                put("mob", mob)
+                put("dob", dob)
+                put("bio", bio)
+            })
         }.body()
     }
 
-    suspend fun getFullName(token: String?, uname: String?): JsonObject{
+    suspend fun getFullName(token: String?, uname: String?): JsonObject {
         return ktorHttpClient.post("$postUrl/api/fullname") {
             headers {
                 header("Cookie", "token=${token}")
@@ -214,26 +225,25 @@ object ApiService{
         }.body()
     }
 
-    suspend fun likePost(postId: Int, token: String,like:Boolean): PostResponseModel {
+    suspend fun likePost(postId: Int, token: String, like: Boolean): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/like") {
             headers {
                 header("Cookie", "token=${token}")
             }
             setBody(buildJsonObject {
                 put("pid", postId)
-                if(like){
+                if (like) {
                     put("islike", 1)
-                }
-                else{
+                } else {
                     put("islike", 0)
                 }
             })
         }.body()
     }
 
-    suspend fun checkLogin(token: String):PostResponseModel {
+    suspend fun checkLogin(token: String): PostResponseModel {
         return ktorHttpClient.post("$postUrl/api/checklogin") {
-            headers{
+            headers {
                 header("Cookie", "token=${token}")
             }
         }.body()
@@ -256,7 +266,8 @@ object ApiService{
     }
 
     suspend fun checkUpdates(): JsonObject {
-        return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest").body()
+        return ktorHttpClient.get("https://api.github.com/repos/asyncdoggo/Bitter-Android/releases/latest")
+            .body()
     }
 
     suspend fun resendConfirm(token: String?) {
@@ -268,7 +279,6 @@ object ApiService{
     }
 
 }
-
 
 
 // !KTOR CONFIG

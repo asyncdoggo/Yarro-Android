@@ -36,13 +36,10 @@ import com.example.bitter.ui.theme.buttonColor
 
 
 @Composable
-fun RegisterScreen(navController: NavController) {
-
-
+fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = viewModel()) {
     BackHandler {
         navController.popBackStack()
     }
-    val viewModel = viewModel<RegisterViewModel>()
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val editor = keyPref.edit()

@@ -3,7 +3,6 @@ package com.example.bitter.main
 import LoginScreen
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
@@ -41,7 +40,7 @@ fun MainNav() {
 
     AnimatedNavHost(
         navController = outerNavController,
-        startDestination = "loadingscreen",
+        startDestination = Routes.LoadingScreen.route,
         enterTransition = {
             slideInHorizontally()
         },
@@ -50,17 +49,13 @@ fun MainNav() {
         }
     ) {
 
-        composable(route = "loadingscreen"){
+        composable(route = Routes.LoadingScreen.route){
             LoadingScreen(outerNavController)
         }
 
-
         composable(route = Routes.LoginScreen.route) {
-            LoginScreen(
-                navController = outerNavController
-            )
+            LoginScreen(navController = outerNavController)
         }
-
         composable(Routes.RegisterScreen.route) {
             RegisterScreen(navController = outerNavController)
         }
@@ -69,7 +64,7 @@ fun MainNav() {
             ForgotPassScreen(navController = outerNavController)
         }
 
-        composable(Routes.MainScreen.route) {
+        composable(Routes.BottomNav.route) {
             BottomNavHost(outerNavController)
         }
 
@@ -82,30 +77,54 @@ fun MainNav() {
         composable(Routes.VerifyScreen.route){
             VerifyScreen(navController = outerNavController)
         }
+
+
+        composable(
+            Routes.ProfileScreen.route + "/{username}",
+            arguments = listOf(navArgument("username") { type = NavType.StringType })
+        ) {
+            UserProfileScreen(
+                outerNavController = outerNavController,
+                username = it.arguments?.getString("username")?:""
+            )
+        }
     }
 }
+
+
 
 @OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun BottomNavHost(outerNavController: NavController) {
-    val innerNavController = rememberAnimatedNavController()
-
-    BackHandler {
-        outerNavController.popBackStack()
-    }
-
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val token = keyPref.getString("token", null)
-
     val coroutineScope = rememberCoroutineScope()
-
-
     val postDao = PostDatabase.instance?.postDao()
     val repository = postDao?.let { PostRepository(it) }
-
-
+    val innerNavController = rememberAnimatedNavController()
+    Scaffold(
+        bottomBar = { BottomNav(navController = innerNavController) }
+    ) {
+        AnimatedNavHost(innerNavController, startDestination = Routes.HomeScreen.route) {
+            composable(Routes.HomeScreen.route) {
+                HomeScreen(outerNavController = outerNavController)
+            }
+            composable(
+                Routes.ProfileScreen.route + "/{username}",
+                arguments = listOf(navArgument("username") { type = NavType.StringType })
+            ) {
+                UserProfileScreen(
+                    outerNavController = outerNavController,
+                    username = it.arguments?.getString("username")?:""
+                )
+            }
+//            composable(Routes.Chat.route) {
+//                ChatScreen(navController = innerNavController)
+//            }
+        }
+    }
 
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
@@ -136,30 +155,6 @@ fun BottomNavHost(outerNavController: NavController) {
                 }
             }
             catch (_:Exception){}
-        }
-    }
-
-
-    Scaffold(
-        bottomBar = { BottomNav(navController = innerNavController) }
-    ) {
-        AnimatedNavHost(innerNavController, startDestination = Routes.Home.route) {
-            composable(Routes.Home.route) {
-                HomeScreen(outerNavController = outerNavController, innerNavController = innerNavController)
-            }
-            composable(
-                Routes.Profile.route + "/{username}",
-                arguments = listOf(navArgument("username") { type = NavType.StringType })
-            ) {
-                UserProfileScreen(
-                    outerNavController = outerNavController,
-                    innerNavController = innerNavController,
-                    username = it.arguments?.getString("username")?:""
-                )
-            }
-//            composable(Routes.Chat.route) {
-//                ChatScreen(navController = innerNavController)
-//            }
         }
     }
 }

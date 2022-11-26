@@ -15,15 +15,21 @@ sealed class BottomNavItem(
 sealed class Routes(
     val route:String
 ){
+
     object LoginScreen : Routes("loginScreen")
     object RegisterScreen : Routes("registerScreen")
     object ForgotPassScreen : Routes("forgotPassScreen")
-    object MainScreen : Routes("MainScreen")
+    object LoadingScreen : Routes("LoadingScreen")
+
+    object HomeScreen: BottomNavItem("Home", Icons.Default.Home,"HomeScreen")
+    object ProfileScreen: BottomNavItem("Profile", Icons.Default.Person,"ProfileScreen")
+    object ChatScreen: BottomNavItem("Chat", Icons.Default.Chat,"ChatScreen")
+
+
+    object BottomNav : Routes("BottomNav")
     object EditUserProfileScreen : Routes("EditUserProfileScreen")
     object NewPostScreen : Routes("NewPostScreen")
     object VerifyScreen : Routes("verifyScreen")
 
-    object Home: BottomNavItem("home", Icons.Default.Home,"home")
-    object Profile: BottomNavItem("profile", Icons.Default.Person,"profile")
-    object Chat: BottomNavItem("chat", Icons.Default.Chat,"chat")
+
 }

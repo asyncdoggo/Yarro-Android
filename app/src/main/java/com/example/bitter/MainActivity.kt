@@ -14,7 +14,7 @@ import com.example.bitter.main.MainNav
 import com.example.bitter.ui.theme.BitterTheme
 
 
-var postUrl: String = "https://subpixel.pythonanywhere.com"
+var postUrl: String = "http://192.168.1.4:5005"
 
 class MainActivity : ComponentActivity() {
 

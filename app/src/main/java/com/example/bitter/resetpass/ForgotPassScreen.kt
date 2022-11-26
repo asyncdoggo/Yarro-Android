@@ -29,8 +29,7 @@ import androidx.navigation.NavController
 import com.example.bitter.ui.theme.buttonColor
 
 @Composable
-fun ForgotPassScreen(navController: NavController) {
-    val viewModel = viewModel<ForgotPassViewModel>()
+fun ForgotPassScreen(navController: NavController, viewModel: ForgotPassViewModel = viewModel()) {
 
     val email by viewModel.email.collectAsState()
 

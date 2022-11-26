@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
 import com.example.bitter.ui.theme.linkColor
@@ -383,7 +382,7 @@ fun EditProfileScreenSetup(navController: NavController) {
     }
 
     BackHandler {
-        navController.navigate(Routes.MainScreen.route)
+        navController.popBackStack()
     }
 }
 
