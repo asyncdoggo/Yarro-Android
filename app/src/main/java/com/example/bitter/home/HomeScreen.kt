@@ -24,6 +24,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -163,15 +164,26 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp),
             )
             {
+                item{
+                    Spacer(
+                        modifier = Modifier.fillMaxWidth()
+                            .background(Color.Gray)
+                            .size(1.dp)
+                    )
+                }
                 if (!isRefreshing) {
                     items(items = reversed) { item ->
                         PostCard(
                             item,
-                            token?:"",
+                            "$token",
                             navController = innerNavController
+                        )
+                        Spacer(
+                            modifier = Modifier.fillMaxWidth()
+                                .background(Color.Gray)
+                                .size(1.dp)
                         )
                     }
                 }

@@ -42,12 +42,7 @@ fun PostCard(
     navController: NavController?
 ) {
     val scope = rememberCoroutineScope()
-    Surface(
-        elevation = 5.dp,
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(5.dp)
-    ) {
-        Column(
+    Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -121,7 +116,7 @@ fun PostCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth()
-                    .padding(start = 40.dp)
+                    .padding(start = 53.dp)
             ) {
                 IconButton(
                     onClick = {
@@ -158,7 +153,6 @@ fun PostCard(
             }
 
         }
-    }
 }
 
 

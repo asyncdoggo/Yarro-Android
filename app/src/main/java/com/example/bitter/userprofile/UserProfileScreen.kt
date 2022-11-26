@@ -143,6 +143,13 @@ fun UserProfileScreen(
                 }
             }
 
+            item{
+                Spacer(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(Color.Gray)
+                        .size(1.dp)
+                )
+            }
 
             items(reversed) { item ->
                 PostCard(
@@ -150,6 +157,13 @@ fun UserProfileScreen(
                     token = token ?: "",
                     navController = null
                 )
+
+                Spacer(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(Color.Gray)
+                        .size(1.dp)
+                )
+
             }
         }
 
