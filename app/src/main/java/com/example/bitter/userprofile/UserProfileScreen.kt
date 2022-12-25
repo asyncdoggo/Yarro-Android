@@ -116,7 +116,8 @@ fun UserProfileScreen(
                 ) {
                     Text(
                         text = bio.value,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colors.onBackground
                     )
                 }
 

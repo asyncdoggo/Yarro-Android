@@ -4,7 +4,6 @@ import Bitter.R
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,11 +42,6 @@ fun LoadingScreen(navController: NavController) {
         mutableStateOf("")
     }
 
-    val toast = Toast.makeText(
-        LocalContext.current,
-        "Cannot connect, please check your network connection",
-        Toast.LENGTH_LONG
-    )
 
     Column(
         modifier = Modifier
@@ -98,22 +92,7 @@ fun LoadingScreen(navController: NavController) {
         } else {
             update = false
             if (uname != null && token != null) {
-                scope.launch {
-                    try {
-                        val response = ApiService.checkLogin(token)
-                        if (response.status == "success") {
-                            navController.navigate(Routes.BottomNav.route)
-                        }
-                        else if(response.status == "email"){
-                            navController.navigate(Routes.VerifyScreen.route)
-                        }else {
-                            navController.navigate(Routes.LoginScreen.route)
-                        }
-                    } catch (e: Exception) {
-                        toast.show()
-                        navController.navigate(Routes.LoginScreen.route)
-                    }
-                }
+                navController.navigate(Routes.BottomNav.route)
             } else {
                 scope.launch {
                     navController.navigate(Routes.LoginScreen.route)

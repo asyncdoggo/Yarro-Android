@@ -9,9 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +23,9 @@ fun NewPostScreen(navController: NavController) {
     val context = LocalContext.current
     val keyPref = context.getSharedPreferences("authkey", Context.MODE_PRIVATE)
     val token = keyPref.getString("token", null)
+    var enabled by remember {
+        mutableStateOf(true)
+    }
     val toast = Toast.makeText(LocalContext.current,"Cannot connect, please check your network connection",Toast.LENGTH_LONG)
     val viewModel = viewModel<NewPostViewModel>()
     val contentValue by viewModel.contentValue.collectAsState()
@@ -60,14 +61,21 @@ fun NewPostScreen(navController: NavController) {
                             ) {
                                 IconButton(onClick = {
                                     try {
-                                        if(!viewModel.addPost(token?:"",navController)){
-                                            toast1.show()
+                                        if(enabled){
+                                            enabled = false
+                                            if (!viewModel.addPost(token?:"",navController)){
+                                                toast1.show()
+                                                enabled = true
+                                            }
                                         }
                                     }
                                     catch (e:Exception){
                                         toast.show()
+                                        enabled = true
                                     }
-                                }) {
+                                },
+                                enabled = enabled
+                                ) {
                                     Icon(
                                         imageVector = Icons.Filled.Check,
                                         contentDescription = "Done"

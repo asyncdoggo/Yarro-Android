@@ -21,7 +21,7 @@ import com.example.bitter.ui.theme.BitterTheme
 @Composable
 fun UserChatScreen(
     navController: NavController,
-    viewModel: UserChatViewModel = viewModel()
+    viewModel: ChatListViewModel = viewModel()
 ) {
     val messages = viewModel.messageList
     val msg by viewModel.msg.collectAsState()

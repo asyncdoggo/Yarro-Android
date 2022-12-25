@@ -3,8 +3,6 @@ package com.example.bitter.chat
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,25 +11,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.bitter.postUrl
+import kotlin.random.Random
 
 @Composable
-fun ChatItem(uname:String) {
-    Card(
-        elevation = 5.dp,
-        backgroundColor = MaterialTheme.colors.background,
-        contentColor = MaterialTheme.colors.onBackground,
-        modifier = Modifier.padding(5.dp),
-        shape = RoundedCornerShape(10.dp)
-    ) {
+fun ChatItem(uname:String, message: String, navCallback: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    // TODO: GOTO User Chat uname
+                    navCallback()
                 }
         ) {
             AsyncImage(
@@ -42,12 +35,22 @@ fun ChatItem(uname:String) {
                     .padding(5.dp)
                     .size(40.dp)
             )
-            Text(
-                text = "uname",
-                modifier = Modifier.padding(start = 20.dp)
-            )
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = uname,
+                    fontSize = 17.sp,
+                    modifier = Modifier.padding(start = 5.dp)
+                )
+                Text(
+                    text = message,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colors.onBackground.copy(0.5f),
+                    modifier = Modifier.padding(start = 5.dp)
+                )
+            }
         }
-    }
+
 }
 
 @Preview(showSystemUi = true)
@@ -55,7 +58,7 @@ fun ChatItem(uname:String) {
 fun ChatPrev2() {
     LazyColumn{
         items(10){
-            ChatItem("username")
+            ChatItem(Random(5).nextInt().toString(), Random(10).nextInt().toString()){}
         }
     }
 }

@@ -128,6 +128,24 @@ fun BottomNavHost(outerNavController: NavController) {
 
     LaunchedEffect(key1 = true){
         coroutineScope.launch {
+            try {
+                val response = ApiService.checkLogin(token?:"")
+                when (response.status) {
+                    "success" -> {
+                    }
+                    "email" -> {
+                        outerNavController.navigate(Routes.VerifyScreen.route)
+                    }
+                    else -> {
+                        outerNavController.navigate(Routes.LoginScreen.route)
+                    }
+                }
+
+            } catch (_: Exception) {  }
+
+        }
+
+        coroutineScope.launch {
             val latestPost = repository?.getLatest()
             try {
                 val response = ApiService.getPosts(token, latestPost?:0)

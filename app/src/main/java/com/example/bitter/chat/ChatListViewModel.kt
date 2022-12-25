@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
-class UserChatViewModel(
+class ChatListViewModel(
     private val stateHandle: SavedStateHandle
 ):ViewModel() {
 

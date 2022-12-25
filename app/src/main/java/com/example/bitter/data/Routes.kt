@@ -21,6 +21,10 @@ sealed class Routes(
     object ForgotPassScreen : Routes("forgotPassScreen")
     object LoadingScreen : Routes("LoadingScreen")
 
+
+    object ChatListScreen : Routes("ChatListScreen")
+    object UserChatScreen : Routes("LoadingScreen")
+
     object HomeScreen: BottomNavItem("Home", Icons.Default.Home,"HomeScreen")
     object ProfileScreen: BottomNavItem("Profile", Icons.Default.Person,"ProfileScreen")
     object ChatScreen: BottomNavItem("Chat", Icons.Default.Chat,"ChatScreen")
