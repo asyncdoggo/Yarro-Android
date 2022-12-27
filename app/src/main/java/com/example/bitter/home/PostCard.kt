@@ -8,6 +8,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -29,7 +31,6 @@ import com.example.bitter.data.PostItem
 import com.example.bitter.data.Routes
 import com.example.bitter.noRippleClickable
 import com.example.bitter.postUrl
-import com.example.bitter.ui.theme.buttonColor
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
@@ -42,90 +43,61 @@ fun PostCard(
     navController: NavController?
 ) {
     val scope = rememberCoroutineScope()
-    Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(start = 5.dp, top = 10.dp)
-                        .noRippleClickable {
-                            navController?.navigate(Routes.ProfileScreen.route + "/${item.byuser}")
-                        }
-
-                ) {
-                    AsyncImage(
-                        model = "$postUrl/images/${item.byuser}",
-                        contentDescription = "icon",
-                        placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(50.dp)
-                    )
-
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 10.dp)
-                        ) {
-                            Text(
-                                text = item.byuser,
-                                color = MaterialTheme.colors.onBackground,
-                                textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.caption
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 10.dp)
-                        ) {
-                            Text(
-                                text = item.datetime,
-                                color = MaterialTheme.colors.onBackground,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Light
-                            )
-                        }
-                    }
-                }
-            }
-
-
+    Row{
+        Column{
+            AsyncImage(
+                model = "$postUrl/images/${item.byuser}",
+                contentDescription = "icon",
+                placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                modifier = Modifier
+                    .padding(5.dp)
+                    .clip(CircleShape)
+                    .size(55.dp)
+            )
+        }
+        Column() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 65.dp, end = 5.dp, top = 10.dp)
+                    .padding(top = 3.dp, end = 5.dp)
+                    .noRippleClickable {
+                        navController?.navigate(Routes.ProfileScreen.route + "/${item.byuser}")
+                    },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = item.content,
+                    text = item.byuser,
                     color = MaterialTheme.colors.onBackground,
-                    fontSize = 20.sp,
-                    fontFamily = FontFamily.SansSerif
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.caption
+                )
+                Text(
+                    text = item.datetime,
+                    color = MaterialTheme.colors.onBackground,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Light
                 )
             }
-
+            Text(
+                text = item.content,
+                color = MaterialTheme.colors.onBackground.copy(0.8f),
+                fontSize = 17.sp,
+                fontFamily = FontFamily.SansSerif
+            )
             Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(start = 53.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 IconButton(
                     onClick = {
                         viewModel.updateLike(item.postId, token)
                     }) {
                     Icon(
-                        imageVector = Icons.Default.ThumbUp,
-                        contentDescription = "Like Button",
-                        tint = if (item.isliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
+                        imageVector = if (item.isliked == 0) Icons.Outlined.ThumbUp else Icons.Filled.ThumbUp,
+                        contentDescription = "Like Button"
                     )
                 }
                 Text(
@@ -138,11 +110,11 @@ fun PostCard(
                         scope.launch(IO) {
                             viewModel.updateDislike(item.postId, token)
                         }
-                    }) {
+                    }
+                ) {
                     Icon(
-                        imageVector = Icons.Default.ThumbDown,
-                        contentDescription = "dislike Button",
-                        tint = if (item.isdisliked == 1) MaterialTheme.colors.buttonColor else MaterialTheme.colors.onBackground
+                        imageVector = if (item.isdisliked == 0) Icons.Outlined.ThumbDown else Icons.Filled.ThumbDown,
+                        contentDescription = "dislike Button"
                     )
                 }
                 Text(
@@ -151,8 +123,8 @@ fun PostCard(
                     modifier = Modifier.padding(top = 15.dp)
                 )
             }
-
         }
+    }
 }
 
 
@@ -164,7 +136,7 @@ fun postprev() {
         shape = RoundedCornerShape(20.dp),
     ) {
         PostCard(
-            PostItem(0,LoremIpsum(30).values.joinToString(),1,1,1,1,"username","11-11-111"),
+            PostItem(0,LoremIpsum(30).values.joinToString(),1,1,1,0,"username","11-11-111"),
             "",
             navController = NavController(LocalContext.current)
         )

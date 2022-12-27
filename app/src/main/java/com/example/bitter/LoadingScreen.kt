@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.bitter.data.Routes
 import com.example.bitter.util.ApiService
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -78,26 +77,28 @@ fun LoadingScreen(navController: NavController) {
         }
     }
 
-    val scope = rememberCoroutineScope()
     val version = stringResource(id = R.string.version)
     LaunchedEffect(key1 = true) {
-        val resp = ApiService.checkUpdates()
-        val appver = resp.jsonObject["tag_name"]?.jsonPrimitive?.content.toString()
-        if (version != appver) {
-            val downloadUrl =
-                resp.jsonObject["assets"]?.jsonArray?.get(0)?.jsonObject?.get("browser_download_url")?.jsonPrimitive?.content.toString()
-            url = downloadUrl
-            update = true
+        try {
+            val resp = ApiService.checkUpdates()
+            val appver = resp.jsonObject["tag_name"]?.jsonPrimitive?.content.toString()
+            if (version != appver) {
+                val downloadUrl =
+                    resp.jsonObject["assets"]?.jsonArray?.get(0)?.jsonObject?.get("browser_download_url")?.jsonPrimitive?.content.toString()
+                url = downloadUrl
+                update = true
 
-        } else {
-            update = false
-            if (uname != null && token != null) {
-                navController.navigate(Routes.BottomNav.route)
             } else {
-                scope.launch {
+                update = false
+                if (uname != null && token != null) {
+                    navController.navigate(Routes.BottomNav.route)
+                } else {
                     navController.navigate(Routes.LoginScreen.route)
                 }
             }
+        }
+        catch (_:Exception){
+            navController.navigate(Routes.LoginScreen.route)
         }
     }
 }

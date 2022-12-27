@@ -1,6 +1,5 @@
 package com.example.bitter.home
 
-import Bitter.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
@@ -12,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,16 +21,12 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.bitter.data.Routes
-import com.example.bitter.postUrl
 import io.ktor.utils.io.*
 import kotlinx.coroutines.launch
 
@@ -94,62 +88,23 @@ fun HomeScreen(
 
     Scaffold(
         scaffoldState = rememberScaffoldState(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "B-itter")
-                },
-                backgroundColor = MaterialTheme.colors.background,
-                contentColor = MaterialTheme.colors.onBackground,
-                actions = {
-                    Box(
-                        Modifier.wrapContentSize(Alignment.TopEnd)
-                    ) {
-                        IconButton(onClick = { expanded = true }) {
-                            AsyncImage(
-                                model = "$postUrl/images/$uname",
-                                contentDescription = "icon",
-                                placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(50.dp)
-                            )
-                        }
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        DropdownMenuItem(onClick = {
-                            try {
-                                viewModel.logout(editor, outerNavController, token?:"")
-                            } catch (e: Exception) {
-                                toast.show()
-                            }
-                        }) {
-                            Text(text = "Logout")
-                        }
-                    }
-                },
-                elevation = AppBarDefaults.TopAppBarElevation,
-            )
-        },
         floatingActionButton = {
             AnimatedVisibility(visible = showFloatingAction, enter = scaleIn(), exit = scaleOut()) {
                 FloatingActionButton(
                     onClick = {
                         outerNavController.navigate(Routes.NewPostScreen.route)
-                    }
+                    },
+
                 ) {
                     Icon(Icons.Filled.Add, "New Post")
                 }
             }
         },
+        floatingActionButtonPosition = FabPosition.End,
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxWidth()
-            .fillMaxHeight(0.9f)
-
+            .fillMaxHeight(0.92f)
     ) {
         Box(
             modifier = Modifier
@@ -181,7 +136,7 @@ fun HomeScreen(
                         )
                         Spacer(
                             modifier = Modifier.fillMaxWidth()
-                                .background(Color.Gray)
+                                .background(Color.Gray.copy(0.5f))
                                 .size(1.dp)
                         )
                     }
