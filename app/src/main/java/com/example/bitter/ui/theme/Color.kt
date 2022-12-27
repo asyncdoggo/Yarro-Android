@@ -8,7 +8,6 @@ val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
-val bgColorLight = Color(0xFFF3FCFF)
 
 val Colors.linkColor: Color
 @Composable
@@ -18,7 +17,6 @@ val Colors.buttonColor: Color
 @Composable
 get() = Color(0xff0065ff)
 
-
 val Colors.chatCardColor: Color
-    @Composable
-    get() = if(isLight) Color(0xffefefef) else Color(0xff5647d4)
+@Composable
+get() = if(isLight) Color(0xffefefef) else Color(0xff5647d4)

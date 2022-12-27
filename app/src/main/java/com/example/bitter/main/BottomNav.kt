@@ -22,8 +22,8 @@ fun BottomNav(navController: NavController) {
     val uname = keyPref.getString("uname", null)
 
     BottomNavigation(
-        backgroundColor = MaterialTheme.colors.secondary,
-        contentColor = MaterialTheme.colors.onSecondary
+        backgroundColor = MaterialTheme.colors.background,
+        contentColor = MaterialTheme.colors.onBackground
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
@@ -32,8 +32,8 @@ fun BottomNav(navController: NavController) {
                 icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
                 label = { Text(text = item.title,
                     fontSize = 9.sp) },
-                selectedContentColor = MaterialTheme.colors.primary,
-                unselectedContentColor = MaterialTheme.colors.onPrimary,
+                selectedContentColor = MaterialTheme.colors.secondary,
+                unselectedContentColor = MaterialTheme.colors.onBackground,
                 alwaysShowLabel = true,
                 selected = currentRoute ==
                         if(item.route == Routes.ProfileScreen.route) item.route + "/{username}"
